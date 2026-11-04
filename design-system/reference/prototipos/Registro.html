@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Registrar atividade</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/saaci/tokens.css">
+<link rel="stylesheet" href="ds/saaci/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#125a34}a:hover{color:#0c4627}
+.rg-pop{animation:rg-pop .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rg-pop{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.rg-pop{animation:none}}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="width: 390px; height: 844px; display: flex; flex-direction: column; overflow: hidden; background: var(--surface-sunken); color: var(--ink); font-family: var(--font-sans);">
+
+<sc-if value="{{form}}" hint-placeholder-val="{{true}}">
+<header class="sa-topbar" style="flex-shrink: 0;">
+<h1 class="sa-topbar-title">Registrar atividade</h1>
+<button class="sa-iconbtn" type="button">Fechar</button>
+</header>
+
+<main style="flex-grow: 1; min-height: 0; overflow-y: auto; padding: 4px 16px 24px; display: flex; flex-direction: column; gap: 24px;">
+
+<sc-if value="{{showErros}}" hint-placeholder-val="{{false}}">
+<div class="sa-notice sa-notice-danger" role="alert" tabindex="-1">
+<p class="sa-notice-title">Falta corrigir 2 coisas</p>
+<ul>
+<li><a href="#horas">Digite as horas que aparecem no certificado</a></li>
+<li><a href="#data">Digite a data em que a atividade terminou</a></li>
+</ul>
+</div>
+</sc-if>
+
+<sc-if value="{{semArquivo}}" hint-placeholder-val="{{false}}">
+<div class="sa-field">
+<span class="sa-label" id="up">Comprovante</span>
+<p class="sa-hint">PDF, JPG ou PNG, até 10 MB. Frente e verso? Junte os dois num PDF.</p>
+<div class="sa-upload" role="group" aria-labelledby="up" style="padding: 20px 16px; gap: 12px;">
+<button class="sa-btn sa-btn-primary sa-btn-block" type="button" style="min-height: 64px; gap: 10px; font-size: 17px;"><svg class="sa-icon sa-icon-lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v12H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>Tirar foto do comprovante</button>
+<button class="sa-btn sa-btn-secondary sa-btn-block" type="button"><svg class="sa-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h7l4.5 4.5v12.5H7z"></path><path d="M14 3.5V8h4.5"></path></svg>Escolher arquivo</button>
+<p class="sa-support">Um serviço de IA lê o seu comprovante. <a class="sa-link" href="#">Saiba o que guardamos</a></p>
+</div>
+</div>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px;">
+<li style="display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 12px; align-items: start;"><span style="width: 24px; height: 24px; box-sizing: border-box; border-radius: 50%; border: 1.5px solid var(--line-strong); display: grid; place-items: center; font: 600 12px/16px var(--font-sans); color: var(--ink-muted);">2</span><p class="sa-support" style="padding-top: 2px;">O app lê o certificado e sugere o item do formulário.</p></li>
+<li style="display: grid; grid-template-columns: 24px minmax(0, 1fr); column-gap: 12px; align-items: start;"><span style="width: 24px; height: 24px; box-sizing: border-box; border-radius: 50%; border: 1.5px solid var(--line-strong); display: grid; place-items: center; font: 600 12px/16px var(--font-sans); color: var(--ink-muted);">3</span><p class="sa-support" style="padding-top: 2px;">Você confere e vê quanto ela vale antes de registrar.</p></li>
+</ol>
+</sc-if>
+
+<sc-if value="{{temArquivo}}" hint-placeholder-val="{{true}}">
+<div class="sa-field">
+<span class="sa-label">Comprovante</span>
+<div class="sa-card sa-file">
+<svg class="sa-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h7l4.5 4.5v12.5H7z"></path><path d="M14 3.5V8h4.5"></path></svg>
+<span class="sa-file-main"><span class="sa-file-name">{{arquivo}}</span><span class="sa-support sa-num">{{tamanho}}</span></span>
+<button class="sa-btn sa-btn-tertiary" type="button">Trocar</button>
+</div>
+<sc-if value="{{lendo}}" hint-placeholder-val="{{false}}">
+<p class="sa-status" role="status" style="margin-top: 4px;"><span class="sa-spinner" aria-hidden="true"></span>Lendo seu certificado, cerca de 20 segundos</p>
+<p class="sa-support">A leitura só sugere. Você confere tudo, e nada é registrado antes de tocar em Registrar.</p>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{showSugestao}}" hint-placeholder-val="{{false}}">
+<section class="sa-card sa-suggest" aria-labelledby="sq">
+<p class="sa-suggest-q" id="sq">Parece ser este item. É esse mesmo?</p>
+<div class="sa-suggest-item">
+<span class="sa-cat-n">Item 7</span>
+<span class="sa-item-name">Curso na área de engenharia de computação</span>
+<span class="sa-item-rule">1h para cada 4h de curso, até 60h</span>
+</div>
+<div class="sa-suggest-actions">
+<button class="sa-btn sa-btn-primary" type="button">É esse</button>
+<button class="sa-btn sa-btn-secondary" type="button">Escolher outro</button>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{showPicker}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<label class="sa-label" for="q">Em qual item do formulário essa atividade entra?</label>
+<div class="sa-search">
+<svg class="sa-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M20 20l-4.2-4.2"></path></svg>
+<input class="sa-input" id="q" type="search" placeholder="Buscar, ex.: palestra" value="palestra">
+</div>
+<ul class="sa-items" role="listbox" aria-label="Itens do formulário" style="margin-top: 8px;">
+<li class="sa-item" role="option" aria-selected="false"><span class="sa-item-n">12</span><span><span class="sa-item-name">Participação em eventos técnicos ou científicos na área do curso</span><span class="sa-item-rule">4h por dia de evento, até 40h. Palestra dentro de evento entra aqui</span></span></li>
+<li class="sa-item" role="option" aria-selected="false"><span class="sa-item-n">13</span><span><span class="sa-item-name">Ouvinte em palestras da área do curso</span><span class="sa-item-rule">2h por palestra, até 30h</span></span></li>
+<li class="sa-item" role="option" aria-selected="false"><span class="sa-item-n">14</span><span><span class="sa-item-name">Palestrante em palestras da área do curso</span><span class="sa-item-rule">8h por palestra, até 30h</span></span></li>
+</ul>
+<p class="sa-support">A sugestão era o item 7. <button class="sa-link" type="button">Voltar para a sugestão</button></p>
+</div>
+</sc-if>
+
+<sc-if value="{{showRegra}}" hint-placeholder-val="{{false}}">
+<section class="sa-rule" aria-labelledby="rh">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+<p class="sa-rule-head" id="rh">{{r.head}}</p>
+<button class="sa-link" type="button" style="font-size: 14px; flex-shrink: 0;">Trocar item</button>
+</div>
+<p class="sa-rule-text">{{r.texto}}</p>
+<div class="sa-rule-fit"><span>Ainda cabem <b class="sa-num">{{r.cabem}}</b> neste item</span><span class="sa-support sa-num">{{r.usado}}</span></div>
+<div class="sa-bar" role="img" aria-label="{{r.usado}} usadas"><span style="width: {{r.pct}}%"></span></div>
+<table class="sa-calc" aria-live="polite">
+<caption>Quanto essa atividade vai contar</caption>
+<tbody>
+<tr><th scope="row">{{r.linha1}}</th><td>{{r.valor1}}</td></tr>
+<tr><th scope="row">Cabem neste item</th><td>{{r.cabem}}</td></tr>
+</tbody>
+<tfoot>
+<tr><th scope="row">Vai contar</th><td>{{r.conta}}</td></tr>
+</tfoot>
+</table>
+<sc-if value="{{r.temAviso}}" hint-placeholder-val="{{false}}">
+<p class="sa-inline sa-inline-warning">{{r.aviso}}</p>
+</sc-if>
+</section>
+</sc-if>
+
+<sc-if value="{{camposCurso}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 24px;">
+<div class="sa-field sa-field-read">
+<div class="sa-label-row"><label class="sa-label" for="n7">Nome da atividade</label><span class="sa-flag">Lido do certificado, confira</span></div>
+<input class="sa-input" id="n7" value="Curso de React com TypeScript">
+</div>
+<div class="sa-field sa-field-read">
+<div class="sa-label-row"><label class="sa-label" for="h7">Horas do certificado</label><span class="sa-flag">Lido do certificado, confira</span></div>
+<input class="sa-input" id="h7" inputmode="numeric" value="40">
+</div>
+<div class="sa-field sa-field-read">
+<div class="sa-label-row"><label class="sa-label" for="d7">Data em que a atividade terminou</label><span class="sa-flag">Lido do certificado, confira</span></div>
+<input class="sa-input" id="d7" inputmode="numeric" value="12/09/2026">
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{camposErro}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 24px;">
+<div class="sa-field sa-field-read">
+<div class="sa-label-row"><label class="sa-label" for="n8">Nome da atividade</label><span class="sa-flag">Lido do certificado, confira</span></div>
+<input class="sa-input" id="n8" value="Curso de React com TypeScript">
+</div>
+<div class="sa-field sa-field-error">
+<label class="sa-label" for="horas">Horas do certificado</label>
+<p class="sa-error" id="horasE">Digite as horas que aparecem no certificado, por exemplo 40.</p>
+<input class="sa-input" id="horas" inputmode="numeric" aria-invalid="true" aria-describedby="horasE" value="">
+</div>
+<div class="sa-field sa-field-error">
+<label class="sa-label" for="data">Data em que a atividade terminou</label>
+<p class="sa-error" id="dataE">Não conseguimos ler a data. Digite no formato dd/mm/aaaa, por exemplo 12/09/2026.</p>
+<input class="sa-input" id="data" inputmode="numeric" placeholder="dd/mm/aaaa" aria-invalid="true" aria-describedby="dataE" value="">
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{camposPalestra}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 24px;">
+<div class="sa-field sa-field-read">
+<div class="sa-label-row"><label class="sa-label" for="n13">Nome da atividade</label><span class="sa-flag">Lido do certificado, confira</span></div>
+<input class="sa-input" id="n13" value="Ciclo de Palestras Tech IFCE">
+</div>
+<div class="sa-field sa-field-read">
+<div class="sa-label-row"><label class="sa-label" for="q13">Quantas palestras</label><span class="sa-flag">Lido do certificado, confira</span></div>
+<input class="sa-input" id="q13" inputmode="numeric" value="3">
+</div>
+<fieldset class="sa-choices">
+<legend>A palestra foi avulsa ou fez parte de um evento?</legend>
+<div class="sa-choices-list">
+<label class="sa-choice"><input type="radio" name="ev" checked=""><span class="sa-choice-text">Foi avulsa<small>Conta neste item, 2h por palestra</small></span></label>
+<label class="sa-choice"><input type="radio" name="ev"><span class="sa-choice-text">Fez parte de um evento<small>Conta pelo item 12, por dia de evento</small></span></label>
+</div>
+</fieldset>
+<div class="sa-field sa-field-read">
+<div class="sa-label-row"><label class="sa-label" for="d13">Data em que a atividade terminou</label><span class="sa-flag">Lido do certificado, confira</span></div>
+<input class="sa-input" id="d13" inputmode="numeric" value="22/10/2026">
+</div>
+</div>
+</sc-if>
+
+</main>
+
+<footer style="flex-shrink: 0; padding: 12px 16px 16px; background: var(--surface); border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px;">
+<sc-if value="{{showConta}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; line-height: 20px;"><span style="color: var(--ink-muted);">Vai contar</span><b class="sa-num" style="font-size: 20px; line-height: 26px; font-weight: 600; color: {{contaCor}};">{{r.conta}}</b></div>
+</sc-if>
+<sc-if value="{{botaoAtivo}}" hint-placeholder-val="{{false}}">
+<button class="sa-btn sa-btn-primary sa-btn-block" type="button">Registrar</button>
+</sc-if>
+<sc-if value="{{botaoOff}}" hint-placeholder-val="{{true}}">
+<button class="sa-btn sa-btn-primary sa-btn-block" type="button" disabled="">Registrar</button>
+</sc-if>
+<sc-if value="{{enviando}}" hint-placeholder-val="{{false}}">
+<button class="sa-btn sa-btn-primary sa-btn-block" type="button" aria-busy="true"><span class="sa-spinner" aria-hidden="true"></span>Registrando</button>
+</sc-if>
+</footer>
+</sc-if>
+
+<sc-if value="{{sucesso}}" hint-placeholder-val="{{false}}">
+<main style="flex-grow: 1; min-height: 0; padding: 24px 16px; display: flex; flex-direction: column; justify-content: center;">
+<section class="sa-state" style="padding-top: 0;">
+<span class="sa-state-art sa-state-art-success" style="width: 56px; height: 56px; border-radius: 50%; background: var(--surface); border: 1px solid var(--line); display: grid; place-items: center;"><svg class="sa-icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 28px; height: 28px;"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+<span class="sa-display rg-pop" style="font-size: 56px; line-height: 60px; letter-spacing: -1.6px; color: var(--brand-text);">+10h</span>
+<h2 class="sa-title" style="margin-top: 8px;">Atividade registrada</h2>
+<p class="sa-support">Curso de React com TypeScript entrou no item 7.</p>
+</section>
+<section class="sa-card sa-total" aria-label="Seu total de horas" style="margin-top: 8px;">
+<div style="display: flex; align-items: baseline; gap: 8px;"><span class="sa-num" style="font-size: 20px; line-height: 26px; font-weight: 600;">51h</span><span class="sa-support">faltam para completar suas horas</span></div>
+<div class="sa-bar" role="progressbar" aria-valuemin="0" aria-valuemax="120" aria-valuenow="69" aria-label="69 de 120 horas" style="margin-top: 12px; height: 6px;"><span style="width: 57.5%"></span></div>
+<div class="sa-total-meta"><span>69h feitas</span><span>meta de 120h</span></div>
+</section>
+</main>
+<footer style="flex-shrink: 0; padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 8px;">
+<a class="sa-btn sa-btn-primary sa-btn-block" href="RegSemArquivo.dc.html">Registrar outra</a>
+<a class="sa-btn sa-btn-secondary sa-btn-block" href="Main.dc.html">Ver meu progresso</a>
+</footer>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"estado":{"editor":"enum","options":["semArquivo","lendo","sugestao","confirmada","escolherOutro","limite","cheio","erros","enviando","sucesso"],"default":"confirmada"},"tema":{"editor":"enum","options":["Claro","Escuro"],"default":"Claro"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var s = this.props.estado ?? 'confirmada';
+    var R7 = {
+      head: 'Item 7 · Curso na área de engenharia de computação',
+      texto: 'Cada 4h de curso contam 1h. A soma dos cursos deste item vai até 60h.',
+      cabem: '42,0h', usado: '18h de 60h', pct: 30,
+      linha1: '40h de curso ÷ 4', valor1: '10,0h', conta: '10,0h', temAviso: false, aviso: ''
+    };
+    var R7err = Object.assign({}, R7, { linha1: 'Horas do certificado ÷ 4', valor1: 'falta', conta: 'falta' });
+    var R13lim = {
+      head: 'Item 13 · Palestra como ouvinte',
+      texto: 'Cada palestra conta 2h, não importa quantas horas ela durou. Palestra dentro de evento conta pelo item 12.',
+      cabem: '4,0h', usado: '26h de 30h', pct: 86.7,
+      linha1: '3 palestras × 2h', valor1: '6,0h', conta: '4,0h', temAviso: true,
+      aviso: 'Essa atividade vale 6,0h, mas só cabem mais 4,0h neste item.'
+    };
+    var R13cheio = Object.assign({}, R13lim, {
+      cabem: '0,0h', usado: '30h de 30h', pct: 100, conta: '0,0h',
+      aviso: 'Palestras como ouvinte já chegaram ao limite de 30h. A atividade fica guardada, mas não soma horas. Os itens 6, 7 e 12 ainda têm espaço.'
+    });
+    var r = s === 'limite' ? R13lim : s === 'cheio' ? R13cheio : s === 'erros' ? R7err : R7;
+    var regra = ['confirmada', 'limite', 'cheio', 'erros', 'enviando'].indexOf(s) >= 0;
+    var palestra = s === 'limite' || s === 'cheio';
+    return {
+      theme: (this.props.tema ?? 'Claro') === 'Escuro' ? 'dark' : 'light',
+      form: s !== 'sucesso', sucesso: s === 'sucesso',
+      semArquivo: s === 'semArquivo', temArquivo: s !== 'semArquivo', lendo: s === 'lendo',
+      arquivo: palestra ? 'certificado-ciclo-palestras-tech-ifce.jpg' : 'certificado-curso-react-typescript.pdf',
+      tamanho: palestra ? '2,4 MB' : '1,2 MB',
+      showSugestao: s === 'sugestao', showPicker: s === 'escolherOutro',
+      showRegra: regra, r: r,
+      camposCurso: s === 'confirmada' || s === 'enviando', camposErro: s === 'erros', camposPalestra: palestra,
+      showErros: s === 'erros',
+      showConta: regra && s !== 'erros',
+      contaCor: s === 'cheio' ? 'var(--warning)' : 'var(--ink)',
+      botaoAtivo: ['confirmada', 'limite', 'cheio', 'erros'].indexOf(s) >= 0,
+      botaoOff: ['semArquivo', 'lendo', 'sugestao', 'escolherOutro'].indexOf(s) >= 0,
+      enviando: s === 'enviando'
+    };
+  }
+}
+</script>
+</body>
+</html>

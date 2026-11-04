@@ -1,0 +1,28 @@
+# Dependências
+node_modules/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# Panda CSS (gerado por `panda codegen`)
+src/styled-system/
+src/styled-system-studio/
+
+# Testes
+coverage/
+
+# Ambiente
+.env
+.env.local
+.env.*.local
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/*
+!.vscode/extensions.json

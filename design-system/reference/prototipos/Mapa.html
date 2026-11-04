@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Mapa do app SAACI</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/saaci/tokens.css">
+<link rel="stylesheet" href="ds/saaci/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#125a34}a:hover{color:#0c4627}
+.mp-chip{display:flex;flex-direction:column;gap:2px;padding:12px 16px;background:var(--surface);border:1px solid var(--line);border-radius:12px;color:inherit;text-decoration:none;min-width:150px}
+.mp-chip:hover{border-color:var(--line-strong)}
+.mp-arrow{color:var(--ink-subtle);font-size:20px;line-height:20px;align-self:center}
+.mp-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column}
+.mp-list{list-style:none;margin:12px 0 0;padding:0}
+.mp-link{position:relative;display:flex;align-items:center;gap:12px;min-height:44px;padding:10px 0;color:inherit;text-decoration:none;font-size:15px;line-height:22px}
+.mp-list li + li .mp-link::before{content:"";position:absolute;top:0;left:36px;right:0;border-top:1px solid var(--line)}
+.mp-n{width:24px;flex:none;text-align:right;font:500 13px/20px var(--font-sans);color:var(--ink-muted);font-variant-numeric:tabular-nums}
+.mp-link:hover .mp-t{color:var(--brand-text);text-decoration:underline;text-underline-offset:3px}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="width: 1880px; height: 2300px; box-sizing: border-box; padding: 64px 72px; display: flex; flex-direction: column; gap: 48px; background: var(--surface-sunken); color: var(--ink); font-family: var(--font-sans); overflow: hidden;">
+
+<header style="display: flex; align-items: flex-end; justify-content: space-between; gap: 32px;">
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<span style="display: flex; align-items: center; gap: 10px; font: 600 18px/24px var(--font-sans); color: var(--brand-text);"><img src="/_blob/fe745670b194fc6fe892aed80791e087" alt="" style="width: 32px; height: 32px;">SAACI</span>
+<h1 style="margin: 0; font-size: 48px; line-height: 54px; font-weight: 600; letter-spacing: -1px;">Mapa do app</h1>
+<p class="sa-support" style="font-size: 17px; line-height: 26px; max-width: 760px;">Todas as telas e fluxos, na ordem em que o aluno passa por eles. Cada cartão é uma fileira do canvas. No modo Play, toque numa tela para abri-la.</p>
+</div>
+<div style="display: flex; gap: 24px; font-size: 14px; line-height: 20px; color: var(--ink-muted);">
+<span><b class="sa-num" style="font-size: 28px; line-height: 32px; color: var(--ink); display: block;">{{totalTelas}}</b>telas</span>
+<span><b class="sa-num" style="font-size: 28px; line-height: 32px; color: var(--ink); display: block;">9</b>fluxos</span>
+</div>
+</header>
+
+<section aria-labelledby="jornada" style="display: flex; flex-direction: column; gap: 16px;">
+<h2 id="jornada" class="sa-label" style="margin: 0; font-size: 15px;">A jornada</h2>
+<div style="display: flex; align-items: stretch; gap: 12px; flex-wrap: wrap;">
+<a class="mp-chip" href="AcEntrar.dc.html"><span class="sa-caption">Sem sessão</span><span style="font-weight: 500;">Acesso</span></a>
+<span class="mp-arrow" aria-hidden="true">→</span>
+<a class="mp-chip" href="CursoBuscando.dc.html"><span class="sa-caption">1º login</span><span style="font-weight: 500;">Seu curso</span></a>
+<span class="mp-arrow" aria-hidden="true">→</span>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1.5px dashed var(--line-strong); border-radius: 16px;">
+<span class="sa-caption" style="padding-left: 4px;">Barra inferior, sempre à mão</span>
+<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+<a class="mp-chip" href="Main.dc.html"><span class="sa-caption">Aba 1</span><span style="font-weight: 500;">Início</span></a>
+<a class="mp-chip" href="CertComItens.dc.html"><span class="sa-caption">Aba 2</span><span style="font-weight: 500;">Atividades</span></a>
+<a class="mp-chip" href="RegSemArquivo.dc.html" style="border-color: var(--brand);"><span class="sa-caption" style="color: var(--brand-text);">Botão central</span><span style="font-weight: 500;">Registrar</span></a>
+<a class="mp-chip" href="Eventos.dc.html"><span class="sa-caption">Aba 4</span><span style="font-weight: 500;">Eventos</span></a>
+<a class="mp-chip" href="PerfEditando.dc.html"><span class="sa-caption">Aba 5</span><span style="font-weight: 500;">Perfil</span></a>
+</div>
+</div>
+<span class="mp-arrow" aria-hidden="true">→</span>
+<div style="display: flex; flex-direction: column; gap: 8px; justify-content: center;">
+<a class="mp-chip" href="DetConta.dc.html"><span class="sa-caption">Tocar numa atividade</span><span style="font-weight: 500;">Detalhe</span></a>
+<a class="mp-chip" href="FormPronto.dc.html"><span class="sa-caption">Ver meu pedido</span><span style="font-weight: 500;">Formulário</span></a>
+</div>
+</div>
+</section>
+
+<section aria-labelledby="fluxos" style="display: flex; flex-direction: column; gap: 16px; flex-grow: 1; min-height: 0;">
+<h2 id="fluxos" class="sa-label" style="margin: 0; font-size: 15px;">Fluxos e telas</h2>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: start;">
+<sc-for list="{{fluxos}}" as="f" hint-placeholder-count="9">
+<article class="mp-card">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+<span class="sa-caption">Fluxo {{f.n}} · {{f.qtd}} telas</span>
+<span class="sa-caption" style="color: var(--brand-text);">{{f.barra}}</span>
+</div>
+<h3 style="margin: 4px 0 0; font-size: 22px; line-height: 28px; font-weight: 600; letter-spacing: -0.2px;">{{f.nome}}</h3>
+<p class="sa-support" style="margin-top: 4px;">Entra por: {{f.entrada}}</p>
+<ul class="mp-list">
+<sc-for list="{{f.telas}}" as="t" hint-placeholder-count="5">
+<li><a class="mp-link" href="{{t.href}}"><span class="mp-n">{{t.n}}</span><span class="mp-t" style="flex: 1; min-width: 0;">{{t.nome}}</span><svg class="sa-icon sa-icon-sm" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--ink-subtle);"><path d="M9 6l6 6-6 6"></path></svg></a></li>
+</sc-for>
+</ul>
+<a class="sa-link" href="{{f.comp}}" style="margin-top: 12px; font-size: 14px; align-self: flex-start;">{{f.compTexto}}</a>
+</article>
+</sc-for>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"tema":{"editor":"enum","options":["Claro","Escuro"],"default":"Claro"},"$preview":{"width":1880,"height":2300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var F = [
+      { nome: 'Acesso', barra: 'Sem barra', entrada: 'abrir o app sem sessão', comp: 'Acesso.dc.html', telas: [
+        ['Entrar', 'AcEntrar'], ['Entrar, senha não confere', 'AcSenhaErrada'], ['Criar conta, senha fraca', 'AcCriarConta'], ['Criar conta, e-mail já cadastrado', 'AcJaCadastrado'],
+        ['Confirme seu e-mail', 'AcConfirme'], ['Recuperar senha', 'AcRecuperar'], ['Nova senha', 'AcNovaSenha'], ['Link expirado', 'AcLinkExpirado']] },
+      { nome: 'Seu curso', barra: 'Sem barra', entrada: 'primeiro login, depois de confirmar o e-mail', comp: 'Curso.dc.html', telas: [
+        ['Buscando o curso', 'CursoBuscando'], ['Curso não encontrado', 'CursoNaoEncontrado'], ['Confirmado, com a meta', 'CursoConfirmado']] },
+      { nome: 'Início', barra: 'Aba 1', entrada: 'aba Início, ou Ver meu painel no Seu curso', comp: '', telas: [
+        ['Vazio, primeiro acesso', 'Vazio'], ['Com atividades', 'Main'], ['Item no limite', 'NoLimite'], ['Horas completas', 'Completo']] },
+      { nome: 'Registrar atividade', barra: 'Botão central', entrada: 'botão Registrar da barra', comp: 'Registro.dc.html', telas: [
+        ['Sem arquivo', 'RegSemArquivo'], ['Enviando e lendo o arquivo', 'RegLendo'], ['Sugestão do item', 'RegSugestao'], ['Sugestão certa, confirmada', 'RegConfirmada'],
+        ['Sugestão errada, Escolher outro', 'RegEscolherOutro'], ['Item no limite', 'RegNoLimite'], ['Item cheio', 'RegCheio'], ['Resumo de erros', 'RegErros'],
+        ['Enviando', 'RegEnviando'], ['Atividade registrada', 'RegSucesso']] },
+      { nome: 'Atividades', barra: 'Aba 2', entrada: 'aba Atividades, ou um cartão do Início', comp: 'Certificados.dc.html', telas: [
+        ['Vazio', 'CertVazio'], ['Com itens', 'CertComItens'], ['Atividade que não conta', 'CertNaoConta'], ['Baixando', 'CertBaixando'], ['Erro com próximo passo', 'CertErro']] },
+      { nome: 'Detalhe da atividade', barra: 'Dentro de Atividades', entrada: 'tocar numa atividade em Atividades', comp: 'Detalhe.dc.html', telas: [
+        ['Conta inteira', 'DetConta'], ['Conta em parte', 'DetParcial'], ['Não conta', 'DetNaoConta'], ['Corrigir, passa do limite', 'DetEditar'],
+        ['Remover, confirmação', 'DetRemover'], ['Remoção confirmada', 'DetRemovida']] },
+      { nome: 'Formulário', barra: 'Dentro de Atividades', entrada: 'Ver meu pedido, ou o total completo do Início', comp: 'Pedido.dc.html', telas: [
+        ['Incompleto', 'FormIncompleto'], ['Pronto para conferir', 'FormPronto'], ['Pré-visualizar', 'FormPrevia'], ['Gerando o PDF', 'FormGerando'], ['Baixado, falta entregar', 'FormBaixado']] },
+      { nome: 'Perfil', barra: 'Aba 5', entrada: 'aba Perfil', comp: 'Conta.dc.html', telas: [
+        ['Editando a matrícula', 'PerfEditando'], ['Salvo', 'PerfSalvo'], ['Trocar curso com atividades', 'PerfTrocarCurso'], ['Apagar conta, confirmação', 'PerfApagar'], ['Conta apagada', 'PerfApagada']] },
+      { nome: 'Eventos', barra: 'Aba 4', entrada: 'aba Eventos', comp: '', telas: [
+        ['Em construção', 'Eventos']] }
+    ];
+    var total = 0;
+    var fluxos = F.map(function (f, i) {
+      total += f.telas.length;
+      return {
+        n: i + 1, nome: f.nome, barra: f.barra, entrada: f.entrada, qtd: f.telas.length,
+        comp: f.comp || '#', compTexto: f.comp ? 'Componente com todos os estados' : '',
+        telas: f.telas.map(function (t, j) { return { n: j + 1, nome: t[0], href: t[1] + '.dc.html' }; })
+      };
+    });
+    return {
+      theme: (this.props.tema ?? 'Claro') === 'Escuro' ? 'dark' : 'light',
+      fluxos: fluxos, totalTelas: total
+    };
+  }
+}
+</script>
+</body>
+</html>
