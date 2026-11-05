@@ -1,41 +1,15 @@
 // Faz o papel do backend enquanto ele não existe. Começa vazio e guarda no localStorage do navegador
 // o que a pessoa cria pela aplicação, então sobrevive à navegação e à recarga. Uma conta por navegador.
 
-export type ComprovanteMock = {
-  nome: string
-  tamanhoBytes: number
-  tipo: string
-  // Foto guardada em versão reduzida (ver copias.ts). PDF não tem cópia: só nome e tamanho.
-  hasCopiaReduzida: boolean
-}
-
-export type AtividadeMock = {
-  id: string
-  itemNumero: number
-  nome: string
-  quantidade: number
-  dataFim: string
-  registradaEm: string
-  comprovante: ComprovanteMock
-}
-
 export type ContaMock = {
   email: string
   senha: string
-  nome: string | null
-  matricula: string | null
-  cursoId: string | null
-  ingresso: string | null
-  isEmailConfirmado: boolean
-  linkEnviadoEm: string
 }
 
 export type MockDb = {
-  versao: 2
+  versao: 3
   conta: ContaMock | null
   hasSessao: boolean
-  atividades: AtividadeMock[]
-  shouldFalharProximoDownload: boolean
 }
 
 const STORAGE_KEY = 'saaci:mock'
@@ -53,7 +27,7 @@ export function lerDb(fallback: () => MockDb): MockDb {
 
   if (salvo) {
     const db = JSON.parse(salvo) as MockDb
-    if (db.versao === 2) return structuredClone(db)
+    if (db.versao === 3) return structuredClone(db)
   }
 
   memoria ??= fallback()

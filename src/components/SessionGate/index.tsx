@@ -9,21 +9,16 @@ import { LoadingState } from '@design-system'
 import { ROUTES } from '@/constants/routes'
 import { type Sessao, contaQueries } from '@/services/conta'
 
-export type GateMode = 'visitante' | 'pendente' | 'curso' | 'aluno'
+export type GateMode = 'visitante' | 'aluno'
 
-// Para onde vai quem chegou na rota errada para o estado da conta.
+// Para onde vai quem chegou na rota errada para o estado da sessão.
 export function destinoDaSessao(sessao: Sessao | null): string {
-  if (!sessao) return ROUTES.login
-  if (!sessao.isEmailConfirmado) return ROUTES.verificacao
-  if (!sessao.curso || !sessao.ingresso) return ROUTES.curso
-  return ROUTES.painel
+  return sessao ? ROUTES.inicio : ROUTES.login
 }
 
 const PERMITE: Record<GateMode, (sessao: Sessao | null) => boolean> = {
   visitante: (sessao) => sessao === null,
-  pendente: (sessao) => sessao !== null && !sessao.isEmailConfirmado,
-  curso: (sessao) => sessao !== null && sessao.isEmailConfirmado,
-  aluno: (sessao) => destinoDaSessao(sessao) === ROUTES.painel,
+  aluno: (sessao) => sessao !== null,
 }
 
 const noop = (): (() => void) => () => undefined
