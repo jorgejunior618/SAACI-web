@@ -8,12 +8,8 @@ SAACI-web/
 ├── panda.config.ts
 └── src/
     ├── app/                      rota, layout, prefetch. Nada mais
-    │   ├── (auth)/               login, cadastro, recuperar-senha
-    │   ├── (verificacao)/        verificacao (RF05)
-    │   ├── (curso)/              curso (primeiro login e troca sem atividades)
-    │   ├── (aluno)/              painel, atividades, atividades/[id], formulario, eventos, perfil
-    │   ├── (tarefa)/             atividades/nova, atividades/[id]/corrigir, formulario/previa
-    │   └── (livre)/              redefinir-senha, privacidade, conta-apagada
+    │   ├── (auth)/               login
+    │   └── (aluno)/              / (página pós-login, provisória)
     ├── features/<dominio>/<Tela>/
     │   ├── index.tsx  styles.ts  types.ts  schema.ts
     │   ├── Loading.tsx  Error.tsx  Empty.tsx
@@ -48,31 +44,30 @@ SAACI-web/
 
 ## Domínios
 
-| Domínio        | `features/` | `services/` | Responde por                   |
-| -------------- | ----------- | ----------- | ------------------------------ |
-| `autenticacao` | sim         | a criar     | sessão e conta (mock)          |
-| `atividades`   | sim         | sim         | registro e comprovante         |
-| `painel`       | sim         | não         | composição do progresso        |
-| `resumo`       | sim         | não         | composição do progresso        |
-| `formulario`   | sim         | não         | composição do progresso        |
-| `perfil`       | sim         | a criar     | curso e semestre               |
-| `regras`       | não         | a criar     | categorias, conversão, limites |
-| `progresso`    | não         | a criar     | cálculo único de horas (RNF20) |
+Hoje existem só os domínios do login. Os demais voltam quando cada tela for construída.
+
+| Domínio        | `features/`    | `services/` | Responde por                    |
+| -------------- | -------------- | ----------- | ------------------------------- |
+| `autenticacao` | sim (`Login`)  | `conta`     | entrar, sair e sessão (mock)    |
+| `inicio`       | sim (`Inicio`) | não         | página pós-login, só com o Sair |
+| `atividades`   | a criar        | a criar     | registro e comprovante          |
+| `painel`       | a criar        | não         | composição do progresso         |
+| `formulario`   | a criar        | não         | composição do progresso         |
+| `perfil`       | a criar        | a criar     | curso e semestre                |
+| `regras`       | não            | a criar     | categorias, conversão, limites  |
+| `progresso`    | não            | a criar     | cálculo único de horas (RNF20)  |
 
 Feature sem service é tela que só compõe. Service novo aparece quando a métrica tem dono próprio.
 
 ## Grupos de rota
 
-| Grupo           | Sessão (`SessionGate`)      | Barra inferior |
-| --------------- | --------------------------- | -------------- |
-| `(auth)`        | só sem sessão               | não            |
-| `(verificacao)` | e-mail ainda não confirmado | não            |
-| `(curso)`       | e-mail confirmado           | não            |
-| `(aluno)`       | conta com curso             | sim            |
-| `(tarefa)`      | conta com curso             | não            |
-| `(livre)`       | nenhuma                     | não            |
+| Grupo     | Sessão (`SessionGate`, modo) | Barra inferior |
+| --------- | ---------------------------- | -------------- |
+| `(auth)`  | só sem sessão (`visitante`)  | não            |
+| `(aluno)` | com sessão (`aluno`)         | não, por ora   |
 
-Quem chega no grupo errado vai para o lugar certo: Entrar, Confirme seu e-mail, Seu curso ou Início.
+Quem chega no grupo errado vai para o lugar certo: Entrar ou Início (`destinoDaSessao`). Grupos e
+modos novos (confirmação de e-mail, curso, tarefa) entram junto com as telas que os pedem.
 
 ## Arquivos de convenção do Next
 

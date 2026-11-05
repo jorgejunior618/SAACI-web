@@ -4,9 +4,10 @@ Aplicação web do SAACI, Sistema de Apoio Acadêmico Colaborativo do IFCE. Ajud
 as regras de atividades complementares, registrar comprovantes e acompanhar as horas antes de
 enviar o pedido à coordenação. Visão e requisitos estão no repositório `SAACI-produto`.
 
-> Fase atual: só front. O app começa vazio: crie a conta, confirme o e-mail pelo painel "Mock"
-> (só em desenvolvimento) e registre os certificados. Tudo fica no localStorage do navegador; das
-> fotos de comprovante fica uma cópia reduzida, e dos PDFs só o nome e o tamanho.
+> Fase atual: só front, reduzido ao login. Existem a tela de login (`/login`) e uma página
+> provisória depois de entrar (`/`), com o logo e o botão Sair. Não há cadastro: crie a conta de
+> exemplo pelo painel "Mock" (canto da tela, só em desenvolvimento) e entre com o e-mail e a senha
+> que ele mostra. Tudo fica no localStorage do navegador.
 
 ## Stack
 
@@ -23,6 +24,8 @@ nvm use
 pnpm install
 pnpm dev
 ```
+
+Não há variável de ambiente: sem backend, os dados vêm de um mock em `src/services/_mock/`.
 
 ## Scripts
 

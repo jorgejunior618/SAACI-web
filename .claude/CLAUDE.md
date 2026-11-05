@@ -29,6 +29,26 @@ A interface segue o design exportado em `design-system/`. Antes de criar ou alte
 `design-system/saaci-design-png/`. Do pacote valem tokens, cores, fonte, espaço e o resultado
 final; o HTML e o CSS de lá não são copiados.
 
+## Base atual (05/11/2026)
+
+O app foi reduzido ao login (`doc/decisoes.md`). Toda tela nova é validada pela equipe antes de entrar.
+
+- **Stack:** Next.js (App Router), React, TypeScript, Panda CSS só com `preset-base`, TanStack
+  Query, React Hook Form + Valibot, lucide-react, Vitest + Testing Library. Node 22 (`.nvmrc`) e
+  pnpm; ESLint, Prettier, Husky (lint-staged) e commitlint.
+- **Sem backend:** não há cliente HTTP nem variável de ambiente. `services/<dominio>` devolve
+  Promise sobre o mock em `services/_mock/` (localStorage `saaci:mock`), e só essa camada muda
+  quando o backend chegar.
+- **O que existe:** `/login` (`features/autenticacao/Login`, `services/conta`) e `/` (`features/inicio/Inicio`, logo e Sair).
+  `components/SessionGate` separa `(auth)` (sem sessão) de `(aluno)` (com sessão). A conta de
+  exemplo nasce pelo painel "Mock" (só em dev).
+- **Organização:** `app/` só roteia; tela em `features/<dominio>/<Tela>/`; componente com lógica
+  em 2+ telas em `components/`; UI pura em `src/@design-system/` (tokens → atoms → molecules →
+  organisms → templates), que não importa `services/`, `features/` nem `next/navigation`.
+- **Design system:** só entra o que está catalogado em `design-system/`, com as exceções
+  registradas em `doc/design-system.md`. Variação visual é `recipe.ts`; o resto, `styles.ts`.
+  Atualize `DS_REFERENCE.md` no mesmo commit.
+
 ## Regras sempre válidas
 
 - Fase atual: só front. Todo dado vem de mock em `services/<dominio>/<dominio>.mock.ts`.

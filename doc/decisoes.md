@@ -42,6 +42,22 @@ projeto: do pacote vieram tokens, fonte, cores, espaço e o resultado final de c
 | Botão de modo escuro no canto superior direito, em toda tela (03/11/2026) | Pedido explícito, além do design. Fica em `position: absolute` no `AppFrame`, por cima da tela, sem criar barra onde o design não tem. A barra de topo reserva o canto, e o aviso do topo de Confirme seu e-mail desce. O Automático continua no Perfil |
 | Marcadores visíveis onde falta dado real                                  | `[PRAZO DO RNF05]`, texto do aviso de privacidade e passo a passo de entrega (RF37)                                                                                                                                                                     |
 
+## Base reduzida ao login (05/11/2026)
+
+As telas tinham sido geradas sem validação da equipe. O projeto voltou ao ponto de partida: stack,
+arquitetura, design system e a tela de login. Telas e domínios voltam um a um, validados.
+
+| Decisão                                                     | Por quê                                                                                     |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Fica só o login; saem cadastro, recuperação e verificação   | Ponto de partida limpo; as outras telas voltam validadas                                    |
+| Depois de entrar, `/` mostra só o logo e o botão Sair       | Rota mínima protegida pelo `SessionGate`, sem antecipar a tela de Início                    |
+| Conta de exemplo criada pelo painel "Mock"                  | Sem cadastro, o mock vazio não teria conta; o mock continua começando vazio                 |
+| Sessão reduzida a `{ email }`, mock na `versao: 3`          | Curso, ingresso e confirmação dependiam de domínios removidos                               |
+| `SessionGate` com dois modos, `visitante` e `aluno`         | Os outros modos voltam com as telas de confirmação de e-mail e curso                        |
+| Design system: só o que está catalogado em `design-system/` | Componente de domínio do catálogo (TotalCard, RulePanel…) fica; `Checkbox`, fora dele, saiu |
+| `ThemeToggle`, `AppFrame` e `LoadingState` mantidos         | Fora do catálogo, mas são decisão da equipe ou aplicam regra de `fundamentos.md`            |
+| Nenhuma dependência removida                                | Todas seguem em uso pelo login, pelo design system ou pela configuração                     |
+
 ## Confirmado de `tecnica/`
 
 | Decisão                                 | Por quê                                                   |

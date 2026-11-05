@@ -5,6 +5,13 @@
 `docs/componentes.md` e o resultado de cada tela em `saaci-design-png/`. Dela vêm só valores e
 resultado final; o HTML e o CSS de lá não são copiados, os componentes são reescritos em Panda.
 
+## O que entra
+
+Só componente catalogado em `design-system/` (`docs/componentes.md`, `docs/fundamentos.md`, `css/`),
+mesmo que nenhuma tela o use ainda. Fora do catálogo, ficam só `ThemeToggle` (pedido da equipe, ver
+`decisoes.md`), `AppFrame` (coluna de 480px de `fundamentos.md`) e `LoadingState` (spinner grande
+de tela inteira).
+
 ## Níveis
 
 | Nível        | Contém                                       |
@@ -30,8 +37,9 @@ dois motivos precisam estar presentes.
 ## Tokens
 
 - Cores semânticas com versão clara e escura (`base` e `_dark`). O tema resolvido fica em
-  `data-theme` no `<html>`, escrito por um script antes da primeira pintura; o Perfil oferece
-  Automático, Claro e Escuro.
+  `data-theme` no `<html>`, escrito por um script antes da primeira pintura. Sem escolha salva, segue o
+  sistema (Automático); o `ThemeToggle` do `AppFrame` troca entre Claro e Escuro. A escolha do
+  Automático pela tela volta com o Perfil.
 - Só a `preset-base` do Panda: valor fora dos tokens do SAACI não tem nome.
 - Tipografia por `textStyle` (hero, display, heading, title, body, bodyStrong, support, label,
   caption), com a fonte Geist servida pelo próprio site via `next/font`.
@@ -39,8 +47,6 @@ dois motivos precisam estar presentes.
 - `brand.soft` só para opção marcada. `ink.subtle` nunca é texto de leitura. `danger.fill` só no
   botão destrutivo. `redemoinho` só no spinner grande.
 - Número de horas sempre com `tabular-nums`.
-- Exceção nomeada: a prévia do formulário (`PreviaFormulario/_components/Papel`) usa branco e tinta
-  fixos, porque representa o papel impresso nos dois temas.
 
 ## Recipes
 
