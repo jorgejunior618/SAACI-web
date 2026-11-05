@@ -1,5 +1,5 @@
 import { type MockDb, avisarMudanca, gravarDb, lerDb, limparDb } from './db'
-import { type Fixture, criarFixture } from './fixtures'
+import { CONTA_FIXTURE, type Fixture, criarFixture } from './fixtures'
 
 export { onMudanca } from './db'
 export type { ContaMock, MockDb } from './db'
@@ -26,6 +26,16 @@ export function writeDb(update: (db: MockDb) => MockDb | void): MockDb {
 // Ferramenta de desenvolvimento: volta ao começo, sem conta.
 export function apagarTudo(): void {
   limparDb()
+  avisarMudanca()
+}
+
+// Ferramenta de desenvolvimento: sem tela de cadastro, é assim que passa a existir uma conta para
+// entrar. Substitui a conta anterior, se houver, e começa sem sessão.
+export function criarContaDeExemplo(): void {
+  writeDb((db) => {
+    db.conta = { ...CONTA_FIXTURE }
+    db.hasSessao = false
+  })
   avisarMudanca()
 }
 

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { type ReactNode, useEffect, useState } from 'react'
 
 import { ROUTES } from '@/constants/routes'
-import { apagarTudo, onMudanca } from '@/services/_mock'
+import { CONTA_FIXTURE, apagarTudo, criarContaDeExemplo, onMudanca } from '@/services/_mock'
 
 import * as S from './styles'
 
@@ -40,6 +40,21 @@ export function MockPanel(): ReactNode {
     <S.Panel role="dialog" aria-label="Ferramentas do mock">
       <S.Title>Ferramentas do mock (só em dev)</S.Title>
       <S.Hint>Os dados ficam no localStorage deste navegador.</S.Hint>
+      <button
+        type="button"
+        className={S.option}
+        onClick={() =>
+          executar(() => {
+            criarContaDeExemplo()
+            router.replace(ROUTES.login)
+          }, 'Conta de exemplo criada. Entre com ela.')
+        }
+      >
+        Criar conta de exemplo
+      </button>
+      <S.Hint>
+        E-mail {CONTA_FIXTURE.email}, senha {CONTA_FIXTURE.senha}.
+      </S.Hint>
       <button
         type="button"
         className={S.option}
