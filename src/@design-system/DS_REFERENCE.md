@@ -12,7 +12,6 @@ A referência visual é `design-system/` (tokens, catálogo e PNGs das telas).
 | `IconButton` / `IconLink`      | 48×48, texto opcional ("Fechar")                                                               | padrão, pressionado                                       |
 | `TextLink` / `TextButton`      | `tone`: brand, muted, danger                                                                   | padrão, desabilitado                                      |
 | `TextField`                    | `label`, `labelAside`, `hint`, `error`, `isRead`, `unreadMessage`, `action`, `leadingIcon`     | padrão, lido do certificado, não lido, erro, desabilitado |
-| `Checkbox`                     | input nativo                                                                                   | marcado, desmarcado                                       |
 | `ProgressBar`                  | `value`, `max`, `size` sm/lg, `label`                                                          | com rótulo vira progressbar acessível                     |
 | `StatusBadge`                  | `status`: conta, parcial, nao_conta                                                            | texto e cor                                               |
 | `Spinner`                      | `size` sm/lg                                                                                   | lg usa o redemoinho do logo                               |

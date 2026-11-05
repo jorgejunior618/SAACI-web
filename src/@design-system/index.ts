@@ -1,6 +1,5 @@
 export { Button, ButtonLink, buttonRecipe } from './atoms/Button'
 export { Card } from './atoms/Card'
-export { Checkbox } from './atoms/Checkbox'
 export { Icon } from './atoms/Icon'
 export { IconButton, IconLink } from './atoms/IconButton'
 export { InlineMessage } from './atoms/InlineMessage'

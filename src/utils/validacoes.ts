@@ -1,10 +1,3 @@
-export const DOMINIO_ALUNO = '@aluno.ifce.edu.br'
-
-export function isEmailAluno(email: string): boolean {
-  const normalizado = email.trim().toLowerCase()
-  return normalizado.endsWith(DOMINIO_ALUNO) && normalizado.length > DOMINIO_ALUNO.length
-}
-
 export type AvaliacaoSenha = {
   faltamCaracteres: number
   hasLetraENumero: boolean
@@ -19,9 +12,4 @@ export function avaliarSenha(senha: string): AvaliacaoSenha {
   const hasLetraENumero = /\p{L}/u.test(senha) && /\d/.test(senha)
 
   return { faltamCaracteres, hasLetraENumero, isValida: faltamCaracteres === 0 && hasLetraENumero }
-}
-
-// Semestre no formato 2023.2.
-export function isSemestre(texto: string): boolean {
-  return /^(19|20)\d{2}\.[12]$/.test(texto.trim())
 }
