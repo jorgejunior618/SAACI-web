@@ -23,20 +23,3 @@ export const Tagline = styled('p', {
 export const Form = styled('form', {
   base: { display: 'flex', flexDirection: 'column', gap: '6' },
 })
-
-export const Help = styled('p', {
-  base: { margin: '-12px 0 0', textStyle: 'support', color: 'ink.muted' },
-})
-
-export const Footer = styled('div', {
-  base: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2',
-    marginTop: 'auto',
-    paddingTop: '0',
-    textAlign: 'center',
-    textStyle: 'support',
-    color: 'ink.muted',
-  },
-})

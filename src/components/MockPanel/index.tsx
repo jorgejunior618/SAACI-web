@@ -74,13 +74,6 @@ export function MockPanel(): ReactNode {
       <button
         type="button"
         className={S.option}
-        onClick={() => router.push(`${ROUTES.redefinirSenha}?link=expirado`)}
-      >
-        Abrir um link de senha vencido
-      </button>
-      <button
-        type="button"
-        className={S.option}
         onClick={() =>
           executar(() => {
             apagarTudo()
