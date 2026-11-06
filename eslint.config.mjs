@@ -4,13 +4,7 @@ import prettier from 'eslint-config-prettier'
 
 const eslintConfig = [
   {
-    ignores: [
-      '.next/**',
-      'node_modules/**',
-      'src/styled-system/**',
-      'tecnica/**',
-      'design-system/**',
-    ],
+    ignores: ['.next/**', 'node_modules/**', 'src/styled-system/**', 'design-system/**'],
   },
   ...nextCoreWebVitals,
   ...nextTypescript,

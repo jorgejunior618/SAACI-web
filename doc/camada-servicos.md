@@ -1,39 +1,128 @@
 # Camada de serviços
 
-Fronteira entre as telas e a origem do dado. Hoje a origem é um mock guardado no navegador; quando o backend
-existir, só esta camada muda. `services/conta/` é o exemplo vivo.
+Fronteira entre as telas e a origem do dado. Feature nunca fala com o banco nem com o mock. Hoje a
+origem é um mock em memória; com o Supabase, só esta camada muda. Os trechos marcados com `> Alvo`
+descrevem o que vale quando a integração entrar.
 
 ## Arquivos de um domínio
 
-| Arquivo              | Responsabilidade                                              |
-| -------------------- | ------------------------------------------------------------- |
-| `<dom>.types.ts`     | schema Valibot e tipo de domínio                              |
-| `<dom>.mock.ts`      | o que só existe no mock (ex.: leitura do comprovante fingida) |
-| `<dom>.api.ts`       | leitura                                                       |
-| `<dom>.mutations.ts` | escrita e rotina de invalidação                               |
-| `<dom>.keys.ts`      | chaves de cache                                               |
-| `<dom>.queries.ts`   | definições de query reaproveitáveis                           |
-| `<dom>.errors.ts`    | erro de domínio nomeado, quando o primeiro aparecer           |
-| `index.ts`           | superfície pública, sem reexportar o mock                     |
+| Arquivo              | Responsabilidade                                                     |
+| -------------------- | -------------------------------------------------------------------- |
+| `<dom>.types.ts`     | schema Valibot e tipo de domínio                                     |
+| `<dom>.mock.ts`      | o backend fingido do domínio, em memória. Sai quando o domínio migra |
+| `<dom>.api.ts`       | leitura                                                              |
+| `<dom>.mutations.ts` | escrita (alvo: e RPC)                                                |
+| `<dom>.keys.ts`      | chaves de cache                                                      |
+| `<dom>.queries.ts`   | definições de query reaproveitáveis                                  |
+| `<dom>.errors.ts`    | erro de domínio nomeado, quando o primeiro aparecer                  |
+| `index.ts`           | superfície pública, sem reexportar o mock                            |
+
+Arquivo interno nunca importa do `index.ts` do próprio domínio: o `index.ts` reexporta as mutations, e
+importar por ele fecharia um ciclo.
+
+## Tipo de domínio
+
+O service devolve tipo de domínio em `camelCase`, inferido do schema Valibot. A row do banco, em
+`snake_case`, não vaza para a feature: é isso que desacopla a tela do schema do banco. Data trafega
+como `string`, porque `Date` não sobrevive ao `dehydrate` (`react-query.md`).
+
+```ts
+// conta.types.ts (formato esperado: hoje `Sessao` ainda é um `type` simples)
+export const SessaoSchema = v.object({
+  email: v.pipe(v.string(), v.email()),
+})
+
+export type Sessao = v.InferOutput<typeof SessaoSchema>
+```
 
 ## O mock
 
-`services/_mock/` faz o papel do backend: um banco em JSON no `localStorage` (`saaci:mock`), que
-**começa vazio**. Hoje ele guarda só a conta e a sessão (`versao: 3`).
+Cada domínio tem o seu `<dom>.mock.ts`: o backend fingido, **em memória e sem persistência**.
+Recarregar a página volta ao estado inicial, que começa vazio ou com o dado de exemplo que o domínio
+declarar. `<dom>.api.ts` e `<dom>.mutations.ts` falam só com esse arquivo.
 
 - O mock ordena, filtra e calcula ali dentro, não na tela.
 - A leitura devolve cópia (`structuredClone`), como uma resposta de rede faria.
-- Só existe uma conta por navegador: criar outra substitui a anterior.
-- O que o mock não consegue fazer pela tela fica no painel "Mock", que só aparece em
-  desenvolvimento. Sem tela de cadastro, é lá que se cria a conta de exemplo
-  (`criarContaDeExemplo()`, com `CONTA_FIXTURE`), e lá fica o botão que apaga tudo.
-- Testes montam o estado com `aplicarFixture()` (`_mock/fixtures.ts`).
-- Mudou o formato do banco, sobe `versao`: o formato antigo salvo no navegador é descartado.
+- Não existe pasta compartilhada de mock nem banco único. O que dois domínios dividirem de verdade
+  vira helper em `utils/` quando o segundo domínio precisar.
+- O mock simula a demora da rede, para os estados de carregamento aparecerem como vão aparecer de
+  verdade, e fica instantâneo nos testes.
+- Só o próprio domínio e os testes importam arquivo de mock (o ESLint passa a travar isso com o
+  esqueleto novo).
+
+Na migração, `<dom>.api.ts` e `<dom>.mutations.ts` trocam a chamada ao `<dom>.mock.ts` por
+`supabase-js`, e o mock do domínio é apagado no mesmo commit.
+
+> O código atual (`services/_mock/`, `MockPanel` e o `localStorage` `saaci:mock`) ainda guarda o
+> banco inteiro no navegador. É legado e sai no reset do projeto.
+
+## Leitura
+
+Toda saída passa por `v.parse`:
+
+```ts
+// conta.api.ts (formato esperado)
+export async function getSessao(): Promise<Sessao | null> {
+  const conta = await getContaComSessao()
+
+  return conta ? v.parse(SessaoSchema, { email: conta.email }) : null
+}
+```
+
+O parse é o contrato do service sendo conferido enquanto o mock existe, e o mesmo parse acusa a row
+fora do formato quando a fonte for o Supabase, antes de ela chegar na tela.
+
+## Escrita
+
+```ts
+// conta.mutations.ts (formato esperado)
+export async function entrar(email: string, senha: string): Promise<Sessao> {
+  const conta = await openSessao(normalizar(email), senha)
+
+  if (!conta) throw new SenhaNaoConfereError()
+  return toSessao(conta)
+}
+```
+
+## Tradução de erro
+
+O service traduz erro de domínio conhecido antes de lançar, e a tela nunca vê código nem mensagem de
+constraint. Erro sem tradução conhecida é **repassado intacto**, nunca engolido: traduzir só o que se
+conhece evita que um bug de rede vire "a senha não confere" na tela. `<dom>.errors.ts` entra quando
+a primeira tradução aparecer.
+
+`SenhaNaoConfereError` tem a mesma mensagem para e-mail desconhecido e senha errada. Dizer qual dos
+dois errou ajudaria quem tenta descobrir e-mails de aluno.
+
+## Quando o Supabase entrar
+
+> Alvo (Supabase): ainda não implementado.
+
+- **Cliente do banco.** A mesma função roda no servidor (prefetch) e no navegador. O cliente entra por
+  parâmetro, com o do navegador como padrão: `getAtividades(filtros, db = createClient())`. O Server
+  Component sempre passa o seu, porque **omitir no servidor cai no cliente do navegador, que não
+  enxerga o cookie de sessão: a busca volta vazia, sem erro nenhum**.
+- **Tradução de erro.** `invalid_credentials` vira `SenhaNaoConfereError` e `email_not_confirmed` vira
+  um erro próprio, que a tela leva à verificação (RF05).
+- **Escrita com comprovante.** O arquivo sobe antes, para a pasta do dono, e a RPC recebe só a
+  referência. Se a RPC falhar, o arquivo fica órfão e uma rotina agendada o limpa. O que o aluno
+  preencheu continua na tela (RNF24).
+- **Quando a leitura vira função SQL (RPC).** O `.select()` basta para lista simples. Vai para uma
+  função SQL o que o construtor não expressa sem erro silencioso: total do filtro inteiro (somar o
+  array recebido daria a soma **da página**), valor derivado de outras linhas (horas computadas
+  dependem da regra, do semestre e do máximo da categoria), filtro que atravessa tabela filha (use
+  `exists`, não join) e a prévia do formulário, que precisa passar pela mesma conta que grava
+  (RNF20). Lista e resumo são duas funções com chaves de cache próprias, o predicado do filtro mora
+  numa terceira compartilhada, e o detalhe não ganha função própria: chama a de lista com `limit 1`.
 
 ## Regras
 
-- O service devolve Promise, mesmo sobre o mock.
-- Toda saída do service passa por `v.parse`.
-- O service não conhece React nem TanStack Query.
+- Toda resposta passa por `v.parse` antes de sair do service.
 - Nome de função carrega o domínio: `createAtividade`, não `create`.
+- O service devolve Promise pura, mesmo sobre o mock, e não conhece React nem TanStack Query.
 - Erro sem tradução conhecida é lançado, nunca engolido. Quem trata é a tela.
+- Alvo: colunas são listadas (`select('*')` não), e filtro, ordenação e paginação vão na query, nunca
+  em array depois.
+- Alvo: função SQL com `returns table(...)` tem **toda** coluna marcada como não nula pelo gerador de
+  tipos, que não tem como saber. Quem sabe é o schema Valibot: deixe o `v.parse` recusar o que não
+  deveria vir nulo.

@@ -2,7 +2,7 @@
 
 Aplicação web do SAACI, Sistema de Apoio Acadêmico Colaborativo do IFCE. Ajuda o aluno a entender
 as regras de atividades complementares, registrar comprovantes e acompanhar as horas antes de
-enviar o pedido à coordenação. Visão e requisitos estão no repositório `SAACI-produto`.
+enviar o pedido à coordenação.
 
 > Fase atual: só front, reduzido ao login. Existem a tela de login (`/login`) e uma página
 > provisória depois de entrar (`/`), com o logo e o botão Sair. Não há cadastro: crie a conta de
@@ -11,7 +11,8 @@ enviar o pedido à coordenação. Visão e requisitos estão no repositório `SA
 
 ## Stack
 
-Next.js, Panda CSS, TanStack Query, React Hook Form e Valibot. Detalhes em
+Next.js, Panda CSS, TanStack Query, React Hook Form e Valibot. O backend será o Supabase, ainda não
+integrado. Detalhes em
 [`doc/tecnologia.md`](doc/tecnologia.md).
 
 ## Como rodar
@@ -40,7 +41,7 @@ Não há variável de ambiente: sem backend, os dados vêm de um mock em `src/se
 
 ## Documentação
 
-[`doc/`](doc/) reúne arquitetura, convenções e decisões, e
+[`doc/`](doc/) reúne arquitetura, convenções e o modelo de ADR para mudar regras, e
 [`.claude/CLAUDE.md`](.claude/CLAUDE.md) é o roteador por tarefa.
 
 ## Licença

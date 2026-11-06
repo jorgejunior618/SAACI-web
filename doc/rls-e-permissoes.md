@@ -1,0 +1,105 @@
+# RLS e permissões
+
+> Alvo (Supabase): nada deste documento está implementado. Vale como regra para quem escrever a
+> primeira migration.
+
+Autorização é decidida no banco. O front esconde botão por conveniência de UX, nunca como barreira
+(RNF04). O SAACI tem um papel só, o aluno, dono do que registra. Não há papel de coordenação no MVP;
+se aparecer, muda o alcance de todas as tabelas de uma vez e pede uma ADR.
+
+## Quem chama
+
+A identidade vem de `auth.uid()`, que lê o `sub` do JWT já verificado. Não há função de contexto
+própria nem consulta ao perfil dentro de policy. Uma policy que consultasse a própria tabela entraria
+em recursão infinita (`infinite recursion detected in policy`), o erro mais citado sobre RLS; lendo o
+dono direto de `auth.uid()`, não há ciclo para quebrar.
+
+Toda comparação usa a função dentro de um `(select ...)`, nunca solta:
+
+```sql
+using (aluno_id = (select auth.uid()))   -- ✅ calculado 1x (InitPlan)
+using (aluno_id = auth.uid())            -- ❌ reavaliado por linha
+```
+
+Sem sessão, `auth.uid()` devolve `null`, e `coluna = null` nunca é verdadeiro em SQL: o estado
+degradado é negar, por construção. O bloqueio do `src/proxy.ts` é fronteira de navegação, não de
+segurança. A fronteira real é esta.
+
+## Padrão por tipo de tabela
+
+| Tipo de tabela             | Policy                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------ |
+| Do aluno (atividades)      | dono = `(select auth.uid())` em todos os comandos, com `with check` na escrita |
+| Cadastro (cursos e regras) | `select` para `authenticated`; sem policy de escrita, só migration altera      |
+| Arquivo (Storage)          | pasta do dono: `(storage.foldername(name))[1] = (select auth.uid())::text`     |
+
+**Referência cruzada.** Uma chave estrangeira garante que a linha existe, não que é do mesmo aluno:
+quem souber o UUID de uma atividade alheia a referenciaria. O `with check` confere o dono da linha
+referenciada:
+
+```sql
+with check (
+  aluno_id = (select auth.uid())
+  and exists (select 1 from atividades a where a.id = atividade_id and a.aluno_id = (select auth.uid()))
+)
+```
+
+**Storage.** O bucket é privado e a tela abre o arquivo por URL assinada de vida curta (RNF04). O
+buraco típico é um `select` sem a condição de pasta, que deixaria qualquer aluno logado listar os
+arquivos de todos.
+
+## Regras
+
+- Toda tabela tem RLS habilitado. Tabela sem policy fica inacessível, não liberada.
+- Policy por comando quando ler e gravar diferem; única só quando são idênticas.
+- Tabela nova nasce com RLS e policy na mesma migration.
+- `UPDATE`/`DELETE` só alcança uma linha se ela também passar por uma policy de `select`. Sem ela, o
+  comando afeta zero linhas **em silêncio**. Ao escrever policy de escrita, confira a leitura.
+- RPC é `security invoker`, então o RLS de quem chamou continua valendo. `security definer` não existe
+  hoje: se uma RPC precisar, entra em `arquitetura.md` por nome, lê `auth.uid()` em vez de receber o
+  dono por parâmetro e devolve o mínimo (a ausência de policy de `select` não protege o retorno).
+- Nenhuma chave `service_role` em código que o navegador alcança. Travado por lint e por um teste de
+  repositório (`tests/*.test.ts`).
+
+## Cadastro e confirmação de e-mail
+
+O SAACI tem **autocadastro** (RF01). O risco não é "alguém criou conta", é "alguém criou conta com
+e-mail que não é do IFCE".
+
+- **Domínio institucional (RF02) é barrado no servidor**, por Auth Hook de antes da criação do
+  usuário ou por gatilho em `auth.users`. Validar só na tela não conta: a chave `anon` é pública e o
+  `/auth/v1/signup` aceita chamada direta.
+
+  ```bash
+  curl -X POST .../auth/v1/signup -H "apikey: <anon>" \
+    -d '{"email":"qualquer@gmail.com","password":"..."}'   # precisa falhar
+  ```
+
+- **Confirmação de e-mail ligada** (`enable_confirmations = true`, RF03 e RF04). O login de conta não
+  confirmada falha com `email_not_confirmed`, que o service traduz e a tela leva à verificação
+  (RF05, RF39).
+- **Duas flags de nome parecido.** `[auth] enable_signup` abre o signup público: fica **ligada**, com o
+  domínio barrado pelo hook. `[auth.email] enable_signup` desliga o provider de e-mail inteiro: em
+  `false` derruba o login (`email_provider_disabled`).
+- **A config é uma linha invisível em code review** e volta ao padrão num projeto criado do zero. Um
+  teste de integração tenta cadastrar um e-mail de fora do IFCE (precisa falhar) e um do IFCE
+  (precisa criar). Confira isso ao criar o projeto de produção.
+- Links de confirmação e de redefinição têm validade limitada e uso único (RNF03), configurados no
+  Auth. A senha é guardada com hash e salt pelo Supabase (RNF01); o SAACI nunca a vê.
+- Em aberto: corrigir o e-mail de uma conta não confirmada (RF40) quando ela não tem sessão.
+
+## Apagar a conta
+
+Apagar usuário exige a chave `service_role`, que **ignora RLS por completo**. É a razão de existir um
+Route Handler (`DELETE /api/conta`) e a fronteira mais perigosa do sistema. Dois clientes, fronteira
+explícita:
+
+```ts
+const db = await createClient() // cookies de quem chamou → RLS ativa
+const admin = createAdminClient() // service_role → RLS ignorada
+```
+
+O `admin` só apaga o usuário de autenticação. Ler atividades e apagar arquivos passa pelo cliente de
+quem chamou. A chave não traz autorização junto: o handler começa lendo a sessão e exigindo a senha
+atual (RF33). A fábrica do cliente admin fica atrás de `import 'server-only'`, que quebra o build se
+um Client Component a alcançar.
