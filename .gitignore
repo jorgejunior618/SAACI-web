@@ -26,3 +26,6 @@ Thumbs.db
 # Editor
 .vscode/*
 !.vscode/extensions.json
+
+# Claude Code: preferências pessoais, não do projeto
+.claude/settings.local.json
