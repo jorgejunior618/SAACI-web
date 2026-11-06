@@ -11,7 +11,8 @@ enviar o pedido à coordenação. Visão e requisitos estão no repositório `SA
 
 ## Stack
 
-Next.js, Panda CSS, TanStack Query, React Hook Form e Valibot. Detalhes em
+Next.js, Panda CSS, TanStack Query, React Hook Form e Valibot. O backend será o Supabase, ainda não
+integrado. Detalhes em
 [`doc/tecnologia.md`](doc/tecnologia.md).
 
 ## Como rodar
@@ -40,7 +41,7 @@ Não há variável de ambiente: sem backend, os dados vêm de um mock em `src/se
 
 ## Documentação
 
-[`doc/`](doc/) reúne arquitetura, convenções e decisões, e
+[`doc/`](doc/) reúne arquitetura, convenções e o modelo de ADR para mudar regras, e
 [`.claude/CLAUDE.md`](.claude/CLAUDE.md) é o roteador por tarefa.
 
 ## Licença
