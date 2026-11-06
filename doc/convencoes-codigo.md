@@ -37,8 +37,6 @@ Duas exceções, e só essas:
   de interface. `StatusBadge status="conta" | "parcial" | "nao_conta"` é do produto;
   `InlineMessage tone="success" | "danger"` é estado de interface, por isso fica em inglês.
 
-O texto de tela segue `escrita-de-interface.html` e o glossário do `SAACI-produto`.
-
 ## Arquivos co-localizados
 
 | Situação                      | Arquivo        |

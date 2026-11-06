@@ -25,7 +25,6 @@ Organiza o pedido, confere o projeto, questiona o que for ambíguo e entrega um 
 3. **Confira o projeto**, tudo local:
    - Leia o `.claude/CLAUDE.md` e **só o documento de `doc/` da tarefa**, pela tabela "Antes de agir". Nunca carregue o `doc/` inteiro. A estrutura de pastas não muda sem aprovação: proponha, mostre a alternativa e espere.
    - Procure como código parecido já foi resolvido (mesmo tipo de tela, mesmo hook, mesmo service). Convenção do projeto vale mais que boa prática genérica.
-   - Requisito (RF/RNF) e texto de tela vivem no `../SAACI-produto`: confira lá antes de planejar tela nova, em `documentacao/produto/requisitos.html` e `documentacao/design-system/escrita-de-interface.html`.
    - Mudar uma regra de `doc/` exige uma ADR no mesmo commit: se o plano precisa disso, vira uma etapa.
 4. **Libs tocadas.** O uso atual está correto na versão instalada (`package.json`, tipos)? Há forma melhor que o projeto não usa? Diga se entra no escopo (barata e no caminho) ou fica como sugestão à parte.
 5. **Pesquisa externa**, só com a trava: já olhei o código, o `package.json` e o `node_modules`; há gatilho real (lib nova no repo, decisão cara de reverter, suspeita de API depreciada, pedido do dev); a resposta muda o plano. No máximo 2 buscas em modo `standard`, específicas (lib, versão, dúvida exata), com aviso de 1 linha antes. Sem busca, marque "não confirmado".

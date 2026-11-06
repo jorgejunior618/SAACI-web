@@ -110,5 +110,4 @@ Uma exceção que ninguém consegue enumerar já virou regra. Por isso cada uma 
 | Quais domínios existem       | `src/services/`                              |
 | O que cada mutation invalida | a rotina de invalidação do domínio           |
 | Qual o schema (alvo)         | `supabase/migrations/` e `database.types.ts` |
-| O que o produto exige        | repositório `SAACI-produto`                  |
 | Por que a stack é assim      | `tecnologia.md`                              |

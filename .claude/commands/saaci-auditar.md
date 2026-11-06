@@ -31,9 +31,7 @@ Classifique pela pasta e leia **só o documento da categoria**, nunca o `doc/` i
 | `supabase/migrations/**` (quando existir)   | Migration ou RPC | `doc/modelagem-dados.md`, `doc/rls-e-permissoes.md`                             |
 | `doc/**`                                    | Documentação     | `doc/README.md` (regra de ADR)                                                  |
 
-`.claude/`, configuração e `package.json` ficam fora da auditoria de regras. Se o diff mexe em texto
-de tela, aponte para `../SAACI-produto/documentacao/design-system/escrita-de-interface.html`, sem
-reescrever.
+`.claude/`, configuração e `package.json` ficam fora da auditoria de regras.
 
 ## Passo 3: aplicar as regras por categoria
 

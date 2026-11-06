@@ -1,9 +1,7 @@
 # CLAUDE.md
 
 SAACI-web (Sistema de Apoio Acadêmico Colaborativo do IFCE): Next.js (App Router) + Panda CSS +
-TanStack Query + React Hook Form e Valibot. Backend: Supabase (alvo), hoje mock. Produto, design e
-requisitos vivem no repositório vizinho `../SAACI-produto`, a fonte de verdade do **quê**. Este
-repositório decide **como** construir.
+TanStack Query + React Hook Form e Valibot. Backend: Supabase (alvo), hoje mock.
 
 ## Antes de agir
 
@@ -23,9 +21,6 @@ Leia **apenas** o documento da tarefa. Não carregue `doc/` inteiro.
 | Policy, RLS, Storage, Auth                 | `doc/rls-e-permissoes.md`                                                           |
 | Escolher biblioteca                        | `doc/tecnologia.md`                                                                 |
 | Mudar uma regra                            | `doc/adr/` (modelo em `0000-modelo.md`)                                             |
-| Requisito (RF/RNF)                         | `../SAACI-produto/documentacao/produto/requisitos.html`                             |
-| Texto de tela                              | `../SAACI-produto/documentacao/design-system/escrita-de-interface.html`             |
-| Estado vazio, erro, caso de borda          | `../SAACI-produto/documentacao/design-system/estados-e-casos-de-borda.html`         |
 
 ## Regras sempre válidas
 
@@ -54,8 +49,8 @@ Leia **apenas** o documento da tarefa. Não carregue `doc/` inteiro.
 
 ## Escopo
 
-`SAACI-web/` é o limite de edição. `../SAACI-produto` é só leitura, para requisito e design. Os
-caminhos abaixo são previsíveis: não use busca ampla no filesystem.
+`SAACI-web/` é o limite de atuação. Os caminhos abaixo são previsíveis: não use busca ampla no
+filesystem.
 
 ```
 SAACI-web/
@@ -84,7 +79,7 @@ SAACI-web/
 | Sugerir mensagem de commit                   | `saaci-commit` |
 
 `saaci-plano` e `saaci-tsdoc` são automáticas: disparam pelo tipo de pedido, sem precisar ser
-chamadas. Para revisar texto de tela, use a skill `saaci-copy` do `../SAACI-produto`.
+chamadas.
 
 ## Comandos
 

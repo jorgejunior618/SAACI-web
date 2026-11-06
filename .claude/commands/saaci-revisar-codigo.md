@@ -28,9 +28,6 @@ Descubra a categoria pela pasta e leia **só o documento dela** em `doc/`, nunca
 | `src/app/**`                           | `doc/estrutura-pastas.md`, `doc/arquitetura.md`                             |
 | testes                                 | `doc/testes.md`                                                             |
 
-Texto de tela conferido contra `../SAACI-produto/documentacao/design-system/escrita-de-interface.html`,
-sem reescrever o que é decisão de produto.
-
 ## Passo 3: montar o relatório em 6 seções
 
 1. **Pontos positivos**: o que o arquivo já faz bem, curto.

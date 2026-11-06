@@ -2,7 +2,7 @@
 
 Aplicação web do SAACI, Sistema de Apoio Acadêmico Colaborativo do IFCE. Ajuda o aluno a entender
 as regras de atividades complementares, registrar comprovantes e acompanhar as horas antes de
-enviar o pedido à coordenação. Visão e requisitos estão no repositório `SAACI-produto`.
+enviar o pedido à coordenação.
 
 > Fase atual: só front, reduzido ao login. Existem a tela de login (`/login`) e uma página
 > provisória depois de entrar (`/`), com o logo e o botão Sair. Não há cadastro: crie a conta de

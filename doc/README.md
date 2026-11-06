@@ -1,7 +1,7 @@
 # Documentação técnica
 
-Como o SAACI-web é construído. O **o quê** e o **para quem** vivem no repositório vizinho
-`../SAACI-produto`; o **porquê** da stack vive em `tecnologia.md`, e mudanças de regra viram ADR em `adr/`.
+Como o SAACI-web é construído. O **porquê** da stack vive em `tecnologia.md`, e mudanças de regra
+viram ADR em `adr/`.
 
 ## Antes de agir
 
