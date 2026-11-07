@@ -1,0 +1,65 @@
+name: Dependências
+
+# Toda segunda, 8h em Brasília, confere os pacotes desatualizados e mantém UMA issue com a lista.
+# Não abre branch nem PR: quem decide quando atualizar é o time.
+# O botão "Run workflow" (workflow_dispatch) só aparece depois que este arquivo estiver na main.
+on:
+  schedule:
+    - cron: '0 11 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: dependencias
+  cancel-in-progress: false
+
+jobs:
+  conferir:
+    name: Abrir ou atualizar a issue de dependências
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      LABEL: dependencias
+    steps:
+      - uses: actions/checkout@v7
+
+      # A versão do pnpm vem do campo packageManager do package.json.
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+        env:
+          HUSKY: 0
+
+      # O pnpm sai com 1 quando há pacote desatualizado. Qualquer outro código é falha de verdade.
+      - name: Listar pacotes desatualizados
+        run: pnpm outdated --format json > outdated.json || [ $? -eq 1 ]
+
+      # Sem pacote para atualizar, o relatório sai vazio.
+      - name: Montar o relatório
+        run: node scripts/outdated-report.mjs < outdated.json > relatorio.md
+
+      - name: Abrir, atualizar ou fechar a issue
+        run: |
+          gh label create "$LABEL" --description "Pacotes desatualizados" --color 0e8a16 --force
+
+          numero=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number // empty')
+
+          if [ -s relatorio.md ]; then
+            if [ -n "$numero" ]; then
+              gh issue edit "$numero" --body-file relatorio.md
+            else
+              gh issue create --title "Dependências desatualizadas" --label "$LABEL" --body-file relatorio.md
+            fi
+          elif [ -n "$numero" ]; then
+            gh issue close "$numero" --comment "Tudo em dia. Fechada automaticamente."
+          fi
