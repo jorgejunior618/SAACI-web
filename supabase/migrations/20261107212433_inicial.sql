@@ -1,0 +1,5 @@
+-- Migration inicial, vazia de propósito: prova o fluxo de versionamento do banco local.
+-- As tabelas do SAACI entram nas issues de integração.
+--
+-- Convenções (doc/modelagem-dados.md): tabela e coluna em português, snake_case, tabela no plural,
+-- chave primária uuid. Toda tabela nova nasce com RLS e policy na mesma migration.

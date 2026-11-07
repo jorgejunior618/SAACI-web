@@ -69,7 +69,8 @@ SAACI-web/
   .github/                CI (workflows/ci.yml) e Dependabot
 ```
 
-`supabase/migrations/` e `src/@supabase/` entram com a integração e ainda não existem.
+`supabase/` (banco local e migrations, ver README, seção "Banco local") já existe, com a migration
+inicial vazia. `src/@supabase/` entra com a integração e ainda não existe.
 
 ## Skills
 
