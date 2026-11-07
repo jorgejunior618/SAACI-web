@@ -162,6 +162,19 @@ nasce ou muda.
 - Skeleton: `ActivityRowSkeleton` (também `li`), `aria-hidden`.
 - Galeria: `/design-system/activity-row`.
 
+## Organisms
+
+Organism é o bloco que usa pelo menos uma molecule e pode usar atoms junto. Quem só compõe atoms
+fica em `molecules/`.
+
+### RulePanel
+
+- Uso: a regra do item escolhido, quanto ainda cabe e quanto a atividade vai contar, visíveis antes do envio. Cartão neutro (`Card`), **sem fundo verde**: a ênfase está só no título ("Item 13 · Palestra como ouvinte", `label` em `brand.text`). Ordem: regra em `body`, 4px abaixo; "Ainda cabem **4,0h** neste item" à esquerda e "26h de 30h" em cinza à direita (quebra linha, nunca corta); `ProgressBar`; tabela do cálculo (descrição à esquerda, valor à direita tabular, última linha "Vai contar" separada por borda fina e peso 600); aviso em uma frase (`Notice tone="warning"` inline), sem caixa.
+- Props: `itemNumber`, `itemName`, `rule`, `usedHours`, `maxHours`, `calcRows: { label, value }[]`, `willCount`, `warning?`. Recebe tudo pronto e não calcula (RNF20); só formata com `formatHours`. O "Ainda cabem" é `maxHours - usedHours`, nunca negativo.
+- Regras: a regra fica sempre visível, nunca em tooltip. Todos os valores da tabela na mesma unidade, para alinhar. Um aviso por vez, o mais grave primeiro. O aviso não bloqueia.
+- Acessibilidade: o cartão é uma região nomeada pelo título. A tabela tem `aria-live="polite"` e `caption` "Quanto essa atividade vai contar", então o resultado é anunciado enquanto o aluno digita. A barra mede as horas usadas do item.
+- Galeria: `/design-system/rule-panel`.
+
 ## Templates
 
 ### AppFrame

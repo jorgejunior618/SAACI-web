@@ -21,12 +21,9 @@ export const ItemNumber = styled('span', {
 
 export const Name = styled('span', {
   base: {
-    display: '-webkit-box',
-    overflow: 'hidden',
     textStyle: 'bodyStrong',
-    // Até duas linhas; o resto some com reticências.
-    WebkitLineClamp: '2',
-    WebkitBoxOrient: 'vertical',
+    // Até duas linhas; o resto some com reticências. O utilitário já traz display, overflow e orient.
+    lineClamp: '2',
   },
 })
 
