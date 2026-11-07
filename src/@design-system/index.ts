@@ -1,7 +1,13 @@
 // Os componentes entram um a um, especificados e registrados em DS_REFERENCE.md.
 // Os tokens são consumidos pelo panda.config.ts, não por este arquivo.
+export { Button } from './atoms/Button'
+export type { ButtonProps, ButtonVariant } from './atoms/Button'
+export { Card } from './atoms/Card'
+export type { CardProps } from './atoms/Card'
 export { Icon } from './atoms/Icon'
 export type { IconProps, IconSize } from './atoms/Icon'
+export { Link } from './atoms/Link'
+export type { LinkProps } from './atoms/Link'
 export { ProgressBar } from './atoms/ProgressBar'
 export type { ProgressBarProps } from './atoms/ProgressBar'
 export { Spinner } from './atoms/Spinner'

@@ -18,6 +18,12 @@ export const Stage = styled('div', {
     borderColor: 'line',
     borderRadius: 'card',
   },
+  variants: {
+    // Sem moldura própria, para um componente que já tem borda (Card) não parecer caixa dentro de caixa.
+    plain: {
+      true: { padding: '0', background: 'transparent', borderColor: 'transparent' },
+    },
+  },
 })
 
 export const Caption = styled('figcaption', {

@@ -1,0 +1,21 @@
+import { styled } from '@/styled-system/jsx'
+
+export const Specimens = styled('div', {
+  base: {
+    display: 'grid',
+    gap: '4',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(16rem, 1fr))',
+  },
+})
+
+export const Wide = styled('div', {
+  base: { width: '100%' },
+})
+
+export const Title = styled('h2', {
+  base: { textStyle: 'bodyStrong' },
+})
+
+export const Text = styled('p', {
+  base: { textStyle: 'support', color: 'ink.muted' },
+})

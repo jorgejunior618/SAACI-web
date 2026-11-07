@@ -8,7 +8,7 @@ export const spinner = cva({
     borderStyle: 'solid',
     borderRightColor: 'transparent',
     animationName: 'spin',
-    animationDuration: '0.8s',
+    animationDuration: '1.2s',
     animationTimingFunction: 'linear',
     animationIterationCount: 'infinite',
   },

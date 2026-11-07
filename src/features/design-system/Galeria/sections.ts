@@ -1,8 +1,11 @@
 import type { ReactNode } from 'react'
 
+import { ButtonSection } from './_components/ButtonSection'
+import { CardSection } from './_components/CardSection'
 import { Colors } from './_components/Colors'
 import { IconSection } from './_components/IconSection'
 import { Layout } from './_components/Layout'
+import { LinkSection } from './_components/LinkSection'
 import { ProgressBarSection } from './_components/ProgressBarSection'
 import { SpinnerSection } from './_components/SpinnerSection'
 import { TextStyles } from './_components/TextStyles'
@@ -35,6 +38,9 @@ export const sections: GallerySection[] = [
   { id: 'cores', title: 'Cores', group: 'Fundamentos', Component: Colors },
   { id: 'texto', title: 'Texto', group: 'Fundamentos', Component: TextStyles },
   { id: 'espaco', title: 'Espaço e forma', group: 'Fundamentos', Component: Layout },
+  { id: 'button', title: 'Button', group: 'Atoms', Component: ButtonSection },
+  { id: 'link', title: 'Link', group: 'Atoms', Component: LinkSection },
+  { id: 'card', title: 'Card', group: 'Atoms', Component: CardSection },
   { id: 'icon', title: 'Icon', group: 'Atoms', Component: IconSection },
   { id: 'spinner', title: 'Spinner', group: 'Atoms', Component: SpinnerSection },
   { id: 'progress-bar', title: 'ProgressBar', group: 'Atoms', Component: ProgressBarSection },

@@ -3,6 +3,25 @@
 Catálogo dos componentes de `@design-system`. Cada componente entra aqui no mesmo commit em que
 nasce ou muda.
 
+## Button (atom)
+
+- Uso: dispara uma ação, 48px. `primary` é a ação da tela (uma por tela); `secondary` é ação paralela; `tertiary` é saída lateral; `danger` só em bottom sheet ou tela de confirmação. `disabled` só para ação impossível; campo vazio não desabilita.
+- Props: `variant?: 'primary' | 'secondary' | 'tertiary' | 'danger'`, `block?`, `busy?`, `busyLabel?` (gerúndio, padrão "Enviando"), `icon?: LucideIcon`, `children`, mais as props nativas de `button`. `type` padrão é `button`.
+- Estados: `busy` marca `aria-busy`, troca o conteúdo por `Spinner sm` e `busyLabel` e deixa de repassar o `onClick` sem usar `disabled` e vira `type="button"` (não envia o formulário).
+- Galeria: `/design-system/button`.
+
+## Link (atom)
+
+- Uso: link de texto em `brand.text`, sublinhado. Renderiza `<a>`; a feature passa o `Link` do `next/link` em `as` para navegar sem recarregar (o design system não importa o roteador).
+- Props: `as?: ElementType`, `isStandalone?` (alvo de 48px, para link sozinho na linha), `children` e as props de `a`.
+- Galeria: `/design-system/link`.
+
+## Card (atom)
+
+- Uso: base dos cartões (CategoryCard, SuggestionCard, RulePanel). `surface`, borda de 1px em `line`, raio `card`, padding 16px, sem sombra.
+- Props: `as?: ElementType` (`div` por padrão), `children` e as props de `div`.
+- Galeria: `/design-system/card`.
+
 ## Icon (atom)
 
 - Uso: invólucro do `lucide-react` com traço de 1,5px e `currentColor`. Escondido de leitor de tela; o texto ao lado carrega o significado. Nunca sozinho, sem emoji.
