@@ -113,6 +113,15 @@ nasce ou muda.
 - Props: `label: string`, no gerúndio ("Calculando suas horas").
 - Galeria: `/design-system/state-screen`.
 
+## Templates
+
+### AppFrame
+
+- Uso: moldura de toda tela do app. Coluna de até 480px (`sizes.content`), centralizada, fundo `surface.sunken`, `min-height` em `100dvh`. Em tela larga é a mesma coluna: não há layout nem menu lateral de desktop (`doc/arquitetura.md`). É a "coluna de 480px" dos fundamentos, uma peça fora do catálogo de componentes.
+- Props: `children` (vai no `main`), `topBar?` e `bottomNav?` (ReactNode). A região de cada barra só existe se a prop vier.
+- Rolagem: é a da página. As barras usam `position: sticky` (topo e base), não `fixed`, para a barra de endereço do iOS recolher normalmente. A moldura aplica só `safe-area-inset-left/right`; o espaço de cima e de baixo é de `TopBar` e `BottomNav`.
+- Galeria: `/design-system/app-frame`.
+
 ## Medidas sem token
 
 `sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup, 56px do símbolo do StateScreen 300px e 340px de largura máxima do texto e das ações do StateScreen, e 36 por 4px da alça do BottomSheet.

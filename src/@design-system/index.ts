@@ -36,3 +36,5 @@ export type {
 } from './molecules/StateScreen'
 export { TextField } from './molecules/TextField'
 export type { TextFieldProps, TextFieldStatusProps } from './molecules/TextField'
+export { AppFrame } from './templates/AppFrame'
+export type { AppFrameProps } from './templates/AppFrame'

@@ -54,6 +54,11 @@ describe('StateScreen', () => {
     render(<LoadingState label="Calculando suas horas" />)
 
     expect(screen.getByRole('status')).toHaveTextContent('Calculando suas horas')
-    expect(screen.getAllByText('Calculando suas horas')).toHaveLength(1)
+    // getAllByText não ignora aria-hidden: conta só as cópias que o leitor de tela alcança.
+    const lidas = screen
+      .getAllByText('Calculando suas horas')
+      .filter((element) => !element.closest('[aria-hidden="true"]'))
+
+    expect(lidas).toHaveLength(1)
   })
 })
