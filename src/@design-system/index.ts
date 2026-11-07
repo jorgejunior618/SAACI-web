@@ -40,6 +40,8 @@ export { LoadingState, StateScreen } from './molecules/StateScreen'
 export type {
   LoadingStateProps,
   StateScreenContentProps,
+  StateScreenEmptyProps,
+  StateScreenOutcomeProps,
   StateScreenLoadingProps,
   StateScreenProps,
 } from './molecules/StateScreen'

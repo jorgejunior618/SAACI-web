@@ -1,17 +1,14 @@
 import { Check, WifiOff } from 'lucide-react'
-import Image from 'next/image'
+import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 import { Icon } from '../../atoms/Icon'
 import { Spinner } from '../../atoms/Spinner'
 import * as S from './styles'
 
-export type StateScreenContentProps = {
-  /**
-   * Qual estado a tela mostra e, com ele, a arte. `empty` usa o símbolo do SAACI, `success` um check
-   * e `connectionError` um wi-fi cortado.
-   */
-  variant: 'empty' | 'success' | 'connectionError'
+type StateScreenContentBase = {
+  /** Selo curto acima do título, no tom da marca ("Em construção"). Sem ele, a tela começa no título. */
+  eyebrow?: string
   /** Fato em poucas palavras. No erro, diz o que não carregou ("Não conseguimos carregar seu painel"). */
   title: string
   /**
@@ -22,6 +19,23 @@ export type StateScreenContentProps = {
   /** Botões da tela, em coluna: o principal primeiro. A tela escolhe quais e o que fazem. */
   actions?: ReactNode
 }
+
+export type StateScreenEmptyProps = StateScreenContentBase & {
+  /** Estado vazio: a arte é o ícone que a tela escolhe, dentro do círculo. */
+  variant: 'empty'
+  /**
+   * Ícone do `lucide-react` que diz o assunto da tela ("Camera", "CalendarCheck"). Passe de um
+   * Client Component: o ícone é um objeto e não atravessa a fronteira vinda de um Server Component.
+   */
+  icon: LucideIcon
+}
+
+export type StateScreenOutcomeProps = StateScreenContentBase & {
+  /** `success` mostra um check e `connectionError` um wi-fi cortado, os dois dentro do círculo. */
+  variant: 'success' | 'connectionError'
+}
+
+export type StateScreenContentProps = StateScreenEmptyProps | StateScreenOutcomeProps
 
 export type StateScreenLoadingProps = {
   /** Carregando: spinner grande e uma frase do que está acontecendo. Não tem título nem ações. */
@@ -37,12 +51,21 @@ export type StateScreenProps = StateScreenContentProps | StateScreenLoadingProps
  * conexão e carregando.
  *
  * @remarks
- * O componente dá a estrutura e a arte; título, texto e ações são da tela. A arte não ganha círculo
- * de fundo. O símbolo do Saci aparece só no vazio e nunca no erro. Em `loading` o spinner já é um
+ * O componente dá a estrutura e a arte; título, texto e ações são da tela. A arte é um ícone de 28px
+ * num círculo de 56px com borda fina: `brand.text` no vazio e no sucesso, `danger` no erro. O
+ * símbolo do Saci não é arte de estado. Em `loading` o spinner fica sem círculo e já é um
  * `role="status"`, então o texto visível fica fora da leitura para não repetir.
  *
  * @example
  * ```tsx
+ * <StateScreen
+ *   variant="empty"
+ *   icon={CalendarCheck}
+ *   eyebrow="Em construção"
+ *   title="Eventos está chegando"
+ *   description="Em breve você vê aqui palestras e cursos que contam horas."
+ * />
+ *
  * <StateScreen
  *   variant="connectionError"
  *   title="Não conseguimos carregar seu painel"
@@ -63,17 +86,15 @@ export function StateScreen(props: StateScreenProps): ReactNode {
     )
   }
 
-  const { variant, title, description, actions } = props
+  const { variant, eyebrow, title, description, actions } = props
+  const glyph = props.variant === 'empty' ? props.icon : variant === 'success' ? Check : WifiOff
 
   return (
     <S.Root>
       <S.Art variant={variant}>
-        {variant === 'empty' ? (
-          <Image className={S.symbol} src="/logo-simbolo.png" width={56} height={56} alt="" />
-        ) : (
-          <Icon icon={variant === 'success' ? Check : WifiOff} size="xl" />
-        )}
+        <Icon icon={glyph} size="xl" />
       </S.Art>
+      {eyebrow ? <S.Eyebrow>{eyebrow}</S.Eyebrow> : null}
       <S.Title>{title}</S.Title>
       <S.Description>{description}</S.Description>
       {actions ? <S.Actions>{actions}</S.Actions> : null}

@@ -1,6 +1,19 @@
 import { cva } from '@/styled-system/css'
 
-// A arte não ganha círculo de fundo: o símbolo ou o ícone de traço aparece direto sobre a tela.
+// Círculo de 56px em `surface` com borda de 1px em `line`, que guarda o ícone de 28px. 56px é a
+// medida do desenho: `sizes` não tem escala numérica.
+const circle = {
+  display: 'grid',
+  placeItems: 'center',
+  width: '56px',
+  height: '56px',
+  borderRadius: 'full',
+  borderWidth: '1px',
+  borderStyle: 'solid',
+  borderColor: 'line',
+  background: 'surface',
+} as const
+
 export const stateArt = cva({
   base: {
     display: 'flex',
@@ -8,10 +21,10 @@ export const stateArt = cva({
   },
   variants: {
     variant: {
-      // O símbolo do SAACI tem as próprias cores.
-      empty: {},
-      success: { color: 'brand.text' },
-      connectionError: { color: 'danger' },
+      empty: { ...circle, color: 'brand.text' },
+      success: { ...circle, color: 'brand.text' },
+      connectionError: { ...circle, color: 'danger' },
+      // O spinner grande aparece direto sobre a tela, sem círculo.
       loading: {},
     },
   },

@@ -1,4 +1,3 @@
-import { css } from '@/styled-system/css'
 import { styled } from '@/styled-system/jsx'
 
 import { stateArt } from './recipe'
@@ -16,8 +15,10 @@ export const Root = styled('section', {
 
 export const Art = styled('span', stateArt)
 
-// 56px é o tamanho do símbolo no estado vazio; `sizes` não tem escala numérica.
-export const symbol = css({ display: 'block', width: '56px', height: '56px' })
+// Selo curto acima do título ("Em construção"), no tom da marca.
+export const Eyebrow = styled('span', {
+  base: { marginBlockEnd: '1', textStyle: 'caption', color: 'brand.text' },
+})
 
 export const Title = styled('h2', {
   base: { margin: '0', textStyle: 'title' },
