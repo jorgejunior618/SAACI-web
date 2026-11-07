@@ -6,6 +6,20 @@ o replica.
 Fase atual: só front, com mock. O backend será o Supabase, ainda não integrado; o que vale só depois
 disso está em "Quando o Supabase entrar".
 
+## Plataforma
+
+O SAACI é **só mobile**, e não há previsão de versão web (desktop). A tela de referência é 390 × 844;
+em tela larga o conteúdo fica numa coluna centralizada de 480px, e só isso. Não crie breakpoint,
+grid de várias colunas, menu lateral nem layout próprio para desktop.
+
+Por quê: o aluno usa o sistema no celular (tirar foto do certificado, conferir horas), e um layout
+web dobraria o custo de cada tela sem requisito que peça isso. Exemplo: a lista de atividades é uma
+coluna de cartões, no celular e no monitor.
+
+Instalação como app (PWA) é possível e está **adiada**: entra depois da primeira tela, só com o
+manifest, para adicionar à tela inicial. Não há service worker nem uso offline: o app é autenticado e
+guarda dado pessoal (RNF26), e um cache poderia mostrar dado de outra conta ou horas velhas (RNF20).
+
 ## Onde colocar uma lógica
 
 | Se a lógica...                                 | Vai para                                    |
