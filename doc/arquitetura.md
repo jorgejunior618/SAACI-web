@@ -67,10 +67,10 @@ aluno preencheu não se perde (RNF24).
 ### Escrita da sessão
 
 ```
-Login → useMutation → entrar() → onSuccess: setQueryData(contaKeys.sessao(), sessao)
+Login → useMutation → signIn() → onSuccess: setQueryData(accountKeys.session(), session)
 ```
 
-A resposta de `entrar` já é o novo estado da sessão, então vai direto para o cache em vez de
+A resposta de `signIn` já é o novo estado da sessão, então vai direto para o cache em vez de
 disparar uma busca. A exceção está explicada em `react-query.md`.
 
 ## Invariantes
@@ -115,7 +115,7 @@ Uma exceção que ninguém consegue enumerar já virou regra. Por isso cada uma 
 | Exceção                                       | Regra que ela dobra                       | Por que existe                                          |
 | --------------------------------------------- | ----------------------------------------- | ------------------------------------------------------- |
 | `SessionGate` decide a sessão só no navegador | Página é Server Component e faz prefetch  | Enquanto a sessão for do mock, o servidor não a enxerga |
-| `setQueryData` da sessão em vez de invalidar  | Invalidação sempre pela rotina do domínio | A resposta de `entrar`/`sair` já é o novo estado        |
+| `setQueryData` da sessão em vez de invalidar  | Invalidação sempre pela rotina do domínio | A resposta de `signIn`/`signOut` já é o novo estado     |
 
 ## Onde está a verdade corrente
 

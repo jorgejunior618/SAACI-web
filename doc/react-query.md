@@ -6,12 +6,12 @@ Chave é hierárquica, criada por factory em `<dom>.keys.ts`, nunca escrita à m
 permite invalidar no nível certo: todas as listagens sem tocar nos detalhes, ou o domínio inteiro.
 
 ```ts
-// atividades.keys.ts (ilustrativo; o exemplo real é conta.keys.ts)
-export const atividadesKeys = {
-  all: ['atividades'] as const,
-  lists: () => [...atividadesKeys.all, 'list'] as const,
-  list: (f: AtividadesFiltros) => [...atividadesKeys.lists(), f] as const,
-  detail: (id: string) => [...atividadesKeys.all, 'detail', id] as const,
+// activities.keys.ts (ilustrativo; o exemplo real é account.keys.ts)
+export const activitiesKeys = {
+  all: ['activities'] as const,
+  lists: () => [...activitiesKeys.all, 'list'] as const,
+  list: (f: ActivitiesFilters) => [...activitiesKeys.lists(), f] as const,
+  detail: (id: string) => [...activitiesKeys.all, 'detail', id] as const,
 }
 ```
 
@@ -19,12 +19,12 @@ A definição da query é declarada uma vez em `<dom>.queries.ts` e usada nos do
 `queryKey` entre prefetch e `useQuery` é a origem mais comum de cache que não invalida.
 
 ```ts
-// conta.queries.ts (existe)
-export const contaQueries = {
-  sessao: () =>
+// account.queries.ts (existe)
+export const accountQueries = {
+  session: () =>
     queryOptions({
-      queryKey: contaKeys.sessao(),
-      queryFn: getSessao,
+      queryKey: accountKeys.session(),
+      queryFn: getSession,
       staleTime: STALE_TIME.cadastro,
     }),
 }
@@ -45,7 +45,7 @@ Com o Supabase, a página busca no servidor e hidrata o cache:
 const db = await createClient() // cliente de SERVIDOR, explícito
 const queryClient = getQueryClient()
 
-await queryClient.prefetchQuery(atividadesQueries.list(filtros, db))
+await queryClient.prefetchQuery(activitiesQueries.list(filtros, db))
 
 return (
   <HydrationBoundary state={dehydrate(queryClient)}>
@@ -97,7 +97,7 @@ só pode rodar depois de o componente montar no navegador, porque o servidor nã
 Supabase, a exceção sai.
 
 Toda tela com suspense depende de um `error.tsx` acima dela, um por grupo de rota, reusando
-`components/ErroDeTela`.
+`components/ErrorScreen`.
 
 ## Invalidação
 
@@ -106,10 +106,10 @@ uma atividade muda o progresso do painel, do resumo e do formulário (RNF20), e 
 início do perfil também (RF11, RF38). Cada domínio exporta a sua rotina, e a tela só a chama:
 
 ```ts
-// atividades.mutations.ts (ilustrativo)
+// activities.mutations.ts (ilustrativo)
 export function invalidateAfterAtividadeWrite(qc: QueryClient): void {
-  qc.invalidateQueries({ queryKey: atividadesKeys.all })
-  qc.invalidateQueries({ queryKey: progressoKeys.all })
+  qc.invalidateQueries({ queryKey: activitiesKeys.all })
+  qc.invalidateQueries({ queryKey: progressKeys.all })
 }
 ```
 
@@ -118,7 +118,7 @@ progresso agrega tudo), curta onde ele não sai do lugar. Import de chave entre 
 módulo (`.../atividades.keys`), nunca do barrel, que reexporta as mutations e fecharia um ciclo.
 
 **Contra-exemplo, para a régua não virar "invalide sempre tudo".** `DetalheAtividade` invalida só
-`lists()` e o progresso ao remover (RF17). Derrubar `atividadesKeys.all` incluiria a query de detalhe
+`lists()` e o progresso ao remover (RF17). Derrubar `activitiesKeys.all` incluiria a query de detalhe
 em que a tela está montada: o refetch traria `null` e `notFound()` dispararia antes do
 `router.push`, levando a pessoa a um 404 em vez da lista.
 
@@ -128,13 +128,13 @@ Quando a mutation devolve exatamente o dado que a query guarda, grava-se no cach
 
 ```ts
 // features/autenticacao/Login/index.tsx (existe)
-onSuccess: (sessao) => {
-  queryClient.setQueryData(contaKeys.sessao(), sessao)
-  router.replace(destinoDaSessao(sessao))
+onSuccess: (session) => {
+  queryClient.setQueryData(accountKeys.session(), session)
+  router.replace(destinoDaSessao(session))
 }
 ```
 
-Invalidar dispararia uma busca para saber o que `entrar` já disse. Até ela terminar, o cache ainda
+Invalidar dispararia uma busca para saber o que `signIn` já disse. Até ela terminar, o cache ainda
 diria "sem sessão", e o `SessionGate` do grupo `(aluno)` devolveria a pessoa ao login no meio do
 `router.replace`. Duas condições: a chave vem da factory, e o valor gravado é o que o service
 devolveu, nunca montado na tela.

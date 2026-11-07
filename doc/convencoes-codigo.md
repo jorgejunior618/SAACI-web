@@ -2,18 +2,20 @@
 
 ## Idioma
 
-Substantivo de domínio em português, verbo e termo técnico em inglês.
+Todo identificador é em inglês: pasta, arquivo, função, tipo, campo, variável e prop. Português fica
+em três lugares: a rota (URL e pastas de `app/`), a pasta de cada tela em
+`features/<dominio>/<Tela>/` e o texto exibido. Ver ADR 0002.
 
 ```
-getAtividades()      createAtividade()      updatePerfil()
-type Atividade = { id, titulo, dataAtividade }
+getActivities()      createActivity()      updateProfile()
+type Activity = { id, name, activityDate, countedHours }
 ```
 
-Coluna do banco é `snake_case` em português; o tipo de domínio é `camelCase`. A tradução acontece no
-service (`camada-servicos.md`).
+Coluna do banco é `snake_case` em português; o tipo de domínio é `camelCase` em inglês. A tradução
+acontece no service (`camada-servicos.md`).
 
-> O código do login ainda tem verbos em português (`entrar`, `sair`, `destinoDaSessao`, `lerDb`).
-> Código novo segue esta regra, e o antigo é renomeado numa tarefa à parte.
+Fora da rota e da tela, `@design-system`, `components/`, `providers/`, `hooks/`, `utils/`,
+`constants/` e `services/` ficam em inglês (`ErrorScreen`, `MainNav`, `services/activities/`).
 
 ### Prop de componente e variável interna: sempre em inglês
 
@@ -155,13 +157,13 @@ que é obrigatório está em `testes.md`.
 
 ## Nomes
 
-| Item                          | Forma                                                 |
-| ----------------------------- | ----------------------------------------------------- |
-| Pasta de tela e de componente | `PascalCase`                                          |
-| Pasta de domínio              | `kebab-case`                                          |
-| Pasta auxiliar                | `_plural`                                             |
-| Função                        | verbo com contexto: `createAtividade`, nunca `create` |
-| Booleano                      | prefixo `is`, `has` ou `can`                          |
+| Item                          | Forma                                                |
+| ----------------------------- | ---------------------------------------------------- |
+| Pasta de tela e de componente | `PascalCase`                                         |
+| Pasta de domínio              | `kebab-case`                                         |
+| Pasta auxiliar                | `_plural`                                            |
+| Função                        | verbo com contexto: `createActivity`, nunca `create` |
+| Booleano                      | prefixo `is`, `has` ou `can`                         |
 
 ## Commits
 

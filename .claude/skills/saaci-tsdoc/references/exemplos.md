@@ -138,15 +138,15 @@ export const RETRY_DELAY_MS = 30_000
  *
  * @remarks
  * Os dados ficam frescos por `STALE_TIME.cadastro`. Depois do login, grave a sessão com
- * `setQueryData(contaKeys.sessao(), sessao)` em vez de invalidar, senão o cache ainda diz
+ * `setQueryData(accountKeys.session(), session)` em vez de invalidar, senão o cache ainda diz
  * "sem sessão" por um instante.
  *
  * @example
  * // Usado pelo SessionGate para decidir entre a tela de login e a área logada
- * useQuery({ ...contaQueries.sessao(), enabled: isMounted })
+ * useQuery({ ...accountQueries.session(), enabled: isMounted })
  */
-export const contaQueries = {
-  sessao: () => queryOptions({ queryKey: contaKeys.sessao(), queryFn: getSessao }),
+export const accountQueries = {
+  session: () => queryOptions({ queryKey: accountKeys.session(), queryFn: getSession }),
 }
 ```
 
