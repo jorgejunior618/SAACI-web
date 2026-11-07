@@ -1,0 +1,2 @@
+-- Dados de exemplo do banco local, aplicados em todo `pnpm db:reset`, depois das migrations.
+-- Vazio por enquanto: as tabelas do SAACI entram nas issues de integração.
