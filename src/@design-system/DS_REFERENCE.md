@@ -70,6 +70,14 @@ nasce ou muda.
 - Borda ao rolar: uma linha de 1px em `line` (`::after`) com a animação `edgeIn` ligada à rolagem por `animation-timeline: scroll()`, sem JavaScript, em `@supports`. Parado, sem borda. O `scroll()` segue o rolador mais próximo (a página numa tela, a janela na galeria). Navegador sem o recurso fica sem a linha. Com `prefers-reduced-motion` a duração fixa da regra global é trocada por `auto`, para a linha seguir a rolagem.
 - Galeria: `/design-system/top-bar`.
 
+### BottomNav
+
+- Uso: barra inferior com os quatro destinos do produto: Início, Registrar, Certificados e Formulário (Lucide `house`, `plus`, `file`, `clipboard-list`, 22px). 60px (`sizes.bottomnav`) mais a área segura de baixo, `surface`, borda superior de 1px em `line`, sem sombra. Ícone em `ink.subtle` e rótulo `caption` em `ink.muted`. O ativo (`aria-current="page"`) leva ícone e rótulo em `brand.text`, rótulo em peso 600 e traço do ícone em 2, sem pílula. Sempre ícone e rótulo; sem quinto destino e sem botão flutuante.
+- Props: `items` (tupla de quatro `{ id, label, href, icon }`, então o tipo recusa o quinto), `activeId`, `linkAs?` (como `Link.as`, para o `next/link` com prefetch) e `aria-label?` (padrão "Principal"). `activeId` que não existe deixa todos inativos.
+- Onde não aparece: Entrar, Criar conta, Recuperação de senha, Seu curso e Confirme seu e-mail. A tela decide, o componente não sabe. Qual destino está ativo também é da tela (`usePathname` na feature); o design system não importa `next/navigation`.
+- Desktop: não há menu lateral nem breakpoint (`doc/arquitetura.md`). A barra continua embaixo, na coluna de 480px do `AppFrame`. A fonte do protótipo previa menu lateral; o doc vale mais.
+- Galeria: `/design-system/bottom-nav`.
+
 ### BottomSheet
 
 - Uso: painel que sobe da base para confirmar uma ação que apaga algo, sem sair da tela. Véu `scrim` e painel em `surface.raised`, cantos de cima `card` e `shadow.overlay`: é o **único** componente com sombra. Alça, título em forma de pergunta (`title`), a consequência em `support` e as ações empilhadas em largura total, 24px abaixo do texto: a destrutiva (`Button danger block`) e a de manter (`Button secondary block`). "Manter" ou "Cancelar", nunca "Não". Apagar a conta usa tela própria com confirmação por senha, não um sheet.

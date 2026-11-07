@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 
 import { AppFrameSection } from './_components/AppFrameSection'
 import { BadgeSection } from './_components/BadgeSection'
+import { BottomNavSection } from './_components/BottomNavSection'
 import { BottomSheetSection } from './_components/BottomSheetSection'
 import { ButtonSection } from './_components/ButtonSection'
 import { CardSection } from './_components/CardSection'
@@ -61,6 +62,7 @@ export const sections: GallerySection[] = [
   { id: 'bottom-sheet', title: 'BottomSheet', group: 'Molecules', Component: BottomSheetSection },
   { id: 'state-screen', title: 'StateScreen', group: 'Molecules', Component: StateScreenSection },
   { id: 'top-bar', title: 'TopBar', group: 'Molecules', Component: TopBarSection },
+  { id: 'bottom-nav', title: 'BottomNav', group: 'Molecules', Component: BottomNavSection },
   { id: 'app-frame', title: 'AppFrame', group: 'Templates', Component: AppFrameSection },
 ]
 
