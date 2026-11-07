@@ -66,6 +66,7 @@ SAACI-web/
   src/@design-system/     componentes compartilhados
   src/providers/ hooks/ utils/ constants/
   .claude/                comandos, skills e referências
+  .github/                CI (workflows/ci.yml) e Dependabot
 ```
 
 `supabase/migrations/` e `src/@supabase/` entram com a integração e ainda não existem.
