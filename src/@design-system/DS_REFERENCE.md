@@ -163,6 +163,14 @@ nasce ou muda.
 - Skeleton: `ActivityRowSkeleton` (também `li`), `aria-hidden`.
 - Galeria: `/design-system/activity-row`.
 
+### SuggestionCard
+
+- Uso: mostra o item que a leitura do certificado sugeriu, separado do campo. `reading`: uma linha de status com `Spinner sm` e o tempo esperado ("Lendo seu certificado, cerca de 20 segundos"), sem caixa. `suggested`: `Card` neutro com a pergunta em `support` cinza ("Parece ser este item. É esse mesmo?"), o item ("Item 7" em `caption`, nome em `bodyStrong`, regra em `support`) e duas ações lado a lado: **É esse** (primário) e **Escolher outro** (secundário, a tela abre o `ItemPicker`). Sem cor própria.
+- Props, união por `status`: `reading` aceita `readingMessage?`. `suggested` pede `item: { number, name, rule }`, `onConfirm` e `onChooseOther`. O tipo recusa callbacks no `reading` e `item` sem `suggested`.
+- Regras: o campo de item **nunca** começa marcado com a sugestão; confirmar é ação do aluno (`onConfirm`). Sem sugestão, a tela pula o cartão e abre o `ItemPicker` direto. Leitura que falha não é erro: a tela escreve uma linha `support` dizendo que não deu para ler e que o aluno preenche. Esses dois casos são da tela, não deste componente.
+- Acessibilidade: no `reading`, o spinner anuncia a frase como `status` e o texto visível fica `aria-hidden`, para o leitor de tela ouvir uma vez só. O cartão é uma região nomeada pela pergunta.
+- Galeria: `/design-system/suggestion-card`.
+
 ## Organisms
 
 Organism é o bloco que usa pelo menos uma molecule e pode usar atoms junto. Quem só compõe atoms

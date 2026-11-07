@@ -34,6 +34,8 @@ export type {
   NoticeProps,
   NoticeTone,
 } from './molecules/Notice'
+export { SuggestionCard } from './molecules/SuggestionCard'
+export type { SuggestionCardItem, SuggestionCardProps } from './molecules/SuggestionCard'
 export { LoadingState, StateScreen } from './molecules/StateScreen'
 export type {
   LoadingStateProps,
