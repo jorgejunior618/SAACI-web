@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+import { BadgeSection } from './_components/BadgeSection'
 import { ButtonSection } from './_components/ButtonSection'
 import { CardSection } from './_components/CardSection'
 import { Colors } from './_components/Colors'
@@ -38,6 +39,7 @@ export const sections: GallerySection[] = [
   { id: 'cores', title: 'Cores', group: 'Fundamentos', Component: Colors },
   { id: 'texto', title: 'Texto', group: 'Fundamentos', Component: TextStyles },
   { id: 'espaco', title: 'Espaço e forma', group: 'Fundamentos', Component: Layout },
+  { id: 'badge', title: 'Badge', group: 'Atoms', Component: BadgeSection },
   { id: 'button', title: 'Button', group: 'Atoms', Component: ButtonSection },
   { id: 'link', title: 'Link', group: 'Atoms', Component: LinkSection },
   { id: 'card', title: 'Card', group: 'Atoms', Component: CardSection },
