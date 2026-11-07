@@ -7,10 +7,10 @@ import { BottomNav } from '@design-system'
 
 import { SelectControl } from '../../../Controls'
 import { Playground } from '../../../Playground'
-import { itemIds, items } from '../../items'
+import { action, itemIds, items } from '../../items'
 import * as S from '../../styles'
 
-/** Área de teste da `BottomNav`: troca o destino ativo. */
+/** Área de teste da `BottomNav`: troca a aba ativa. */
 export function Demo(): ReactNode {
   const [activeId, setActiveId] = useState<(typeof itemIds)[number]>('inicio')
 
@@ -21,7 +21,7 @@ export function Demo(): ReactNode {
       }
     >
       <S.Frame>
-        <BottomNav items={items} activeId={activeId} />
+        <BottomNav items={items} action={action} activeId={activeId} />
       </S.Frame>
     </Playground>
   )

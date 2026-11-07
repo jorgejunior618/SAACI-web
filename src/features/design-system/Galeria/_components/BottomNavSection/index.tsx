@@ -5,25 +5,25 @@ import { BottomNav } from '@design-system'
 import { Section } from '../Section'
 import { Specimen } from '../Specimen'
 import { Demo } from './_components/Demo'
-import { items } from './items'
+import { action, items } from './items'
 import * as S from './styles'
 
-/** Página "BottomNav" da galeria: o destino ativo em dois casos e a área de teste. */
+/** Página "BottomNav" da galeria: a aba ativa em dois casos e a área de teste. */
 export function BottomNavSection(): ReactNode {
   return (
     <Section
       title="BottomNav"
-      description="Barra inferior com quatro destinos, sempre com ícone e rótulo. O ativo muda de cor, de peso e de traço, sem pílula de fundo. Não há quinto destino nem botão flutuante, e em tela larga ela continua embaixo."
+      description="Barra inferior com quatro abas e a ação Registrar no centro, sempre com ícone e rótulo. A aba ativa muda de cor, de peso e de traço, sem pílula de fundo. Registrar é um círculo que sobe acima da barra, abre um fluxo e nunca fica ativo. Em tela larga a barra continua embaixo."
     >
       <S.Specimens>
         <Specimen label='activeId="inicio"'>
           <S.Frame>
-            <BottomNav items={items} activeId="inicio" />
+            <BottomNav items={items} action={action} activeId="inicio" />
           </S.Frame>
         </Specimen>
-        <Specimen label='activeId="certificados"'>
+        <Specimen label='activeId="perfil"'>
           <S.Frame>
-            <BottomNav items={items} activeId="certificados" />
+            <BottomNav items={items} action={action} activeId="perfil" />
           </S.Frame>
         </Specimen>
       </S.Specimens>

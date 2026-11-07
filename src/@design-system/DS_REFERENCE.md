@@ -73,9 +73,11 @@ nasce ou muda.
 
 ### BottomNav
 
-- Uso: barra inferior com os quatro destinos do produto: Início, Registrar, Certificados e Formulário (Lucide `house`, `plus`, `file`, `clipboard-list`, 22px). 60px (`sizes.bottomnav`) mais a área segura de baixo, `surface`, borda superior de 1px em `line`, sem sombra. Ícone em `ink.subtle` e rótulo `caption` em `ink.muted`. O ativo (`aria-current="page"`) leva ícone e rótulo em `brand.text`, rótulo em peso 600 e traço do ícone em 2, sem pílula. Sempre ícone e rótulo; sem quinto destino e sem botão flutuante.
-- Props: `items` (tupla de quatro `{ id, label, href, icon }`, então o tipo recusa o quinto), `activeId`, `linkAs?` (como `Link.as`, para o `next/link` com prefetch) e `aria-label?` (padrão "Principal"). `activeId` que não existe deixa todos inativos.
-- Onde não aparece: Entrar, Criar conta, Recuperação de senha, Seu curso e Confirme seu e-mail. A tela decide, o componente não sabe. Qual destino está ativo também é da tela (`usePathname` na feature); o design system não importa `next/navigation`.
+- Uso: barra inferior com quatro abas e uma ação central, nesta ordem: Início, Atividades, **Registrar**, Eventos e Perfil (Lucide `house`, `list-checks`, `plus`, `calendar-check`, `user`, 22px). 60px (`sizes.bottomnav`) mais a área segura de baixo, `surface`, borda superior de 1px em `line`, sem sombra. Ícone em `ink.subtle` e rótulo `caption` em `ink.muted`. A aba ativa (`aria-current="page"`) leva ícone e rótulo em `brand.text`, rótulo em peso 600 e traço do ícone em 2, sem pílula. Sempre ícone e rótulo.
+- Registrar: círculo de 48px em `brand` com o ícone em `brand.on` (traço 2), que sobe 22px acima da barra e tem borda de 4px em `surface`. Pressionado vai para `brand.pressed`. Abre um fluxo, não é aba: nunca recebe `aria-current` e a tela do registro não mostra a barra. É o único elemento que ultrapassa o limite da barra.
+- Props: `items` (tupla de quatro `{ id, label, href, icon }`, então o tipo recusa a quinta aba), `action` (`{ label, href, icon }`, desenhada entre a segunda e a terceira aba), `activeId`, `linkAs?` (como `Link.as`, para o `next/link` com prefetch) e `aria-label?` (padrão "Principal"). `activeId` que não existe deixa todas as abas inativas.
+- Onde não aparece: Entrar, Criar conta, Recuperação de senha, Seu curso, Confirme seu e-mail e o fluxo de Registrar. A tela decide, o componente não sabe. Qual aba está ativa também é da tela (`usePathname` na feature); o design system não importa `next/navigation`. Detalhe da atividade e Formulário ficam dentro de Atividades, que continua ativa.
+- Medida: o círculo de 48px, o recuo de -22px e a borda de 4px ficam em px no `styles.ts` (medidas sem token).
 - Desktop: não há menu lateral nem breakpoint (`doc/arquitetura.md`). A barra continua embaixo, na coluna de 480px do `AppFrame`. A fonte do protótipo previa menu lateral; o doc vale mais.
 - Galeria: `/design-system/bottom-nav`.
 
@@ -206,7 +208,7 @@ fica em `molecules/`.
 
 ## Medidas sem token
 
-`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup, 56px do símbolo do StateScreen, 300px e 340px de largura máxima do texto e das ações do StateScreen, 36 por 4px da alça do BottomSheet, e 24px do símbolo, 1px da linha e 16px de rolagem da borda da TopBar, e as larguras e alturas dos blocos do `Skeleton` do TotalProgress (72px, 60%, 36px, 20px), e os 18px do checkbox do ActivityRow com a área de toque de 48px (margens negativas de 12px e 15px que devolvem o espaço à linha).
+`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup, 56px do símbolo do StateScreen, 300px e 340px de largura máxima do texto e das ações do StateScreen, 36 por 4px da alça do BottomSheet, e 24px do símbolo, 1px da linha e 16px de rolagem da borda da TopBar, e as larguras e alturas dos blocos do `Skeleton` do TotalProgress (72px, 60%, 36px, 20px), o círculo de 48px, o recuo de -22px e a borda de 4px da ação Registrar do BottomNav, e os 18px do checkbox do ActivityRow com a área de toque de 48px (margens negativas de 12px e 15px que devolvem o espaço à linha).
 
 ## Galeria
 
