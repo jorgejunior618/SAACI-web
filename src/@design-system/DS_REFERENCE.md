@@ -15,8 +15,9 @@ nasce ou muda.
 ### Button
 
 - Uso: dispara uma ação, 48px. `primary` é a ação da tela (uma por tela); `secondary` é ação paralela; `tertiary` é saída lateral; `danger` só em bottom sheet ou tela de confirmação. `disabled` só para ação impossível; campo vazio não desabilita.
-- Props: `variant?: 'primary' | 'secondary' | 'tertiary' | 'danger'`, `block?`, `busy?`, `busyLabel?` (gerúndio, padrão "Enviando"), `icon?: LucideIcon`, `children`, mais as props de `button`. `type` padrão é `button`.
+- Props: `variant?: 'primary' | 'secondary' | 'tertiary' | 'danger'`, `as?` e `href?` (botão que navega, como em `Link.as`), `block?`, `busy?`, `busyLabel?` (gerúndio, padrão "Enviando"), `icon?: LucideIcon`, `children`, mais as props de `button`. `type` padrão é `button`.
 - Estados: `busy` marca `aria-busy`, troca o conteúdo por `Spinner sm` e `busyLabel`, deixa de repassar o `onClick` e vira `type="button"` (não envia o formulário). Não usa `disabled`, então a cor não muda. Um `onClick` em elemento pai ainda dispara.
+- Link-botão: com `as` (`'a'` ou o `Link` do `next/link`) e `href` o botão vira link com o mesmo desenho. `type` não é repassado e `busy` e `disabled` não impedem a navegação, então serve só para ir a outra tela (por exemplo "Ver como entregar seu pedido").
 - Composição: importa `Icon` e `Spinner`.
 - Galeria: `/design-system/button`.
 
@@ -40,8 +41,8 @@ nasce ou muda.
 
 ### ProgressBar
 
-- Uso: progresso de horas, 4px, trilho `progress.track`. `role="progressbar"` com `aria-valuenow/min/max`. `value` é cortado entre 0 e `max`. O número ("4,0h de 20h") é texto de quem usa.
-- Props: `value: number`, `max: number`, `label: string` (vira `aria-label`).
+- Uso: progresso de horas, 4px (`sm`) ou 6px (`md`, só no total do painel), trilho `progress.track`. `role="progressbar"` com `aria-valuenow/min/max`. `value` é cortado entre 0 e `max`. O número ("4,0h de 20h") é texto de quem usa.
+- Props: `value: number`, `max: number`, `label: string` (vira `aria-label`) e `size?: 'sm' | 'md'` (padrão `sm`; variante no `recipe.ts`).
 - Galeria: `/design-system/progress-bar`.
 
 ### Spinner
@@ -135,11 +136,11 @@ nasce ou muda.
 
 ### TotalProgress
 
-- Uso: topo do painel. O total que **falta** em `display` ("47h"), o rótulo "Faltam para completar suas horas" 4px abaixo, a `ProgressBar` 16px abaixo e a linha de meta em `support` tabular ("73h feitas" à esquerda, "meta de 120h" à direita). Um `display` por tela. Com 0h a tela usa `StateScreen empty`, não este cartão com barra vazia.
-- Props: `doneHours`, `goalHours`, `guideHref?`, `linkAs?` (como `Link.as`). O componente recebe o valor pronto e não soma nada (RNF20); só formata com `formatHours` (`src/utils/format-hours.ts`).
+- Uso: topo do painel. O total que **falta** em 56px/60px (`display` com tamanho próprio, ver "Medidas sem token"), o rótulo "Faltam para completar suas horas" 4px abaixo, a `ProgressBar size="md"` (6px) 16px abaixo e a linha de meta em `support` tabular ("73h feitas" à esquerda, "meta de 120h" à direita). O cartão tem 20px de respiro em cima e 16px nos outros lados. Um número grande por tela. Com 0h o cartão aparece como os outros, com a barra vazia e "0h feitas".
+- Props: `doneHours`, `goalHours`, `guideHref?`, `linkAs?` (como `Button.as`). O componente recebe o valor pronto e não soma nada (RNF20); só formata com `formatHours` (`src/utils/format-hours.ts`).
 - Total: inteiro, arredondado para baixo (`Math.floor` nas horas feitas) e limitado à meta. A barra nunca passa de 100% e o "falta" nunca é negativo. 119,9h ainda não é completo.
-- Completo (`doneHours >= goalHours`): o número vira a meta em `brand.text`, o rótulo diz "Você completou suas horas", o link "Ver como entregar seu pedido" leva ao guia do formulário (só aparece com `guideHref`) e **não há barra**.
-- Skeleton: `TotalProgressSkeleton`, blocos em `progress.track` com o keyframe `pulse`, escondidos de leitor de tela (`aria-hidden`).
+- Completo (`doneHours >= goalHours`): o número vira a meta em `brand.text`, o rótulo diz "Você completou suas horas" e **não há barra**. Se os itens somam mais que a meta, uma frase em `support` diz "Seus itens somam 124h. O que passa de 120h não é aproveitado." (12px abaixo do rótulo). O botão primário em largura total "Ver como entregar seu pedido" (`Button as`, 16px abaixo) leva ao guia do formulário e só aparece com `guideHref`.
+- Skeleton: `TotalProgressSkeleton`, blocos em `progress.track` com o keyframe `pulse`, escondidos de leitor de tela (`aria-hidden`), com a altura do número (60px) e da barra (6px).
 - Galeria: `/design-system/total-progress`.
 
 ### CategoryCard
@@ -209,7 +210,7 @@ fica em `molecules/`.
 
 ## Medidas sem token
 
-`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup, 56px do símbolo do StateScreen, 300px e 340px de largura máxima do texto e das ações do StateScreen, 36 por 4px da alça do BottomSheet, e 24px do símbolo, 1px da linha e 16px de rolagem da borda da TopBar, e as larguras e alturas dos blocos do `Skeleton` do TotalProgress (72px, 60%, 36px, 20px), o círculo de 48px, o recuo de -22px e a borda de 4px da ação Registrar do BottomNav, e os 18px do checkbox do ActivityRow com a área de toque de 48px (margens negativas de 12px e 15px que devolvem o espaço à linha).
+`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup, 56px do símbolo do StateScreen, 300px e 340px de largura máxima do texto e das ações do StateScreen, 36 por 4px da alça do BottomSheet, e 24px do símbolo, 1px da linha e 16px de rolagem da borda da TopBar, e as larguras e alturas dos blocos do `Skeleton` do TotalProgress (96px, 60%, 60px, 20px), o círculo de 48px, o recuo de -22px e a borda de 4px da ação Registrar do BottomNav, o número de 56px com linha de 60px e -1,6px de espaçamento do TotalProgress (sobre o textStyle `display`) e os 6px da ProgressBar `md`, e os 18px do checkbox do ActivityRow com a área de toque de 48px (margens negativas de 12px e 15px que devolvem o espaço à linha).
 
 ## Galeria
 

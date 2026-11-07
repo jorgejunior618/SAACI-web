@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
-import type { ComponentPropsWithoutRef, ReactNode } from 'react'
+import type { ComponentPropsWithoutRef, ElementType, ReactNode } from 'react'
 
 import { Icon } from '../Icon'
 import { Spinner } from '../Spinner'
@@ -19,6 +19,13 @@ export type ButtonProps = Omit<ComponentPropsWithoutRef<'button'>, 'children'> &
   busyLabel?: string
   /** Ícone do `lucide-react` antes do texto. Só quando ajuda a reconhecer a ação (câmera em "Tirar foto"). */
   icon?: LucideIcon
+  /**
+   * Elemento ou componente que desenha o botão. Padrão: `button`. Para um botão que navega, passe
+   * `'a'` ou o `Link` do `next/link` junto com `href`; o design system não importa o roteador.
+   */
+  as?: ElementType
+  /** Destino quando o botão é um link (`as`). Sem `as`, não tem efeito. */
+  href?: string
   /** Texto com verbo, sem caixa alta ("Registrar", "Ver meu progresso"). */
   children: ReactNode
 }
@@ -29,8 +36,9 @@ export type ButtonProps = Omit<ComponentPropsWithoutRef<'button'>, 'children'> &
  * @remarks
  * `busy` não usa o atributo `disabled`: o botão continua com a mesma cor e não repassa o `onClick`,
  * para não gerar envio duplo. Também vira `type="button"`, então não envia o formulário. Esse
- * bloqueio vale para clique e teclado, mas um `onClick` em elemento pai ainda dispara. Use `disabled` apenas para
- * ação impossível; campo vazio não desabilita o botão, o envio aponta o campo. O tipo padrão é
+ * bloqueio vale para clique e teclado, mas um `onClick` em elemento pai ainda dispara. Com `as` o botão
+ * vira link: `type` não é repassado e `busy` e `disabled` não impedem a navegação, então use link-botão
+ * só para ir a outra tela. Use `disabled` apenas para ação impossível; campo vazio não desabilita o botão, o envio aponta o campo. O tipo padrão é
  * `button`, então dentro de `<form>` passe `type="submit"` no botão que envia.
  *
  * @example
@@ -38,9 +46,14 @@ export type ButtonProps = Omit<ComponentPropsWithoutRef<'button'>, 'children'> &
  * <Button type="submit" block busy={isPending} busyLabel="Registrando">
  *   Registrar atividade
  * </Button>
+ *
+ * <Button as={NextLink} href="/formulario" block>
+ *   Ver como entregar seu pedido
+ * </Button>
  * ```
  */
 export function Button({
+  as,
   variant = 'primary',
   block = false,
   busy = false,
@@ -54,7 +67,8 @@ export function Button({
   return (
     <S.Root
       {...rest}
-      type={busy ? 'button' : type}
+      as={as}
+      type={as ? undefined : busy ? 'button' : type}
       variant={variant}
       block={block}
       aria-busy={busy ? true : undefined}

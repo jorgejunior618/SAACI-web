@@ -2,6 +2,9 @@ import type { ReactNode } from 'react'
 
 import * as S from './styles'
 
+/** Espessura da barra: `sm` (4px) nos cartões de item, `md` (6px) no total do painel. */
+export type ProgressBarSize = 'sm' | 'md'
+
 export type ProgressBarProps = {
   /** Valor atual, na mesma unidade de `max` (horas, por exemplo). Fora de 0 a `max`, é cortado. */
   value: number
@@ -9,10 +12,12 @@ export type ProgressBarProps = {
   max: number
   /** Texto para leitor de tela que diz o que a barra mede ("Horas de Ensino"). Obrigatório. */
   label: string
+  /** Espessura da barra: 4px (`sm`) ou 6px (`md`). Padrão: `sm`. */
+  size?: ProgressBarSize
 }
 
 /**
- * Mostra quanto de `max` já foi atingido, em uma barra de 4px com `role="progressbar"`.
+ * Mostra quanto de `max` já foi atingido, em uma barra de 4px (ou 6px, com `size="md"`) com `role="progressbar"`.
  *
  * @remarks
  * Excesso não estoura o trilho: `value` acima de `max` enche a barra e `aria-valuenow` vale `max`.
@@ -23,13 +28,14 @@ export type ProgressBarProps = {
  * <ProgressBar value={12} max={20} label="Horas de Extensão" />
  * ```
  */
-export function ProgressBar({ value, max, label }: ProgressBarProps): ReactNode {
+export function ProgressBar({ value, max, label, size = 'sm' }: ProgressBarProps): ReactNode {
   const safeMax = Math.max(max, 0)
   const clamped = Math.min(Math.max(value, 0), safeMax)
   const percent = safeMax > 0 ? (clamped / safeMax) * 100 : 0
 
   return (
     <S.Track
+      size={size}
       role="progressbar"
       aria-label={label}
       aria-valuenow={clamped}

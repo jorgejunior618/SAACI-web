@@ -12,7 +12,7 @@ export function ProgressBarSection(): ReactNode {
   return (
     <Section
       title="ProgressBar"
-      description="Barra de 4px com trilho sutil e role progressbar. Valor acima do máximo enche a barra e não estoura o trilho. O número da barra é texto de quem usa."
+      description="Barra de 4px (ou 6px no total do painel) com trilho sutil e role progressbar. Valor acima do máximo enche a barra e não estoura o trilho. O número da barra é texto de quem usa."
     >
       <S.Specimens>
         <Specimen label="value=0 · vazia">
@@ -33,6 +33,11 @@ export function ProgressBarSection(): ReactNode {
         <Specimen label="value=30 max=20 · corta em max">
           <S.Wrap>
             <ProgressBar value={30} max={20} label="Horas de Cultura" />
+          </S.Wrap>
+        </Specimen>
+        <Specimen label='size="md" · 6px, total do painel'>
+          <S.Wrap>
+            <ProgressBar value={12} max={20} label="Total de horas" size="md" />
           </S.Wrap>
         </Specimen>
       </S.Specimens>

@@ -8,15 +8,17 @@ const block = {
   animation: 'pulse 1.6s ease-in-out infinite',
 } as const
 
-// Alturas iguais às linhas de texto reais (36px do display, 20px do support), sem salto de layout.
-export const Total = styled('span', { base: { ...block, width: '72px', height: '36px' } })
+// Alturas iguais às linhas reais (60px do número, 20px do support, 6px da barra), sem salto de layout.
+export const Total = styled('span', {
+  base: { ...block, width: '96px', height: '60px', marginBlockStart: '1' },
+})
 
 export const Label = styled('span', {
   base: { ...block, width: '60%', height: '20px', marginBlockStart: '1' },
 })
 
 export const Bar = styled('span', {
-  base: { ...block, height: '4px', marginBlockStart: '4' },
+  base: { ...block, height: '6px', marginBlockStart: '4' },
 })
 
 export const Meta = styled('span', {

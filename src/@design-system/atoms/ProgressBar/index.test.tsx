@@ -40,4 +40,13 @@ describe('ProgressBar', () => {
     expect(bar).toHaveAttribute('aria-valuenow', '0')
     expect(fillOf(bar)).toHaveStyle({ width: '0%' })
   })
+
+  it('aceita size sem mudar o que a barra expõe', () => {
+    render(<ProgressBar value={5} max={20} label="Total" size="md" />)
+
+    const bar = screen.getByRole('progressbar', { name: 'Total' })
+
+    expect(bar).toHaveAttribute('aria-valuenow', '5')
+    expect(fillOf(bar)).toHaveStyle({ width: '25%' })
+  })
 })
