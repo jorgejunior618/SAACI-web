@@ -10,7 +10,7 @@ import { Button, LogoCompleto, Screen, TextField } from '@design-system'
 
 import { destinoDaSessao } from '@/components/SessionGate'
 import { useMostrarSenha } from '@/hooks/useMostrarSenha'
-import { SenhaNaoConfereError, contaKeys, entrar } from '@/services/conta'
+import { contaKeys, entrar, SenhaNaoConfereError } from '@/services/conta'
 
 import { type LoginForm, LoginSchema } from './schema'
 import * as S from './styles'

@@ -1,5 +1,4 @@
 import { simularLatencia, writeDb } from '../_mock'
-
 import { toSessao } from './conta.api'
 import { SenhaNaoConfereError } from './conta.errors'
 import type { Sessao } from './conta.types'

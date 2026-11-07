@@ -1,0 +1,41 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    # Gera "chore(deps): ..." e "chore(deps-dev): ...", no padrão de commit do projeto.
+    commit-message:
+      prefix: chore
+      include: scope
+    # O typescript-eslint ainda não suporta o TypeScript 7 (doc/tecnologia.md).
+    ignore:
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
+    # Uma PR por família, em vez de uma por pacote.
+    groups:
+      react:
+        patterns: ['react', 'react-dom', '@types/react', '@types/react-dom']
+      next:
+        patterns: ['next', 'eslint-config-next']
+      panda:
+        patterns: ['@pandacss/*']
+      formularios:
+        patterns: ['react-hook-form', '@hookform/*', 'valibot']
+      lint-e-formatacao:
+        patterns: ['eslint', 'eslint-*', '@tanstack/eslint-plugin-query', 'prettier']
+      testes:
+        patterns: ['vitest', '@vitest/*', '@testing-library/*', 'jsdom', '@vitejs/*']
+      git-hooks:
+        patterns: ['husky', 'lint-staged', '@commitlint/*']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: chore
+      include: scope

@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# Um PR novo cancela a execução anterior do mesmo PR.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    name: Formato, lint, tipos, testes e build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      # A versão do pnpm vem do campo packageManager do package.json.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+        env:
+          HUSKY: 0
+
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+
+      # O build baixa a fonte Geist do Google, então precisa de rede.
+      - run: pnpm build
+
+  # doc/ só muda com uma ADR (doc/adr/). Aqui é aviso e não bloqueio: o --no-verify para
+  # correção de digitação é uma exceção documentada em doc/README.md.
+  adr:
+    name: doc/ só muda com ADR
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Conferir ADR no intervalo do PR
+        continue-on-error: true
+        run: node scripts/check-adr.mjs --range origin/${{ github.base_ref }}...HEAD

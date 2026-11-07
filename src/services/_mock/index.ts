@@ -1,5 +1,5 @@
-import { type MockDb, avisarMudanca, gravarDb, lerDb, limparDb } from './db'
-import { CONTA_FIXTURE, type Fixture, criarFixture } from './fixtures'
+import { avisarMudanca, gravarDb, lerDb, limparDb, type MockDb } from './db'
+import { CONTA_FIXTURE, criarFixture, type Fixture } from './fixtures'
 
 export { onMudanca } from './db'
 export type { ContaMock, MockDb } from './db'

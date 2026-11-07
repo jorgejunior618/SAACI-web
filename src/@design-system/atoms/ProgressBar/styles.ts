@@ -1,4 +1,4 @@
-import { cva, css } from '@/styled-system/css'
+import { css, cva } from '@/styled-system/css'
 
 export const track = cva({
   base: {
