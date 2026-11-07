@@ -10,13 +10,17 @@ export default defineConfig({
   exclude: ['./src/styled-system/**'],
   // Só a preset-base: a escala padrão do Panda não existe, todo valor vem dos tokens do SAACI.
   presets: ['@pandacss/preset-base'],
-  // O tema resolvido (claro ou escuro) sempre está em data-theme no <html>: ver providers/theme.
+  // O tema segue o do sistema, sem JavaScript: os tokens com `_dark` valem nesta media query.
   conditions: {
     extend: {
-      dark: '[data-theme=dark] &',
+      dark: '@media (prefers-color-scheme: dark)',
     },
   },
   globalCss: {
+    html: {
+      // Barra de rolagem e controles nativos seguem o tema.
+      colorScheme: 'light dark',
+    },
     'html, body': {
       background: 'surface.sunken',
       color: 'ink',

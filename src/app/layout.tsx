@@ -3,8 +3,6 @@ import { Geist } from 'next/font/google'
 import type { ReactNode } from 'react'
 
 import { QueryProvider } from '@/providers/QueryProvider'
-import { themeInitScript } from '@/providers/theme'
-import { ThemeSync } from '@/providers/ThemeSync'
 
 import './globals.css'
 
@@ -22,6 +20,7 @@ export const metadata: Metadata = {
   icons: { icon: '/logo-simbolo.png' },
 }
 
+// As cores da barra do navegador repetem `surface.sunken` (claro e escuro): mude juntas.
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
@@ -38,16 +37,9 @@ type Props = {
 
 export default function RootLayout({ children }: Props): ReactNode {
   return (
-    // O script do tema muda data-theme antes da hidratação.
-    <html lang="pt-BR" className={geist.variable} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-      </head>
+    <html lang="pt-BR" className={geist.variable}>
       <body>
-        <QueryProvider>
-          <ThemeSync />
-          {children}
-        </QueryProvider>
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   )

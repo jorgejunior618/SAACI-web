@@ -28,7 +28,7 @@ SAACI-web/
     │   └── index.ts
     ├── @supabase/                alvo: client.ts, server.ts, database.types.ts
     ├── @design-system/           tokens, atoms, molecules, organisms, templates
-    ├── providers/                query-client/, QueryProvider/, theme/, ThemeSync/
+    ├── providers/                QueryProvider/ (index.tsx, query-client.ts)
     ├── hooks/                    hooks globais
     ├── utils/                    puros, sem rede
     ├── constants/
