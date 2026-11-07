@@ -29,7 +29,7 @@ nasce ou muda.
 ### Icon
 
 - Uso: invólucro do `lucide-react` com traço de 1,5px e `currentColor`. Escondido de leitor de tela; o texto ao lado carrega o significado. Nunca sozinho, sem emoji.
-- Props: `icon: LucideIcon`, `size?: 'sm' | 'md' | 'lg'` (16, 20 e 22px; padrão `md`).
+- Props: `icon: LucideIcon`, `size?: 'sm' | 'md' | 'lg' | 'xl'` (16, 20, 22 e 32px; padrão `md`). O `xl` é só a arte da tela de estado.
 - Galeria: `/design-system/icon`.
 
 ### Link
@@ -89,9 +89,23 @@ nasce ou muda.
 - Medida: o espaço entre título e corpo é 4px; o protótipo usa 2px, que não existe na escala.
 - Galeria: `/design-system/notice`.
 
+### StateScreen
+
+- Uso: conteúdo de tela inteira para os estados fora do caminho normal. `empty` mostra o símbolo do SAACI (56px, `/logo-simbolo.png` via `next/image`, `alt` vazio), `success` um check em `brand.text` e `connectionError` um wi-fi cortado em `danger`, os dois a 32px (`Icon xl`). A arte não ganha círculo de fundo. Título em `title`, texto em `support`, 8px entre os dois e 24px até as ações (coluna, até 340px). O símbolo do Saci nunca aparece em erro. O vazio orienta ("Registre a primeira atividade"), nunca diz "Nenhum item encontrado"; o erro diz que nada foi perdido, quando for verdade, e o próximo passo.
+- Props: união por `variant`. `'empty' | 'success' | 'connectionError'` pedem `title`, `description` e `actions?`. `'loading'` pede só `label`. Título, texto e ações são da tela; o componente só dá a estrutura e a arte.
+- Carregando: `Spinner lg` com `label` (lido pelo leitor de tela, uma vez) e a mesma frase visível abaixo.
+- Nível: fica em `molecules/`, porque só compõe atoms (`Icon`, `Spinner`); o plano pedia `organisms/`, mas organism não pula degrau.
+- Galeria: `/design-system/state-screen`.
+
+### LoadingState
+
+- Uso: carregamento de tela inteira. É o `StateScreen` com `variant="loading"` num atalho, sem desenho próprio.
+- Props: `label: string`, no gerúndio ("Calculando suas horas").
+- Galeria: `/design-system/state-screen`.
+
 ## Medidas sem token
 
-`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup.
+`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup, 56px do símbolo do StateScreen e 300px e 340px de largura máxima do texto e das ações do StateScreen.
 
 ## Galeria
 

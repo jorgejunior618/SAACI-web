@@ -12,6 +12,7 @@ import { LinkSection } from './_components/LinkSection'
 import { NoticeSection } from './_components/NoticeSection'
 import { ProgressBarSection } from './_components/ProgressBarSection'
 import { SpinnerSection } from './_components/SpinnerSection'
+import { StateScreenSection } from './_components/StateScreenSection'
 import { TextFieldSection } from './_components/TextFieldSection'
 import { TextStyles } from './_components/TextStyles'
 
@@ -54,6 +55,7 @@ export const sections: GallerySection[] = [
   { id: 'choice-group', title: 'ChoiceGroup', group: 'Molecules', Component: ChoiceGroupSection },
   { id: 'file-upload', title: 'FileUpload', group: 'Molecules', Component: FileUploadSection },
   { id: 'notice', title: 'Notice', group: 'Molecules', Component: NoticeSection },
+  { id: 'state-screen', title: 'StateScreen', group: 'Molecules', Component: StateScreenSection },
 ]
 
 /**

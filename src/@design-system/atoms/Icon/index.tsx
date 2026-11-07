@@ -3,15 +3,15 @@ import type { ReactNode } from 'react'
 
 import * as S from './styles'
 
-/** Tamanho do ícone: `sm` em linha de texto, `md` em botão, `lg` na barra inferior. */
-export type IconSize = 'sm' | 'md' | 'lg'
+/** Tamanho do ícone: `sm` em linha de texto, `md` em botão, `lg` na barra inferior, `xl` na arte da tela de estado. */
+export type IconSize = 'sm' | 'md' | 'lg' | 'xl'
 
-const PIXELS: Record<IconSize, number> = { sm: 16, md: 20, lg: 22 }
+const PIXELS: Record<IconSize, number> = { sm: 16, md: 20, lg: 22, xl: 32 }
 
 export type IconProps = {
   /** Ícone do `lucide-react`, importado por quem usa (`Camera`, `ArrowLeft`). */
   icon: LucideIcon
-  /** Tamanho em pixels: 16 (`sm`), 20 (`md`) ou 22 (`lg`). Padrão: `md`. */
+  /** Tamanho em pixels: 16 (`sm`), 20 (`md`), 22 (`lg`) ou 32 (`xl`). Padrão: `md`. */
   size?: IconSize
 }
 
