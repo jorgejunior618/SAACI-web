@@ -6,7 +6,7 @@ enviar o pedido à coordenação.
 
 > Fase atual: esqueleto inicial. O `src/` tem só a configuração, os tokens do design system, o
 > tema e uma página provisória em `/`. Telas e componentes entram um a um, especificados e
-> conferidos contra `design-system/`.
+> conferidos contra o catálogo do design system.
 
 ## Stack
 

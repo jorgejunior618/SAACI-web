@@ -27,5 +27,8 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 
+# Export do design system e planos de trabalho locais
+planos/
+
 # Claude Code: preferências pessoais, não do projeto
 .claude/settings.local.json

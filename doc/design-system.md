@@ -1,16 +1,15 @@
 # Design System
 
-`src/@design-system/` concentra o que é usado por mais de uma tela. A fonte visual é a pasta
-`design-system/` na raiz (exportada do Claude Design): tokens em `tokens/tokens.json`, catálogo em
-`docs/componentes.md` e o resultado de cada tela em `saaci-design-png/`. Dela vêm só valores e
-resultado final; o HTML e o CSS de lá não são copiados, os componentes são reescritos em Panda.
+`src/@design-system/` concentra o que é usado por mais de uma tela. Do design system vêm só os
+valores (tokens, cores, fonte, espaço) e o resultado final; o HTML e o CSS do protótipo não são
+copiados, os componentes são reescritos em Panda.
 
 ## O que entra
 
-Só componente catalogado em `design-system/` (`docs/componentes.md`, `docs/fundamentos.md`, `css/`),
+Só componente do catálogo do design system, registrado em `DS_REFERENCE.md` no commit em que nasce,
 mesmo que nenhuma tela o use ainda. Fora do catálogo, ficam só:
 
-- `AppFrame`: a coluna de 480px de `fundamentos.md`.
+- `AppFrame`: a coluna de `sizes.content` (480px).
 - `LoadingState`: spinner grande de tela inteira.
 - `Icon`: o invólucro de `lucide-react` com o traço de 1,5px do design.
 
@@ -50,11 +49,11 @@ Os valores vivem em `tokens/` e no `panda.config.ts`. Este documento não os rep
 - Cores semânticas com versão clara e escura (`base` e `_dark`). O tema segue o do
   sistema, só por CSS (`@media (prefers-color-scheme: dark)`), sem script e sem escolha manual.
 - Só a `preset-base` do Panda: valor fora dos tokens do SAACI não tem nome.
-- Tipografia por `textStyle` (hero, display, heading, title, body, bodyStrong, support, label,
-  caption), com a fonte Geist servida pelo próprio site via `next/font`.
+- Tipografia por `textStyle` (display, title, body, bodyStrong, support, label, caption), com a
+  fonte Geist servida pelo próprio site via `next/font`.
 - Borda, não sombra. A única sombra (`overlay`) é do bottom sheet.
 - `brand.soft` só para opção marcada. `ink.subtle` nunca é texto de leitura. `danger.fill` só no
-  botão destrutivo. `redemoinho` só no logo, na capa e no spinner grande.
+  botão destrutivo. `gorro` só no logo e na capa. `redemoinho` só na capa e no spinner grande.
 - Número de horas sempre com `tabular-nums`, para a coluna alinhar.
 
 ## Recipes
@@ -72,7 +71,7 @@ componentes. O campo de senha é o `TextField` com `type` e `action` ("Mostrar"/
 
 - Props explícitas e tipadas; `any` não é aceito.
 - Componente que recebe dado assíncrono expõe `Skeleton`.
-- Elemento interativo tem rótulo acessível e alvo de toque de pelo menos 44px.
+- Elemento interativo tem rótulo acessível e alvo de toque de pelo menos 48px (`sizes.touch`).
 - Ícone nunca aparece sozinho: sempre com texto.
 - Altura não é travada em elemento que contém texto.
 

@@ -1,7 +1,7 @@
 # DS_REFERENCE
 
 Catálogo dos componentes de `@design-system`. Cada componente entra aqui no mesmo commit em que
-nasce ou muda. Fonte visual: `design-system/` na raiz.
+nasce ou muda.
 
 Nenhum componente ainda.
 
@@ -12,5 +12,4 @@ Formato de uma entrada:
 
 - Uso: quando usar.
 - Props: as principais, com o tipo.
-- Catálogo: seção de design-system/docs/componentes.md.
 -->
