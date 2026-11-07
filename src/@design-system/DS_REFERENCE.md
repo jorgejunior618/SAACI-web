@@ -51,9 +51,37 @@ nasce ou muda.
 - Medida: uma volta em 1,2s. O protótipo usa 0,8s, que parece rápido demais.
 - Galeria: `/design-system/spinner`.
 
+## Molecules
+
+### TextField
+
+- Uso: campo de texto com rótulo sempre visível e a regra logo abaixo. Ordem fixa: rótulo, `hint`, erro, campo; o erro fica antes do campo para o leitor de tela ouvir primeiro. Campo de 48px, borda 1px `line.strong`, texto de 16px (evita zoom no celular). Obrigatório não leva asterisco; opcional escreve "(opcional)" no rótulo. Não limpa o campo após um erro.
+- Props: `label`, `hint?`, `error?`, `optional?`, `status?: 'read' | 'unread'`, mais as props de `input` (`type`, `inputMode`, `ref`). `ref` vai como prop (React 19), então funciona com o `register` do React Hook Form.
+- Estados: `error` usa borda `danger` mais grossa e mensagem em `danger`, sem ícone e sem fundo, e liga `aria-invalid`. `read` pinta o campo de `surface.muted` e escreve "Lido do certificado, confira" à direita do rótulo. `unread` deixa o campo vazio com borda tracejada `warning` e mostra `unreadMessage`, obrigatório nesse estado (o tipo recusa `unread` sem a frase), dizendo o que digitar. `error` tem prioridade: com ele o selo de leitura não aparece. `aria-describedby` junta regra, erro e selo.
+- Senha: o mesmo componente com `type="password"`. O botão Mostrar/Ocultar (alvo de 48px, `aria-pressed`) aparece sozinho; não há prop `action` nem `PasswordField`.
+- Fora do componente: validação (Valibot, na tela) e máscara de data e horas (regra de domínio, na tela).
+- Galeria: `/design-system/text-field`.
+
+### ChoiceGroup
+
+- Uso: escolha entre poucas opções (até 5) numa lista única, com o efeito de cada uma escrito embaixo. `fieldset` com `legend` em forma de pergunta; cada opção é um `label` com o `input` dentro, então a linha inteira é tocável (mínimo 48px, controle de 18px). A opção de rádio marcada ganha fundo `brand.soft`, o único fundo tingido do sistema. A linha de efeito ("Conta metade") fica sempre visível. Nada vem marcado de início. Mais de 5 opções, ou com número e regra, pedem o ItemPicker.
+- Props, radio (padrão): `legend`, `name`, `options: { value, label, effect? }[]`, `value?` (`null` ou ausente deixa tudo desmarcado), `onChange(value)`, `error?`. Genérico no tipo do `value`.
+- Props, `variant="single"`: `label`, `checked`, `onChange(checked)`, `name?`. É um checkbox isolado, num cartão próprio e sem fundo tingido. Grupo de vários checkboxes não existe no catálogo.
+- Estados: controlado. O `error` aparece entre a pergunta e a lista e é ligado ao `fieldset` por `aria-describedby`.
+- Galeria: `/design-system/choice-group`.
+
+### FileUpload
+
+- Uso: anexa o comprovante por foto ou arquivo. Rótulo, `hint` com formatos, limite e dica de frente e verso, e uma área tracejada com `Tirar foto` e `Escolher arquivo` (`secondary`, lado a lado). A linha sobre a leitura por IA, com o link de privacidade, é obrigatória e o texto é da tela (`notice` e `privacyLinkLabel` são props obrigatórias, então o tipo impede de esquecê-la). Depois de anexar, um `Card` mostra o ícone, o nome truncado (o nome inteiro fica no `title`), o tamanho e `Trocar`; a dica e a linha da IA saem.
+- Props: `label`, `hint`, `accept: string[]` (tipos MIME), `maxSizeMb`, `file?`, `error?`, `onSelect(file)`, `onReplace()`, `notice`, `privacyLinkLabel`, `privacyHref`, `privacyLinkAs?`.
+- Conferência: tipo, tamanho e arquivo vazio são recusados no próprio componente, com uma frase de motivo e próximo passo em `danger` (`role="alert"`) e sem chamar `onSelect`. É ajuda na hora, não segurança. O `error` da tela vence o do componente; no envio que caiu, `file` continua e a frase diz que o arquivo segue anexado.
+- Fora do componente: enviar e ler o arquivo (`services/`). O componente só devolve o `File`.
+- Câmera: `Tirar foto` usa `capture="environment"`. No desktop o navegador ignora e abre o seletor comum; os dois botões aparecem sempre. Não há arrastar e soltar.
+- Galeria: `/design-system/file-upload`.
+
 ## Medidas sem token
 
-`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar e 20px do Badge.
+`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup.
 
 ## Galeria
 
