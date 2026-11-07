@@ -31,12 +31,15 @@ const style = (
   },
 })
 
-// Fonte: design-system/docs/fundamentos.md, seção Tipografia.
+/**
+ * Estilos de texto do design system, usados pelo `textStyle` do Panda.
+ *
+ * @remarks
+ * `display` é o número da tela (um por tela) e `title` serve de título de tela e de seção.
+ * Os dois usam `tabular-nums` para as casas das horas alinharem.
+ */
 export const textStyles = {
-  heroXl: style('72px', '76px', '600', '-2px', true),
-  hero: style('56px', '60px', '600', '-1.6px', true),
   display: style('32px', '36px', '600', '-0.64px', true),
-  heading: style('24px', '30px', '600', '-0.2px'),
   title: style('20px', '26px', '600', '-0.2px'),
   body: style('16px', '24px', '400'),
   bodyStrong: style('16px', '24px', '500'),
