@@ -46,7 +46,12 @@ export type {
 export { TextField } from './molecules/TextField'
 export type { TextFieldProps, TextFieldStatusProps } from './molecules/TextField'
 export { TopBar } from './molecules/TopBar'
-export type { TopBarHomeProps, TopBarInnerProps, TopBarProps } from './molecules/TopBar'
+export type {
+  TopBarHomeProps,
+  TopBarInnerProps,
+  TopBarProps,
+  TopBarRootProps,
+} from './molecules/TopBar'
 export { CategoryCard } from './molecules/CategoryCard'
 export type { CategoryCardProps } from './molecules/CategoryCard'
 export { CategoryCardSkeleton } from './molecules/CategoryCard/Skeleton'

@@ -42,9 +42,30 @@ export const topBar = cva({
   variants: {
     variant: {
       home: { paddingInlineStart: '4' },
+      // Aba da barra inferior: sem Voltar, o título começa na margem de 16px como a marca.
+      root: { paddingInlineStart: '4' },
       // O botão Voltar já tem 48px de alvo e encosta na borda da tela.
       inner: { paddingInlineStart: '0' },
     },
   },
   defaultVariants: { variant: 'home' },
+})
+
+// O título da aba (`root`) é maior que o da tela interna, que divide a linha com o Voltar.
+export const topBarTitle = cva({
+  base: {
+    flex: '1',
+    minWidth: '0',
+    margin: '0',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
+  variants: {
+    level: {
+      root: { textStyle: 'title' },
+      inner: { textStyle: 'bodyStrong' },
+    },
+  },
+  defaultVariants: { level: 'inner' },
 })

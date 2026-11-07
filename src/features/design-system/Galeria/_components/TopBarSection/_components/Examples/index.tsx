@@ -12,7 +12,7 @@ const LINES = Array.from({ length: 12 }, (_, index) => `Linha ${index + 1} do co
 const noop = (): void => undefined
 
 /**
- * Os exemplos da `TopBar`. Fica no cliente porque as barras recebem funções (`onBack`, `onSignOut`),
+ * Os exemplos da `TopBar`. Fica no cliente porque as barras recebem funções (`onBack`),
  * que a página, no servidor, não pode repassar.
  */
 export function Examples(): ReactNode {
@@ -20,17 +20,17 @@ export function Examples(): ReactNode {
     <S.Specimens>
       <Specimen label='variant="home"'>
         <S.Frame>
-          <TopBar variant="home" profileHref="#perfil" onSignOut={noop} />
+          <TopBar variant="home" />
+        </S.Frame>
+      </Specimen>
+      <Specimen label='variant="root" · aba da barra inferior'>
+        <S.Frame>
+          <TopBar variant="root" title="Atividades" />
         </S.Frame>
       </Specimen>
       <Specimen label='variant="inner" · com Voltar'>
         <S.Frame>
           <TopBar variant="inner" title="Registrar atividade" onBack={noop} />
-        </S.Frame>
-      </Specimen>
-      <Specimen label='variant="inner" · sem Voltar (tela da barra inferior)'>
-        <S.Frame>
-          <TopBar variant="inner" title="Certificados" />
         </S.Frame>
       </Specimen>
       <Specimen label="título longo, corta com reticências">

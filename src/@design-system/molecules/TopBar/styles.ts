@@ -1,6 +1,6 @@
 import { styled } from '@/styled-system/jsx'
 
-import { topBar } from './recipe'
+import { topBar, topBarTitle } from './recipe'
 
 export const Root = styled('header', topBar)
 
@@ -41,14 +41,4 @@ export const Brand = styled('div', {
   },
 })
 
-export const Title = styled('h1', {
-  base: {
-    flex: '1',
-    minWidth: '0',
-    margin: '0',
-    textStyle: 'bodyStrong',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  },
-})
+export const Title = styled('h1', topBarTitle)

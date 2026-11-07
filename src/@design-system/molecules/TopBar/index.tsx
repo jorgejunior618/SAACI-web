@@ -1,8 +1,7 @@
-import { ArrowLeft, User } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
 import type { ElementType, ReactNode } from 'react'
 
-import { Button } from '../../atoms/Button'
 import { Icon } from '../../atoms/Icon'
 import * as S from './styles'
 
@@ -14,13 +13,16 @@ type TopBarBase = {
   linkAs?: ElementType
 }
 
-export type TopBarHomeProps = TopBarBase & {
-  /** Barra da tela de Início: símbolo e nome do SAACI, Perfil e Sair. */
+export type TopBarHomeProps = {
+  /** Barra da tela de Início: só o símbolo e o nome do SAACI. Perfil é uma aba da barra inferior. */
   variant: 'home'
-  /** Destino do ícone de Perfil. */
-  profileHref: string
-  /** Ação do botão Sair, que é escrito por extenso. */
-  onSignOut: () => void
+}
+
+export type TopBarRootProps = {
+  /** Barra de uma aba da barra inferior (Atividades, Eventos, Perfil): o título da tela, sem Voltar. */
+  variant: 'root'
+  /** Título da tela, o `h1` da página. Título longo é cortado com reticências. */
+  title: string
 }
 
 type TopBarInnerBack =
@@ -44,39 +46,42 @@ export type TopBarInnerProps = TopBarBase &
     title: string
   }
 
-export type TopBarProps = TopBarHomeProps | TopBarInnerProps
+export type TopBarProps = TopBarHomeProps | TopBarRootProps | TopBarInnerProps
 
 /**
  * Barra de topo de 56px, no creme do fundo, sem borda parada e sem sombra.
  *
  * @remarks
- * `home` mostra o símbolo, o nome, Perfil (só ícone, com `aria-label`) e Sair (texto). `inner` mostra
- * Voltar (só ícone, com `aria-label`) e o título em `h1`; telas da barra inferior não passam Voltar.
+ * `home` mostra só o símbolo e o nome, e é a barra do Início. `root` mostra o título da aba em `h1`
+ * (`title`, 20px), sem Voltar: é a barra de Atividades, Eventos e Perfil. `inner` mostra Voltar (só
+ * ícone, com `aria-label`) e o título em `h1` de 16px, para as telas que abrem a partir de uma aba.
  * A borda inferior aparece só quando o conteúdo rola por baixo, por CSS
- * (`animation-timeline: scroll()`, que segue o rolador mais próximo), sem JavaScript. Navegador sem esse recurso fica sem a borda. O espaço da área segura de cima faz parte
- * da altura. Precisa estar numa página que rola (use no `topBar` do `AppFrame`).
+ * (`animation-timeline: scroll()`, que segue o rolador mais próximo), sem JavaScript. Navegador sem
+ * esse recurso fica sem a borda. O espaço da área segura de cima faz parte da altura. Precisa estar
+ * numa página que rola (use no `topBar` do `AppFrame`).
  *
  * @example
  * ```tsx
+ * <TopBar variant="root" title="Atividades" />
  * <TopBar variant="inner" title="Registrar atividade" backHref="/inicio" linkAs={NextLink} />
  * ```
  */
 export function TopBar(props: TopBarProps): ReactNode {
   if (props.variant === 'home') {
-    const { profileHref, onSignOut, linkAs } = props
-
     return (
       <S.Root variant="home">
         <S.Brand>
           <Image src="/logo-simbolo.png" width={24} height={24} alt="" />
           SAACI
         </S.Brand>
-        <S.IconLink as={linkAs} href={profileHref} aria-label="Perfil">
-          <Icon icon={User} />
-        </S.IconLink>
-        <Button variant="tertiary" onClick={onSignOut}>
-          Sair
-        </Button>
+      </S.Root>
+    )
+  }
+
+  if (props.variant === 'root') {
+    return (
+      <S.Root variant="root">
+        <S.Title level="root">{props.title}</S.Title>
       </S.Root>
     )
   }
@@ -94,7 +99,7 @@ export function TopBar(props: TopBarProps): ReactNode {
           <Icon icon={ArrowLeft} />
         </S.IconButton>
       ) : null}
-      <S.Title>{title}</S.Title>
+      <S.Title level="inner">{title}</S.Title>
     </S.Root>
   )
 }

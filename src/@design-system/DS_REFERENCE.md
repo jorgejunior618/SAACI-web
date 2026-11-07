@@ -65,9 +65,10 @@ nasce ou muda.
 
 ### TopBar
 
-- Uso: barra no topo, 56px (`sizes.topbar`) mais a área segura de cima, no creme do fundo (`surface.sunken`), **sem borda parada e sem sombra**. `home` mostra o símbolo (24px, `/logo-simbolo.png` via `next/image`, `alt` vazio), "SAACI" em `brand.text`, Perfil e Sair. `inner` mostra Voltar e o título em `h1`, 16px peso 500, com reticências se for longo. Telas da barra inferior não têm Voltar.
-- Props, união por `variant`: `home` pede `profileHref` e `onSignOut`; `inner` pede `title` e aceita `backHref` **ou** `onBack` (os dois juntos o tipo recusa; nenhum dos dois, sem Voltar). `linkAs?` (como `Link.as`) troca o `<a>` pelo `Link` do `next/link`.
-- Exceção de ícone: Voltar e Perfil aparecem só com ícone, cada um com `aria-label` ("Voltar", "Perfil") e alvo de 48px. É a única exceção a "ícone nunca sozinho" (`doc/design-system.md`); Sair é sempre texto.
+- Uso: barra no topo, 56px (`sizes.topbar`) mais a área segura de cima, no creme do fundo (`surface.sunken`), **sem borda parada e sem sombra**. Três variantes. `home` é a barra do Início: o símbolo (24px, `/logo-simbolo.png` via `next/image`, `alt` vazio) e "SAACI" em `brand.text`, sem Perfil nem Sair (Perfil é aba da barra inferior). `root` é a barra de uma aba (Atividades, Eventos, Perfil): o título em `h1`, `title` (20/26, peso 600), sem Voltar. `inner` é a de tela que abre a partir de uma aba: Voltar e o título em `h1`, 16px peso 500, com reticências se for longo.
+- Props, união por `variant`: `home` não tem props; `root` pede `title`; `inner` pede `title` e aceita `backHref` **ou** `onBack` (os dois juntos o tipo recusa; nenhum dos dois, sem Voltar) e `linkAs?` (como `Link.as`) para trocar o `<a>` pelo `Link` do `next/link`.
+- Exceção de ícone: Voltar aparece só com ícone, com `aria-label` "Voltar" e alvo de 48px. É a única exceção a "ícone nunca sozinho" (`doc/design-system.md`).
+- Sair: saiu da barra. A tela de Perfil é quem oferece a saída da conta.
 - Borda ao rolar: uma linha de 1px em `line` (`::after`) com a animação `edgeIn` ligada à rolagem por `animation-timeline: scroll()`, sem JavaScript, em `@supports`. Parado, sem borda. O `scroll()` segue o rolador mais próximo (a página numa tela, a janela na galeria). Navegador sem o recurso fica sem a linha. Com `prefers-reduced-motion` a duração fixa da regra global é trocada por `auto`, para a linha seguir a rolagem.
 - Galeria: `/design-system/top-bar`.
 
