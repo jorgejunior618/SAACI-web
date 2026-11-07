@@ -2,4 +2,3 @@
 node_modules/
 pnpm-lock.yaml
 src/styled-system/
-design-system/
