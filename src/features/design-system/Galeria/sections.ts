@@ -6,6 +6,7 @@ import { BottomNavSection } from './_components/BottomNavSection'
 import { BottomSheetSection } from './_components/BottomSheetSection'
 import { ButtonSection } from './_components/ButtonSection'
 import { CardSection } from './_components/CardSection'
+import { CategoryCardSection } from './_components/CategoryCardSection'
 import { ChoiceGroupSection } from './_components/ChoiceGroupSection'
 import { Colors } from './_components/Colors'
 import { FileUploadSection } from './_components/FileUploadSection'
@@ -69,6 +70,12 @@ export const sections: GallerySection[] = [
     title: 'TotalProgress',
     group: 'Molecules',
     Component: TotalProgressSection,
+  },
+  {
+    id: 'category-card',
+    title: 'CategoryCard',
+    group: 'Molecules',
+    Component: CategoryCardSection,
   },
   { id: 'app-frame', title: 'AppFrame', group: 'Templates', Component: AppFrameSection },
 ]

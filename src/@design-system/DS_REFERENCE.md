@@ -138,6 +138,15 @@ nasce ou muda.
 - Skeleton: `TotalProgressSkeleton`, blocos em `progress.track` com o keyframe `pulse`, escondidos de leitor de tela (`aria-hidden`).
 - Galeria: `/design-system/total-progress`.
 
+### CategoryCard
+
+- Uso: um cartão por item em que o aluno já tem horas. "Item 7" em `caption` `ink.muted`, nome em `bodyStrong` até 2 linhas, horas em `title` tabular ("18,0h") com o máximo em `support` na mesma linha de base ("de 60h"), `ProgressBar` e rodapé `support` ("Ainda cabem 42,0h"). Ritmo: 12px do nome ao número, 8px entre número, barra e rodapé; os 8px entre cartões são da tela. Item sem horas não vira cartão: vai para o `Disclosure`.
+- Props: `itemNumber`, `name`, `countedHours`, `maxHours`, `overflowHours?`, `href`, `linkAs?` (como `Link.as`). Recebe valores prontos (RNF20) e formata com `formatHours`.
+- Completo (`countedHours >= maxHours`): número e rodapé em `brand.text`, rodapé "Completo. 4,0h registradas não contam" (ou só "Completo" sem excedente). Sem check, sem badge.
+- Acessibilidade: o cartão inteiro é o link (`Card as="a"`), com a seta `ChevronRight` de 16px à direita. A barra fica `aria-hidden`, porque os números do texto dizem o mesmo.
+- Skeleton: `CategoryCardSkeleton`, blocos com o keyframe `pulse`, `aria-hidden`.
+- Galeria: `/design-system/category-card`.
+
 ## Templates
 
 ### AppFrame
