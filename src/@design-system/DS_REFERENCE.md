@@ -62,6 +62,14 @@ nasce ou muda.
 - Fora do componente: validação (Valibot, na tela) e máscara de data e horas (regra de domínio, na tela).
 - Galeria: `/design-system/text-field`.
 
+### TopBar
+
+- Uso: barra no topo, 56px (`sizes.topbar`) mais a área segura de cima, no creme do fundo (`surface.sunken`), **sem borda parada e sem sombra**. `home` mostra o símbolo (24px, `/logo-simbolo.png` via `next/image`, `alt` vazio), "SAACI" em `brand.text`, Perfil e Sair. `inner` mostra Voltar e o título em `h1`, 16px peso 500, com reticências se for longo. Telas da barra inferior não têm Voltar.
+- Props, união por `variant`: `home` pede `profileHref` e `onSignOut`; `inner` pede `title` e aceita `backHref` **ou** `onBack` (os dois juntos o tipo recusa; nenhum dos dois, sem Voltar). `linkAs?` (como `Link.as`) troca o `<a>` pelo `Link` do `next/link`.
+- Exceção de ícone: Voltar e Perfil aparecem só com ícone, cada um com `aria-label` ("Voltar", "Perfil") e alvo de 48px. É a única exceção a "ícone nunca sozinho" (`doc/design-system.md`); Sair é sempre texto.
+- Borda ao rolar: uma linha de 1px em `line` (`::after`) com a animação `edgeIn` ligada à rolagem por `animation-timeline: scroll()`, sem JavaScript, em `@supports`. Parado, sem borda. O `scroll()` segue o rolador mais próximo (a página numa tela, a janela na galeria). Navegador sem o recurso fica sem a linha. Com `prefers-reduced-motion` a duração fixa da regra global é trocada por `auto`, para a linha seguir a rolagem.
+- Galeria: `/design-system/top-bar`.
+
 ### BottomSheet
 
 - Uso: painel que sobe da base para confirmar uma ação que apaga algo, sem sair da tela. Véu `scrim` e painel em `surface.raised`, cantos de cima `card` e `shadow.overlay`: é o **único** componente com sombra. Alça, título em forma de pergunta (`title`), a consequência em `support` e as ações empilhadas em largura total, 24px abaixo do texto: a destrutiva (`Button danger block`) e a de manter (`Button secondary block`). "Manter" ou "Cancelar", nunca "Não". Apagar a conta usa tela própria com confirmação por senha, não um sheet.
@@ -124,7 +132,7 @@ nasce ou muda.
 
 ## Medidas sem token
 
-`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup, 56px do símbolo do StateScreen 300px e 340px de largura máxima do texto e das ações do StateScreen, e 36 por 4px da alça do BottomSheet.
+`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup, 56px do símbolo do StateScreen, 300px e 340px de largura máxima do texto e das ações do StateScreen, 36 por 4px da alça do BottomSheet, e 24px do símbolo, 1px da linha e 16px de rolagem da borda da TopBar.
 
 ## Galeria
 

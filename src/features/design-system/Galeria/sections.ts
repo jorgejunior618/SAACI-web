@@ -17,6 +17,7 @@ import { SpinnerSection } from './_components/SpinnerSection'
 import { StateScreenSection } from './_components/StateScreenSection'
 import { TextFieldSection } from './_components/TextFieldSection'
 import { TextStyles } from './_components/TextStyles'
+import { TopBarSection } from './_components/TopBarSection'
 
 /** Grupo da sidebar em que a seção aparece. */
 export type SectionGroup = 'Fundamentos' | 'Atoms' | 'Molecules' | 'Templates'
@@ -59,6 +60,7 @@ export const sections: GallerySection[] = [
   { id: 'notice', title: 'Notice', group: 'Molecules', Component: NoticeSection },
   { id: 'bottom-sheet', title: 'BottomSheet', group: 'Molecules', Component: BottomSheetSection },
   { id: 'state-screen', title: 'StateScreen', group: 'Molecules', Component: StateScreenSection },
+  { id: 'top-bar', title: 'TopBar', group: 'Molecules', Component: TopBarSection },
   { id: 'app-frame', title: 'AppFrame', group: 'Templates', Component: AppFrameSection },
 ]
 
