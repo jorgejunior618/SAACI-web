@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { BadgeSection } from './_components/BadgeSection'
 import { ButtonSection } from './_components/ButtonSection'
 import { CardSection } from './_components/CardSection'
+import { ChoiceGroupSection } from './_components/ChoiceGroupSection'
 import { Colors } from './_components/Colors'
 import { IconSection } from './_components/IconSection'
 import { Layout } from './_components/Layout'
@@ -48,6 +49,7 @@ export const sections: GallerySection[] = [
   { id: 'spinner', title: 'Spinner', group: 'Atoms', Component: SpinnerSection },
   { id: 'progress-bar', title: 'ProgressBar', group: 'Atoms', Component: ProgressBarSection },
   { id: 'text-field', title: 'TextField', group: 'Molecules', Component: TextFieldSection },
+  { id: 'choice-group', title: 'ChoiceGroup', group: 'Molecules', Component: ChoiceGroupSection },
 ]
 
 /**

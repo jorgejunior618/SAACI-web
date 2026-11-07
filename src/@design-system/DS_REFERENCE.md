@@ -62,9 +62,17 @@ nasce ou muda.
 - Fora do componente: validação (Valibot, na tela) e máscara de data e horas (regra de domínio, na tela).
 - Galeria: `/design-system/text-field`.
 
+### ChoiceGroup
+
+- Uso: escolha entre poucas opções (até 5) numa lista única, com o efeito de cada uma escrito embaixo. `fieldset` com `legend` em forma de pergunta; cada opção é um `label` com o `input` dentro, então a linha inteira é tocável (mínimo 48px, controle de 18px). A opção de rádio marcada ganha fundo `brand.soft`, o único fundo tingido do sistema. A linha de efeito ("Conta metade") fica sempre visível. Nada vem marcado de início. Mais de 5 opções, ou com número e regra, pedem o ItemPicker.
+- Props, radio (padrão): `legend`, `name`, `options: { value, label, effect? }[]`, `value?` (`null` ou ausente deixa tudo desmarcado), `onChange(value)`, `error?`. Genérico no tipo do `value`.
+- Props, `variant="single"`: `label`, `checked`, `onChange(checked)`, `name?`. É um checkbox isolado, num cartão próprio e sem fundo tingido. Grupo de vários checkboxes não existe no catálogo.
+- Estados: controlado. O `error` aparece entre a pergunta e a lista e é ligado ao `fieldset` por `aria-describedby`.
+- Galeria: `/design-system/choice-group`.
+
 ## Medidas sem token
 
-`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge e 84px de respiro do TextField sob o botão Mostrar/Ocultar.
+`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup.
 
 ## Galeria
 
