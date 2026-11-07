@@ -3,7 +3,7 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 
-import { getQueryClient } from '../query-client'
+import { getQueryClient } from './query-client'
 
 type Props = {
   /** Árvore que pode usar os hooks do React Query. */
