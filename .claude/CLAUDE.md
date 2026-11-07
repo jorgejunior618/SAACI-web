@@ -7,20 +7,20 @@ TanStack Query + React Hook Form e Valibot. Backend: Supabase (alvo), hoje mock.
 
 Leia **apenas** o documento da tarefa. Não carregue `doc/` inteiro.
 
-| Tarefa                                     | Leia                                                                                |
-| ------------------------------------------ | ----------------------------------------------------------------------------------- |
-| Decidir onde uma lógica mora               | `doc/arquitetura.md`                                                                |
-| Criar arquivo ou pasta                     | `doc/estrutura-pastas.md`                                                           |
-| Service, mock, tradução de erro            | `doc/camada-servicos.md`                                                            |
-| Buscar, cachear ou invalidar dado          | `doc/react-query.md`                                                                |
-| Criar ou alterar tela                      | `doc/design-system.md` (a tela é especificada e validada pela equipe)               |
-| Criar ou promover componente compartilhado | `doc/design-system.md` e `src/@design-system/DS_REFERENCE.md`                       |
-| Estilo, nomes, formulário                  | `doc/convencoes-codigo.md`                                                          |
-| Escrever ou decidir teste                  | `doc/testes.md`                                                                     |
-| Tabela, coluna ou relação (Supabase)       | `doc/modelagem-dados.md`                                                            |
-| Policy, RLS, Storage, Auth                 | `doc/rls-e-permissoes.md`                                                           |
-| Escolher biblioteca                        | `doc/tecnologia.md`                                                                 |
-| Mudar uma regra                            | `doc/adr/` (modelo em `0000-modelo.md`)                                             |
+| Tarefa                                     | Leia                                                                  |
+| ------------------------------------------ | --------------------------------------------------------------------- |
+| Decidir onde uma lógica mora               | `doc/arquitetura.md`                                                  |
+| Criar arquivo ou pasta                     | `doc/estrutura-pastas.md`                                             |
+| Service, mock, tradução de erro            | `doc/camada-servicos.md`                                              |
+| Buscar, cachear ou invalidar dado          | `doc/react-query.md`                                                  |
+| Criar ou alterar tela                      | `doc/design-system.md` (a tela é especificada e validada pela equipe) |
+| Criar ou promover componente compartilhado | `doc/design-system.md` e `src/@design-system/DS_REFERENCE.md`         |
+| Estilo, nomes, formulário                  | `doc/convencoes-codigo.md`                                            |
+| Escrever ou decidir teste                  | `doc/testes.md`                                                       |
+| Tabela, coluna ou relação (Supabase)       | `doc/modelagem-dados.md`                                              |
+| Policy, RLS, Storage, Auth                 | `doc/rls-e-permissoes.md`                                             |
+| Escolher biblioteca                        | `doc/tecnologia.md`                                                   |
+| Mudar uma regra                            | `doc/adr/` (modelo em `0000-modelo.md`)                               |
 
 ## Regras sempre válidas
 
@@ -29,7 +29,8 @@ Leia **apenas** o documento da tarefa. Não carregue `doc/` inteiro.
   com `@/services/<dominio>`, nunca com o mock.
 - `app/` contém apenas rota, layout e prefetch.
 - Toda resposta de service passa por `v.parse`.
-- Verbo em inglês, substantivo de domínio em português. Texto exibido em PT-BR.
+- Identificador em inglês (arquivo, função, tipo, campo), menos a rota e a pasta de tela, que ficam em
+  português. Texto exibido em PT-BR.
 - Horas computadas têm um cálculo só, consumido por painel, resumo e formulário (RNF20).
 - Autorização é RLS (alvo). Esconder botão é UX, não segurança.
 - Design system: só entra o que a equipe especificou e validou, registrado em

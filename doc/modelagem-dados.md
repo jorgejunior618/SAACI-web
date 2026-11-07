@@ -46,9 +46,9 @@ do perfil derruba o progresso (`react-query.md`).
 
 - **Data da atividade** é quando ela **terminou** (RF38), não quando foi lançada (`created_at`). A
   primeira decide se conta; a segunda, quando o aluno a registrou.
-- **Registrar e remover, nunca editar (RF17).** Para corrigir, o aluno remove e registra de novo.
-  Se a edição entrar, a tabela passa a incluir `updated_at` no `WHERE` de toda escrita: zero linhas
-  afetadas é conflito, não sucesso.
+- **Corrigir, remover e registrar de novo (ADR 0001).** O aluno corrige nome, item, quantidade e
+  data; o comprovante não se troca (para usar outro arquivo, remove e registra de novo). Toda escrita
+  inclui o `updated_at` lido no `WHERE`: zero linhas afetadas é conflito, não sucesso.
 - **Comprovante repetido é avisado, não bloqueado (RF42).** Por isso o hash do arquivo fica em coluna
   comum com índice, nunca em `unique`: um `unique` recusaria o que o produto manda só avisar.
 

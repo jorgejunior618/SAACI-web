@@ -27,12 +27,12 @@ O service devolve tipo de domínio em `camelCase`, inferido do schema Valibot. A
 como `string`, porque `Date` não sobrevive ao `dehydrate` (`react-query.md`).
 
 ```ts
-// conta.types.ts (formato esperado: hoje `Sessao` ainda é um `type` simples)
-export const SessaoSchema = v.object({
+// account.types.ts (formato esperado: hoje `Session` ainda é um `type` simples)
+export const SessionSchema = v.object({
   email: v.pipe(v.string(), v.email()),
 })
 
-export type Sessao = v.InferOutput<typeof SessaoSchema>
+export type Session = v.InferOutput<typeof SessionSchema>
 ```
 
 ## O mock
@@ -61,11 +61,11 @@ Na migração, `<dom>.api.ts` e `<dom>.mutations.ts` trocam a chamada ao `<dom>.
 Toda saída passa por `v.parse`:
 
 ```ts
-// conta.api.ts (formato esperado)
-export async function getSessao(): Promise<Sessao | null> {
-  const conta = await getContaComSessao()
+// account.api.ts (formato esperado)
+export async function getSession(): Promise<Session | null> {
+  const account = await getAccountWithSession()
 
-  return conta ? v.parse(SessaoSchema, { email: conta.email }) : null
+  return account ? v.parse(SessionSchema, { email: account.email }) : null
 }
 ```
 
@@ -75,12 +75,12 @@ fora do formato quando a fonte for o Supabase, antes de ela chegar na tela.
 ## Escrita
 
 ```ts
-// conta.mutations.ts (formato esperado)
-export async function entrar(email: string, senha: string): Promise<Sessao> {
-  const conta = await openSessao(normalizar(email), senha)
+// account.mutations.ts (formato esperado)
+export async function signIn(email: string, password: string): Promise<Session> {
+  const account = await openSession(normalizeEmail(email), password)
 
-  if (!conta) throw new SenhaNaoConfereError()
-  return toSessao(conta)
+  if (!account) throw new InvalidCredentialsError()
+  return toSession(account)
 }
 ```
 
@@ -91,7 +91,7 @@ constraint. Erro sem tradução conhecida é **repassado intacto**, nunca engoli
 conhece evita que um bug de rede vire "a senha não confere" na tela. `<dom>.errors.ts` entra quando
 a primeira tradução aparecer.
 
-`SenhaNaoConfereError` tem a mesma mensagem para e-mail desconhecido e senha errada. Dizer qual dos
+`InvalidCredentialsError` tem a mesma mensagem para e-mail desconhecido e senha errada. Dizer qual dos
 dois errou ajudaria quem tenta descobrir e-mails de aluno.
 
 ## Quando o Supabase entrar
@@ -99,10 +99,10 @@ dois errou ajudaria quem tenta descobrir e-mails de aluno.
 > Alvo (Supabase): ainda não implementado.
 
 - **Cliente do banco.** A mesma função roda no servidor (prefetch) e no navegador. O cliente entra por
-  parâmetro, com o do navegador como padrão: `getAtividades(filtros, db = createClient())`. O Server
+  parâmetro, com o do navegador como padrão: `getActivities(filtros, db = createClient())`. O Server
   Component sempre passa o seu, porque **omitir no servidor cai no cliente do navegador, que não
   enxerga o cookie de sessão: a busca volta vazia, sem erro nenhum**.
-- **Tradução de erro.** `invalid_credentials` vira `SenhaNaoConfereError` e `email_not_confirmed` vira
+- **Tradução de erro.** `invalid_credentials` vira `InvalidCredentialsError` e `email_not_confirmed` vira
   um erro próprio, que a tela leva à verificação (RF05).
 - **Escrita com comprovante.** O arquivo sobe antes, para a pasta do dono, e a RPC recebe só a
   referência. Se a RPC falhar, o arquivo fica órfão e uma rotina agendada o limpa. O que o aluno
@@ -118,7 +118,7 @@ dois errou ajudaria quem tenta descobrir e-mails de aluno.
 ## Regras
 
 - Toda resposta passa por `v.parse` antes de sair do service.
-- Nome de função carrega o domínio: `createAtividade`, não `create`.
+- Nome de função carrega o domínio: `createActivity`, não `create`.
 - O service devolve Promise pura, mesmo sobre o mock, e não conhece React nem TanStack Query.
 - Erro sem tradução conhecida é lançado, nunca engolido. Quem trata é a tela.
 - Alvo: colunas são listadas (`select('*')` não), e filtro, ordenação e paginação vão na query, nunca

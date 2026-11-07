@@ -57,9 +57,10 @@ Não existe `SupabaseProvider`: os clientes são funções de `@supabase/`, não
 
 ## Domínios
 
-O mesmo nome vale em `features/` e em `services/`, com uma exceção: os domínios que só **compõem**.
-Uma tela de painel ou de formulário não tem `services/painel/`, porque não tem dado próprio: lê
-`progresso`, `atividades` e `regras`, que já respondem por esses números. Um service aqui inventaria
+Um domínio tem nome em português em `features/` (vocabulário da tela) e em inglês em `services/`
+(`features/atividades/` fala com `services/activities/`). A exceção são os domínios que só **compõem**.
+Uma tela de painel ou de formulário não tem `services/dashboard/`, porque não tem dado próprio: lê
+`progress`, `activities` e `rules`, que já respondem por esses números. Um service aqui inventaria
 um segundo dono para um dado que já tem dono, e a primeira divergência apareceria quando alguém
 corrigisse o total em um lugar e não na cópia (RNF20).
 
@@ -78,12 +79,12 @@ um `SessionGate` no modo certo. Quem chega no grupo errado é levado para o luga
 | --------------- | ------------------------------------------------------- |
 | `page.tsx`      | toda rota, com `export const metadata` do título da aba |
 | `loading.tsx`   | rota que suspende, reexporta o `Loading` da feature     |
-| `error.tsx`     | um por grupo, reexportando `components/ErroDeTela`      |
+| `error.tsx`     | um por grupo, reexportando `components/ErrorScreen`     |
 | `not-found.tsx` | raiz, um por grupo e um por entidade (abaixo)           |
 
 `notFound()` sobe até o `not-found.tsx` mais próximo, então a **posição do arquivo** diz o que não
 foi encontrado: na raiz, URL sem rota; no grupo, rede de segurança; na entidade (`atividades/[id]/`),
-o item que não existe, com volta para a lista. Os três reusam `components/TelaNaoEncontrada`. Só o da
+o item que não existe, com volta para a lista. Os três reusam `components/NotFoundScreen`. Só o da
 raiz pode ter `metadata`: num segmento o `<title>` da página já foi enviado quando `notFound()` roda.
 
 ## Aliases

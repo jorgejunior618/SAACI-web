@@ -47,10 +47,10 @@ uma vez: comente a regra que ele protege, rode, veja vermelho, restaure.
   verde por acidente.
 
   ```ts
-  const registros = await getAtividades(filtros)
+  const records = await getActivities(filtros)
 
-  expect(registros.length).toBeGreaterThan(0) // pré-condição: há o que comparar
-  expect(somaDasLinhas(registros)).toBe(totais.horasComputadas)
+  expect(records.length).toBeGreaterThan(0) // pré-condição: há o que comparar
+  expect(sumOfRows(records)).toBe(totals.computedHours)
   ```
 
 ## Formatação em asserção
