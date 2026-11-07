@@ -1,11 +1,10 @@
 import { styled } from '@/styled-system/jsx'
 
-export const Content = styled('div', {
+export const Content = styled('main', {
   base: {
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
-    gap: '6',
-    width: '100%',
+    gap: '2',
+    padding: '6',
   },
 })

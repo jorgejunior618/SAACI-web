@@ -4,10 +4,9 @@ Aplicação web do SAACI, Sistema de Apoio Acadêmico Colaborativo do IFCE. Ajud
 as regras de atividades complementares, registrar comprovantes e acompanhar as horas antes de
 enviar o pedido à coordenação.
 
-> Fase atual: só front, reduzido ao login. Existem a tela de login (`/login`) e uma página
-> provisória depois de entrar (`/`), com o logo e o botão Sair. Não há cadastro: crie a conta de
-> exemplo pelo painel "Mock" (canto da tela, só em desenvolvimento) e entre com o e-mail e a senha
-> que ele mostra. Tudo fica no localStorage do navegador.
+> Fase atual: esqueleto inicial. O `src/` tem só a configuração, os tokens do design system, o
+> tema e uma página provisória em `/`. Telas e componentes entram um a um, especificados e
+> conferidos contra `design-system/`.
 
 ## Stack
 
@@ -26,7 +25,7 @@ pnpm install
 pnpm dev
 ```
 
-Não há variável de ambiente: sem backend, os dados vêm de um mock em `src/services/_mock/`.
+Não há variável de ambiente nem backend ainda.
 
 ## Scripts
 

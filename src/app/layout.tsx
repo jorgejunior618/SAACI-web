@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next'
 import { Geist } from 'next/font/google'
 import type { ReactNode } from 'react'
 
-import { MockPanel } from '@/components/MockPanel'
 import { QueryProvider } from '@/providers/QueryProvider'
 import { themeInitScript } from '@/providers/theme'
 import { ThemeSync } from '@/providers/ThemeSync'
@@ -48,7 +47,6 @@ export default function RootLayout({ children }: Props): ReactNode {
         <QueryProvider>
           <ThemeSync />
           {children}
-          {process.env.NODE_ENV === 'development' && <MockPanel />}
         </QueryProvider>
       </body>
     </html>
