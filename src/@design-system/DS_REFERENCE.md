@@ -129,6 +129,39 @@ nasce ou muda.
 - Props: `label: string`, no gerúndio ("Calculando suas horas").
 - Galeria: `/design-system/state-screen`.
 
+### TotalProgress
+
+- Uso: topo do painel. O total que **falta** em `display` ("47h"), o rótulo "Faltam para completar suas horas" 4px abaixo, a `ProgressBar` 16px abaixo e a linha de meta em `support` tabular ("73h feitas" à esquerda, "meta de 120h" à direita). Um `display` por tela. Com 0h a tela usa `StateScreen empty`, não este cartão com barra vazia.
+- Props: `doneHours`, `goalHours`, `guideHref?`, `linkAs?` (como `Link.as`). O componente recebe o valor pronto e não soma nada (RNF20); só formata com `formatHours` (`src/utils/format-hours.ts`).
+- Total: inteiro, arredondado para baixo (`Math.floor` nas horas feitas) e limitado à meta. A barra nunca passa de 100% e o "falta" nunca é negativo. 119,9h ainda não é completo.
+- Completo (`doneHours >= goalHours`): o número vira a meta em `brand.text`, o rótulo diz "Você completou suas horas", o link "Ver como entregar seu pedido" leva ao guia do formulário (só aparece com `guideHref`) e **não há barra**.
+- Skeleton: `TotalProgressSkeleton`, blocos em `progress.track` com o keyframe `pulse`, escondidos de leitor de tela (`aria-hidden`).
+- Galeria: `/design-system/total-progress`.
+
+### CategoryCard
+
+- Uso: um cartão por item em que o aluno já tem horas. "Item 7" em `caption` `ink.muted`, nome em `bodyStrong` até 2 linhas, horas em `title` tabular ("18,0h") com o máximo em `support` na mesma linha de base ("de 60h"), `ProgressBar` e rodapé `support` ("Ainda cabem 42,0h"). Ritmo: 12px do nome ao número, 8px entre número, barra e rodapé; os 8px entre cartões são da tela. Item sem horas não vira cartão: vai para o `Disclosure`.
+- Props: `itemNumber`, `name`, `countedHours`, `maxHours`, `overflowHours?`, `href`, `linkAs?` (como `Link.as`). Recebe valores prontos (RNF20) e formata com `formatHours`.
+- Completo (`countedHours >= maxHours`): número e rodapé em `brand.text`, rodapé "Completo. 4,0h registradas não contam" (ou só "Completo" sem excedente). Sem check, sem badge.
+- Acessibilidade: o cartão inteiro é o link (`Card as="a"`), com a seta `ChevronRight` de 16px à direita. A barra fica `aria-hidden`, porque os números do texto dizem o mesmo.
+- Skeleton: `CategoryCardSkeleton`, blocos com o keyframe `pulse`, `aria-hidden`.
+- Galeria: `/design-system/category-card`.
+
+### Disclosure
+
+- Uso: seção de consulta que abre e fecha, feita com `<details>`/`<summary>`: funciona sem JavaScript e com leitor de tela. Cabeçalho com título (peso 500), contador em `ink.muted` e seta à direita que gira (`transition` de `durations.fast`; com `prefers-reduced-motion` a regra global zera a transição e a seta só pula, ainda legível). Um nível só: sem `Disclosure` dentro de `Disclosure`. Não esconde passo obrigatório. No painel vazio vem aberta.
+- Props: `title`, `count?`, `defaultOpen?` (só vale na primeira renderização), `children`, mais as props de `details`. `Disclosure.Row` (`itemNumber`, `name`, `rule?`) é a linha de item: número em coluna de 20px alinhada à direita, tabular, `ink.muted`; nome em `body`; regra em `support` abaixo; divisória com recuo a partir do nome. O corpo é um `ul`, então qualquer `li` (como o `ActivityRow`) também entra.
+- Sem Skeleton: não recebe dado, só `children`.
+- Galeria: `/design-system/disclosure`.
+
+### ActivityRow
+
+- Uso: linha de atividade registrada. Checkbox de 18px opcional (fora do link, área de toque de 48px, `aria-label` "Selecionar <título>"), título `bodyStrong` em 1 linha com reticências, metadados `support` `ink.muted` separados por `·` em `ink.subtle`, seta de 16px. O estado é dito pela **cor da duração**, sem badge: `counts` ("2,0h · 12/03/2025", tudo cinza), `partial` ("1,0h de 2,0h" em `warning`) e `doesNotCount` ("Não conta" em `danger` e o motivo em cinza).
+- Props, união por `status`: `counts` pede `countedHours` e `endDate`; `partial` pede `countedHours`, `activityHours` e `endDate`; `doesNotCount` pede `reason`. Comuns: `title`, `href`, `linkAs?`, `selection?: { checked, onChange }`. O `status` chega pronto (o DS não decide o que conta) e `endDate` chega formatada.
+- Estrutura: renderiza `li`; a lista com borda e a ordem por data de término são da tela. Divisória com recuo; com `selection` o recuo acompanha o título (46px). O link cobre título, metadados e seta. Remover fica no detalhe, nunca por gesto de arrastar.
+- Skeleton: `ActivityRowSkeleton` (também `li`), `aria-hidden`.
+- Galeria: `/design-system/activity-row`.
+
 ## Templates
 
 ### AppFrame
@@ -140,7 +173,7 @@ nasce ou muda.
 
 ## Medidas sem token
 
-`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup, 56px do símbolo do StateScreen, 300px e 340px de largura máxima do texto e das ações do StateScreen, 36 por 4px da alça do BottomSheet, e 24px do símbolo, 1px da linha e 16px de rolagem da borda da TopBar.
+`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup, 56px do símbolo do StateScreen, 300px e 340px de largura máxima do texto e das ações do StateScreen, 36 por 4px da alça do BottomSheet, e 24px do símbolo, 1px da linha e 16px de rolagem da borda da TopBar, e as larguras e alturas dos blocos do `Skeleton` do TotalProgress (72px, 60%, 36px, 20px), e os 18px do checkbox do ActivityRow com a área de toque de 48px (margens negativas de 12px e 15px que devolvem o espaço à linha).
 
 ## Galeria
 
