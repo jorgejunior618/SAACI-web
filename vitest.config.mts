@@ -9,5 +9,11 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
     include: ['src/**/*.test.{ts,tsx}', 'tests/*.test.ts'],
+    env: {
+      // O fuso é parte do teste, não conveniência. Em BRT, o relógio de quem desenvolve, uma função
+      // de data que esquecesse o `timeZone` passaria por acidente. Em UTC a diferença aparece, e um
+      // teste que só falha na máquina de outra pessoa não protege nada (importa em projeto aberto).
+      TZ: 'UTC',
+    },
   },
 })
