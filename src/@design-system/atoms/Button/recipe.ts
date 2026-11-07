@@ -1,4 +1,4 @@
-import { type RecipeVariantProps, cva } from '@/styled-system/css'
+import { cva, type RecipeVariantProps } from '@/styled-system/css'
 
 export const buttonRecipe = cva({
   base: {

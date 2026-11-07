@@ -1,5 +1,4 @@
 import { type ContaMock, readDb, simularLatencia } from '../_mock'
-
 import type { Sessao } from './conta.types'
 
 export function toSessao(conta: ContaMock): Sessao {

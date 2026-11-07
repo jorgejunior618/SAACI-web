@@ -4,7 +4,7 @@ import type { ComponentProps, ReactNode } from 'react'
 import { cx } from '@/styled-system/css'
 
 import { Spinner } from '../Spinner'
-import { type ButtonVariants, buttonRecipe } from './recipe'
+import { buttonRecipe, type ButtonVariants } from './recipe'
 
 type ButtonProps = ComponentProps<'button'> &
   ButtonVariants & {

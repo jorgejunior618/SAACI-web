@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { type ReactNode, useEffect, useState } from 'react'
 
 import { ROUTES } from '@/constants/routes'
-import { CONTA_FIXTURE, apagarTudo, criarContaDeExemplo, onMudanca } from '@/services/_mock'
+import { apagarTudo, CONTA_FIXTURE, criarContaDeExemplo, onMudanca } from '@/services/_mock'
 
 import * as S from './styles'
 

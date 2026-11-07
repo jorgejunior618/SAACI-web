@@ -4,8 +4,8 @@ import type { ReactNode } from 'react'
 
 import { MockPanel } from '@/components/MockPanel'
 import { QueryProvider } from '@/providers/QueryProvider'
-import { ThemeSync } from '@/providers/ThemeSync'
 import { themeInitScript } from '@/providers/theme'
+import { ThemeSync } from '@/providers/ThemeSync'
 
 import './globals.css'
 

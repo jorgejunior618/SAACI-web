@@ -7,7 +7,7 @@ import { type ReactNode, useEffect, useSyncExternalStore } from 'react'
 import { LoadingState } from '@design-system'
 
 import { ROUTES } from '@/constants/routes'
-import { type Sessao, contaQueries } from '@/services/conta'
+import { contaQueries, type Sessao } from '@/services/conta'
 
 export type GateMode = 'visitante' | 'aluno'
 
