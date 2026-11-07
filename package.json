@@ -39,8 +39,8 @@
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
-    "@pandacss/dev": "^2.4.0",
-    "@pandacss/preset-base": "2.4.0",
+    "@pandacss/dev": "^2.5.0",
+    "@pandacss/preset-base": "2.5.0",
     "@tanstack/eslint-plugin-query": "^5.106.1",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
