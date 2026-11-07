@@ -13,7 +13,8 @@ export default defineConfig({
   // O tema segue o do sistema, sem JavaScript: os tokens com `_dark` valem nesta media query.
   conditions: {
     extend: {
-      dark: '@media (prefers-color-scheme: dark)',
+      // dark: '@media (prefers-color-scheme: dark)',
+      dark: '@media (prefers-color-scheme: dark) and (max-width: 0px)',
     },
   },
   globalCss: {

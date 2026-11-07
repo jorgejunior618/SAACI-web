@@ -1,13 +1,26 @@
+'use client'
+
+import { House } from 'lucide-react'
 import type { ReactNode } from 'react'
 
-import { Content } from './styles'
+import { AppFrame, StateScreen, TopBar } from '@design-system'
 
-/** Página inicial provisória, até a primeira tela ser especificada. */
+import { MainNav } from '@/components/MainNav'
+
+/**
+ * Mostra a tela provisória deste fluxo. Quem pegar a issue troca o corpo e mantém o nome e o caminho
+ * do arquivo, porque a rota já importa daqui.
+ */
 export function Inicio(): ReactNode {
   return (
-    <Content>
-      <h1>SAACI</h1>
-      <p>Sistema de Apoio Acadêmico Colaborativo do IFCE.</p>
-    </Content>
+    <AppFrame topBar={<TopBar variant="home" />} bottomNav={<MainNav />}>
+      <StateScreen
+        variant="empty"
+        icon={House}
+        eyebrow="Em construção"
+        title="Início"
+        description="Esta tela ainda não foi montada."
+      />
+    </AppFrame>
   )
 }
