@@ -18,5 +18,12 @@ export { ChoiceGroup } from './molecules/ChoiceGroup'
 export type { ChoiceGroupProps, ChoiceOption } from './molecules/ChoiceGroup'
 export { FileUpload } from './molecules/FileUpload'
 export type { FileUploadProps } from './molecules/FileUpload'
+export { Notice } from './molecules/Notice'
+export type {
+  BlockNoticeProps,
+  InlineNoticeProps,
+  NoticeProps,
+  NoticeTone,
+} from './molecules/Notice'
 export { TextField } from './molecules/TextField'
 export type { TextFieldProps, TextFieldStatusProps } from './molecules/TextField'

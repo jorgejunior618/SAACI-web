@@ -9,6 +9,7 @@ import { FileUploadSection } from './_components/FileUploadSection'
 import { IconSection } from './_components/IconSection'
 import { Layout } from './_components/Layout'
 import { LinkSection } from './_components/LinkSection'
+import { NoticeSection } from './_components/NoticeSection'
 import { ProgressBarSection } from './_components/ProgressBarSection'
 import { SpinnerSection } from './_components/SpinnerSection'
 import { TextFieldSection } from './_components/TextFieldSection'
@@ -52,6 +53,7 @@ export const sections: GallerySection[] = [
   { id: 'text-field', title: 'TextField', group: 'Molecules', Component: TextFieldSection },
   { id: 'choice-group', title: 'ChoiceGroup', group: 'Molecules', Component: ChoiceGroupSection },
   { id: 'file-upload', title: 'FileUpload', group: 'Molecules', Component: FileUploadSection },
+  { id: 'notice', title: 'Notice', group: 'Molecules', Component: NoticeSection },
 ]
 
 /**

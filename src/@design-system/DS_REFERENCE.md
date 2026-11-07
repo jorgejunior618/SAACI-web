@@ -79,6 +79,16 @@ nasce ou muda.
 - Câmera: `Tirar foto` usa `capture="environment"`. No desktop o navegador ignora e abre o seletor comum; os dois botões aparecem sempre. Não há arrastar e soltar.
 - Galeria: `/design-system/file-upload`.
 
+### Notice
+
+- Uso: aviso dentro da tela, com o que aconteceu e o que fazer a seguir. `format="inline"` (padrão) é uma frase `p` colada ao que comenta, só com a cor do texto do tom, sem caixa e sem ícone. `format="block"` é um `div` em `surface` sobre o creme (`inCard` troca para `surface.muted` dentro de cartão), raio `control`, sem borda e sem ícone; o título leva o tom, o corpo fica em `ink.muted` e as ações são `Link`. Use um só nível de ênfase por tela: se já existe um bloco, os outros avisos viram frase em linha. Título diz o fato, corpo diz o próximo passo; nunca "Ocorreu um erro", sem "por favor", "ops" ou "inválido".
+- Props: `format?: 'inline' | 'block'` (padrão `inline`), `tone?: 'neutral' | 'warning' | 'danger' | 'success'` (padrão `neutral`), `children`, `role?`, mais as props do elemento. No bloco: `title?`, `actions?`, `inCard?` e `ref`. O tipo é uma união: `title`, `actions` e `inCard` só existem com `format="block"`.
+- Role: `alert` no tom `danger` e `status` nos demais; `role` troca. Erro depois de ação é `alert`; o resto só informa.
+- Resumo de erros: bloco `danger` no topo do formulário, título "Falta corrigir N coisas" e uma lista de links, um por campo, que o corpo estiliza em `danger`. A tela passa `tabIndex={-1}` e um `ref` para mandar o foco até ele no envio. Aparece mesmo com um erro só.
+- Tom `success`: não existe token `success`, então usa `brand.text`.
+- Medida: o espaço entre título e corpo é 4px; o protótipo usa 2px, que não existe na escala.
+- Galeria: `/design-system/notice`.
+
 ## Medidas sem token
 
 `sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup.
