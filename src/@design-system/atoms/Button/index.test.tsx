@@ -50,4 +50,18 @@ describe('Button', () => {
 
     expect(screen.getByRole('button')).not.toHaveAttribute('aria-busy')
   })
+
+  it('com as="a" vira link com href e sem type', () => {
+    render(
+      <Button as="a" href="/formulario">
+        Ver como entregar seu pedido
+      </Button>,
+    )
+
+    const link = screen.getByRole('link', { name: 'Ver como entregar seu pedido' })
+
+    expect(link).toHaveAttribute('href', '/formulario')
+    expect(link).not.toHaveAttribute('type')
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  })
 })

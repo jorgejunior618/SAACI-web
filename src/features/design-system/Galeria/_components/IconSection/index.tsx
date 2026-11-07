@@ -34,7 +34,7 @@ export function IconSection(): ReactNode {
             Tirar foto
           </S.Line>
         </Specimen>
-        <Specimen label='size="xl" · 32px, na arte da tela de estado'>
+        <Specimen label='size="xl" · 28px, dentro do círculo da tela de estado'>
           <S.Line>
             <Icon icon={Camera} size="xl" />
             Tirar foto

@@ -18,7 +18,7 @@ export { ActivityRow } from './molecules/ActivityRow'
 export type { ActivityRowProps, ActivityRowSelection } from './molecules/ActivityRow'
 export { ActivityRowSkeleton } from './molecules/ActivityRow/Skeleton'
 export { BottomNav } from './molecules/BottomNav'
-export type { BottomNavItem, BottomNavProps } from './molecules/BottomNav'
+export type { BottomNavAction, BottomNavItem, BottomNavProps } from './molecules/BottomNav'
 export { BottomSheet } from './molecules/BottomSheet'
 export type { BottomSheetHandle, BottomSheetProps } from './molecules/BottomSheet'
 export { ChoiceGroup } from './molecules/ChoiceGroup'
@@ -40,13 +40,20 @@ export { LoadingState, StateScreen } from './molecules/StateScreen'
 export type {
   LoadingStateProps,
   StateScreenContentProps,
+  StateScreenEmptyProps,
+  StateScreenOutcomeProps,
   StateScreenLoadingProps,
   StateScreenProps,
 } from './molecules/StateScreen'
 export { TextField } from './molecules/TextField'
 export type { TextFieldProps, TextFieldStatusProps } from './molecules/TextField'
 export { TopBar } from './molecules/TopBar'
-export type { TopBarHomeProps, TopBarInnerProps, TopBarProps } from './molecules/TopBar'
+export type {
+  TopBarHomeProps,
+  TopBarInnerProps,
+  TopBarProps,
+  TopBarRootProps,
+} from './molecules/TopBar'
 export { CategoryCard } from './molecules/CategoryCard'
 export type { CategoryCardProps } from './molecules/CategoryCard'
 export { CategoryCardSkeleton } from './molecules/CategoryCard/Skeleton'

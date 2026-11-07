@@ -15,8 +15,9 @@ nasce ou muda.
 ### Button
 
 - Uso: dispara uma ação, 48px. `primary` é a ação da tela (uma por tela); `secondary` é ação paralela; `tertiary` é saída lateral; `danger` só em bottom sheet ou tela de confirmação. `disabled` só para ação impossível; campo vazio não desabilita.
-- Props: `variant?: 'primary' | 'secondary' | 'tertiary' | 'danger'`, `block?`, `busy?`, `busyLabel?` (gerúndio, padrão "Enviando"), `icon?: LucideIcon`, `children`, mais as props de `button`. `type` padrão é `button`.
+- Props: `variant?: 'primary' | 'secondary' | 'tertiary' | 'danger'`, `as?` e `href?` (botão que navega, como em `Link.as`), `block?`, `busy?`, `busyLabel?` (gerúndio, padrão "Enviando"), `icon?: LucideIcon`, `children`, mais as props de `button`. `type` padrão é `button`.
 - Estados: `busy` marca `aria-busy`, troca o conteúdo por `Spinner sm` e `busyLabel`, deixa de repassar o `onClick` e vira `type="button"` (não envia o formulário). Não usa `disabled`, então a cor não muda. Um `onClick` em elemento pai ainda dispara.
+- Link-botão: com `as` (`'a'` ou o `Link` do `next/link`) e `href` o botão vira link com o mesmo desenho. `type` não é repassado e `busy` e `disabled` não impedem a navegação, então serve só para ir a outra tela (por exemplo "Ver como entregar seu pedido").
 - Composição: importa `Icon` e `Spinner`.
 - Galeria: `/design-system/button`.
 
@@ -29,7 +30,7 @@ nasce ou muda.
 ### Icon
 
 - Uso: invólucro do `lucide-react` com traço de 1,5px e `currentColor`. Escondido de leitor de tela; o texto ao lado carrega o significado. Nunca sozinho, sem emoji.
-- Props: `icon: LucideIcon`, `size?: 'sm' | 'md' | 'lg' | 'xl'` (16, 20, 22 e 32px; padrão `md`). O `xl` é só a arte da tela de estado.
+- Props: `icon: LucideIcon`, `size?: 'sm' | 'md' | 'lg' | 'xl'` (16, 20, 22 e 28px; padrão `md`). O `xl` é só o ícone dentro do círculo da tela de estado.
 - Galeria: `/design-system/icon`.
 
 ### Link
@@ -40,8 +41,8 @@ nasce ou muda.
 
 ### ProgressBar
 
-- Uso: progresso de horas, 4px, trilho `progress.track`. `role="progressbar"` com `aria-valuenow/min/max`. `value` é cortado entre 0 e `max`. O número ("4,0h de 20h") é texto de quem usa.
-- Props: `value: number`, `max: number`, `label: string` (vira `aria-label`).
+- Uso: progresso de horas, 4px (`sm`) ou 6px (`md`, só no total do painel), trilho `progress.track`. `role="progressbar"` com `aria-valuenow/min/max`. `value` é cortado entre 0 e `max`. O número ("4,0h de 20h") é texto de quem usa.
+- Props: `value: number`, `max: number`, `label: string` (vira `aria-label`) e `size?: 'sm' | 'md'` (padrão `sm`; variante no `recipe.ts`).
 - Galeria: `/design-system/progress-bar`.
 
 ### Spinner
@@ -65,17 +66,20 @@ nasce ou muda.
 
 ### TopBar
 
-- Uso: barra no topo, 56px (`sizes.topbar`) mais a área segura de cima, no creme do fundo (`surface.sunken`), **sem borda parada e sem sombra**. `home` mostra o símbolo (24px, `/logo-simbolo.png` via `next/image`, `alt` vazio), "SAACI" em `brand.text`, Perfil e Sair. `inner` mostra Voltar e o título em `h1`, 16px peso 500, com reticências se for longo. Telas da barra inferior não têm Voltar.
-- Props, união por `variant`: `home` pede `profileHref` e `onSignOut`; `inner` pede `title` e aceita `backHref` **ou** `onBack` (os dois juntos o tipo recusa; nenhum dos dois, sem Voltar). `linkAs?` (como `Link.as`) troca o `<a>` pelo `Link` do `next/link`.
-- Exceção de ícone: Voltar e Perfil aparecem só com ícone, cada um com `aria-label` ("Voltar", "Perfil") e alvo de 48px. É a única exceção a "ícone nunca sozinho" (`doc/design-system.md`); Sair é sempre texto.
+- Uso: barra no topo, 56px (`sizes.topbar`) mais a área segura de cima, no creme do fundo (`surface.sunken`), **sem borda parada e sem sombra**. Três variantes. `home` é a barra do Início: o símbolo (24px, `/logo-simbolo.png` via `next/image`, `alt` vazio) e "SAACI" em `brand.text`, sem Perfil nem Sair (Perfil é aba da barra inferior). `root` é a barra de uma aba (Atividades, Eventos, Perfil): o título em `h1`, `title` (20/26, peso 600), sem Voltar. `inner` é a de tela que abre a partir de uma aba: Voltar e o título em `h1`, 16px peso 500, com reticências se for longo.
+- Props, união por `variant`: `home` não tem props; `root` pede `title`; `inner` pede `title` e aceita `backHref` **ou** `onBack` (os dois juntos o tipo recusa; nenhum dos dois, sem Voltar) e `linkAs?` (como `Link.as`) para trocar o `<a>` pelo `Link` do `next/link`.
+- Exceção de ícone: Voltar aparece só com ícone, com `aria-label` "Voltar" e alvo de 48px. É a única exceção a "ícone nunca sozinho" (`doc/design-system.md`).
+- Sair: saiu da barra. A tela de Perfil é quem oferece a saída da conta.
 - Borda ao rolar: uma linha de 1px em `line` (`::after`) com a animação `edgeIn` ligada à rolagem por `animation-timeline: scroll()`, sem JavaScript, em `@supports`. Parado, sem borda. O `scroll()` segue o rolador mais próximo (a página numa tela, a janela na galeria). Navegador sem o recurso fica sem a linha. Com `prefers-reduced-motion` a duração fixa da regra global é trocada por `auto`, para a linha seguir a rolagem.
 - Galeria: `/design-system/top-bar`.
 
 ### BottomNav
 
-- Uso: barra inferior com os quatro destinos do produto: Início, Registrar, Certificados e Formulário (Lucide `house`, `plus`, `file`, `clipboard-list`, 22px). 60px (`sizes.bottomnav`) mais a área segura de baixo, `surface`, borda superior de 1px em `line`, sem sombra. Ícone em `ink.subtle` e rótulo `caption` em `ink.muted`. O ativo (`aria-current="page"`) leva ícone e rótulo em `brand.text`, rótulo em peso 600 e traço do ícone em 2, sem pílula. Sempre ícone e rótulo; sem quinto destino e sem botão flutuante.
-- Props: `items` (tupla de quatro `{ id, label, href, icon }`, então o tipo recusa o quinto), `activeId`, `linkAs?` (como `Link.as`, para o `next/link` com prefetch) e `aria-label?` (padrão "Principal"). `activeId` que não existe deixa todos inativos.
-- Onde não aparece: Entrar, Criar conta, Recuperação de senha, Seu curso e Confirme seu e-mail. A tela decide, o componente não sabe. Qual destino está ativo também é da tela (`usePathname` na feature); o design system não importa `next/navigation`.
+- Uso: barra inferior com quatro abas e uma ação central, nesta ordem: Início, Atividades, **Registrar**, Eventos e Perfil (Lucide `house`, `list-checks`, `plus`, `calendar-check`, `user`, 22px). 60px (`sizes.bottomnav`) mais a área segura de baixo, `surface`, borda superior de 1px em `line`, sem sombra. Ícone em `ink.subtle` e rótulo `caption` em `ink.muted`. A aba ativa (`aria-current="page"`) leva ícone e rótulo em `brand.text`, rótulo em peso 600 e traço do ícone em 2, sem pílula. Sempre ícone e rótulo.
+- Registrar: círculo de 48px em `brand` com o ícone em `brand.on` (traço 2), que sobe 22px acima da barra e tem borda de 4px em `surface`. Pressionado vai para `brand.pressed`. Abre um fluxo, não é aba: nunca recebe `aria-current` e a tela do registro não mostra a barra. É o único elemento que ultrapassa o limite da barra.
+- Props: `items` (tupla de quatro `{ id, label, href, icon }`, então o tipo recusa a quinta aba), `action` (`{ label, href, icon }`, desenhada entre a segunda e a terceira aba), `activeId`, `linkAs?` (como `Link.as`, para o `next/link` com prefetch) e `aria-label?` (padrão "Principal"). `activeId` que não existe deixa todas as abas inativas.
+- Onde não aparece: Entrar, Criar conta, Recuperação de senha, Seu curso, Confirme seu e-mail e o fluxo de Registrar. A tela decide, o componente não sabe. Qual aba está ativa também é da tela (`usePathname` na feature); o design system não importa `next/navigation`. Detalhe da atividade e Formulário ficam dentro de Atividades, que continua ativa.
+- Medida: o círculo de 48px, o recuo de -22px e a borda de 4px ficam em px no `styles.ts` (medidas sem token).
 - Desktop: não há menu lateral nem breakpoint (`doc/arquitetura.md`). A barra continua embaixo, na coluna de 480px do `AppFrame`. A fonte do protótipo previa menu lateral; o doc vale mais.
 - Galeria: `/design-system/bottom-nav`.
 
@@ -118,9 +122,9 @@ nasce ou muda.
 
 ### StateScreen
 
-- Uso: conteúdo de tela inteira para os estados fora do caminho normal. `empty` mostra o símbolo do SAACI (56px, `/logo-simbolo.png` via `next/image`, `alt` vazio), `success` um check em `brand.text` e `connectionError` um wi-fi cortado em `danger`, os dois a 32px (`Icon xl`). A arte não ganha círculo de fundo. Título em `title`, texto em `support`, 8px entre os dois e 24px até as ações (coluna, até 340px). O símbolo do Saci nunca aparece em erro. O vazio orienta ("Registre a primeira atividade"), nunca diz "Nenhum item encontrado"; o erro diz que nada foi perdido, quando for verdade, e o próximo passo.
-- Props: união por `variant`. `'empty' | 'success' | 'connectionError'` pedem `title`, `description` e `actions?`. `'loading'` pede só `label`. Título, texto e ações são da tela; o componente só dá a estrutura e a arte.
-- Carregando: `Spinner lg` com `label` (lido pelo leitor de tela, uma vez) e a mesma frase visível abaixo.
+- Uso: conteúdo de tela inteira para os estados fora do caminho normal. A arte é um ícone de 28px (`Icon xl`) dentro de um círculo de 56px em `surface` com borda de 1px em `line`. `empty` usa o ícone que a tela escolhe, em `brand.text`; `success` um check em `brand.text`; `connectionError` um wi-fi cortado em `danger`. Acima do título pode vir um selo (`eyebrow`, `caption` em `brand.text`, 4px de respiro), como "Em construção". Título em `title`, texto em `support`, 8px entre os dois e 24px até as ações (coluna, até 340px). O símbolo do Saci não é arte de estado. O vazio orienta ("Registre a primeira atividade"), nunca diz "Nenhum item encontrado"; o erro diz que nada foi perdido, quando for verdade, e o próximo passo.
+- Props: união por `variant`. `'empty'` pede `icon: LucideIcon`, `title` e `description`; `'success' | 'connectionError'` pedem `title` e `description`. Os três aceitam `eyebrow?` e `actions?`. `'loading'` pede só `label`. Título, texto e ações são da tela; o componente só dá a estrutura e a arte. Passe `icon` de um Client Component: o ícone do Lucide é um objeto e não atravessa a fronteira vinda de um Server Component.
+- Carregando: `Spinner lg` com `label` (lido pelo leitor de tela, uma vez) e a mesma frase visível abaixo, sem círculo.
 - Nível: fica em `molecules/`, porque só compõe atoms (`Icon`, `Spinner`); o plano pedia `organisms/`, mas organism não pula degrau.
 - Galeria: `/design-system/state-screen`.
 
@@ -132,11 +136,11 @@ nasce ou muda.
 
 ### TotalProgress
 
-- Uso: topo do painel. O total que **falta** em `display` ("47h"), o rótulo "Faltam para completar suas horas" 4px abaixo, a `ProgressBar` 16px abaixo e a linha de meta em `support` tabular ("73h feitas" à esquerda, "meta de 120h" à direita). Um `display` por tela. Com 0h a tela usa `StateScreen empty`, não este cartão com barra vazia.
-- Props: `doneHours`, `goalHours`, `guideHref?`, `linkAs?` (como `Link.as`). O componente recebe o valor pronto e não soma nada (RNF20); só formata com `formatHours` (`src/utils/format-hours.ts`).
+- Uso: topo do painel. O total que **falta** em 56px/60px (`display` com tamanho próprio, ver "Medidas sem token"), o rótulo "Faltam para completar suas horas" 4px abaixo, a `ProgressBar size="md"` (6px) 16px abaixo e a linha de meta em `support` tabular ("73h feitas" à esquerda, "meta de 120h" à direita). O cartão tem 20px de respiro em cima e 16px nos outros lados. Um número grande por tela. Com 0h o cartão aparece como os outros, com a barra vazia e "0h feitas".
+- Props: `doneHours`, `goalHours`, `guideHref?`, `linkAs?` (como `Button.as`). O componente recebe o valor pronto e não soma nada (RNF20); só formata com `formatHours` (`src/utils/format-hours.ts`).
 - Total: inteiro, arredondado para baixo (`Math.floor` nas horas feitas) e limitado à meta. A barra nunca passa de 100% e o "falta" nunca é negativo. 119,9h ainda não é completo.
-- Completo (`doneHours >= goalHours`): o número vira a meta em `brand.text`, o rótulo diz "Você completou suas horas", o link "Ver como entregar seu pedido" leva ao guia do formulário (só aparece com `guideHref`) e **não há barra**.
-- Skeleton: `TotalProgressSkeleton`, blocos em `progress.track` com o keyframe `pulse`, escondidos de leitor de tela (`aria-hidden`).
+- Completo (`doneHours >= goalHours`): o número vira a meta em `brand.text`, o rótulo diz "Você completou suas horas" e **não há barra**. Se os itens somam mais que a meta, uma frase em `support` diz "Seus itens somam 124h. O que passa de 120h não é aproveitado." (12px abaixo do rótulo). O botão primário em largura total "Ver como entregar seu pedido" (`Button as`, 16px abaixo) leva ao guia do formulário e só aparece com `guideHref`.
+- Skeleton: `TotalProgressSkeleton`, blocos em `progress.track` com o keyframe `pulse`, escondidos de leitor de tela (`aria-hidden`), com a altura do número (60px) e da barra (6px).
 - Galeria: `/design-system/total-progress`.
 
 ### CategoryCard
@@ -206,7 +210,7 @@ fica em `molecules/`.
 
 ## Medidas sem token
 
-`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup, 56px do símbolo do StateScreen, 300px e 340px de largura máxima do texto e das ações do StateScreen, 36 por 4px da alça do BottomSheet, e 24px do símbolo, 1px da linha e 16px de rolagem da borda da TopBar, e as larguras e alturas dos blocos do `Skeleton` do TotalProgress (72px, 60%, 36px, 20px), e os 18px do checkbox do ActivityRow com a área de toque de 48px (margens negativas de 12px e 15px que devolvem o espaço à linha).
+`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup, 56px do círculo da arte do StateScreen, 300px e 340px de largura máxima do texto e das ações do StateScreen, 36 por 4px da alça do BottomSheet, e 24px do símbolo, 1px da linha e 16px de rolagem da borda da TopBar, e as larguras e alturas dos blocos do `Skeleton` do TotalProgress (96px, 60%, 60px, 20px), o círculo de 48px, o recuo de -22px e a borda de 4px da ação Registrar do BottomNav, o número de 56px com linha de 60px e -1,6px de espaçamento do TotalProgress (sobre o textStyle `display`) e os 6px da ProgressBar `md`, e os 18px do checkbox do ActivityRow com a área de toque de 48px (margens negativas de 12px e 15px que devolvem o espaço à linha).
 
 ## Galeria
 

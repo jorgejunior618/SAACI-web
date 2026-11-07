@@ -37,6 +37,27 @@ export const Item = styled('a', {
   },
 })
 
+// Registrar: círculo de 48px que sobe acima da barra. A borda de 4px em `surface` recorta o círculo
+// da linha superior; o traço do ícone em 2 acompanha o do item ativo. Não é aba, então não tem
+// estado ativo, só o pressionado.
+export const ActionDisc = styled('span', {
+  base: {
+    display: 'grid',
+    placeItems: 'center',
+    width: '48px',
+    height: '48px',
+    marginBlockStart: '-22px',
+    borderRadius: 'full',
+    borderWidth: '4px',
+    borderStyle: 'solid',
+    borderColor: 'surface',
+    background: 'brand',
+    color: 'brand.on',
+    '& svg': { strokeWidth: '2' },
+    'a:active &': { background: 'brand.pressed' },
+  },
+})
+
 // O ícone parado é mais claro que o rótulo; o ativo herda a cor do item.
 export const IconSlot = styled('span', {
   base: {

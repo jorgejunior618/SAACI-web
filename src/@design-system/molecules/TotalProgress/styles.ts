@@ -23,6 +23,11 @@ export const Meta = styled('div', {
   },
 })
 
+// Frase do excedente no estado completo: mais ar que o rótulo, para separar do número.
+export const Surplus = styled('p', {
+  base: { margin: '0', marginBlockStart: '3', textStyle: 'support', color: 'ink.muted' },
+})
+
 export const GuideWrap = styled('div', {
-  base: { marginBlockStart: '3' },
+  base: { marginBlockStart: '4' },
 })

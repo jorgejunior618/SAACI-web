@@ -29,7 +29,23 @@ describe('TopBar', () => {
     })
 
     it('sem backHref nem onBack não há Voltar', () => {
-      render(<TopBar variant="inner" title="Certificados" />)
+      render(<TopBar variant="inner" title="Detalhe" />)
+
+      expect(screen.queryByRole('link', { name: 'Voltar' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Voltar' })).not.toBeInTheDocument()
+    })
+  })
+
+  describe('aba', () => {
+    it('tem um único h1 com o título da aba', () => {
+      render(<TopBar variant="root" title="Atividades" />)
+
+      expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Atividades')
+    })
+
+    it('não tem Voltar', () => {
+      render(<TopBar variant="root" title="Perfil" />)
 
       expect(screen.queryByRole('link', { name: 'Voltar' })).not.toBeInTheDocument()
       expect(screen.queryByRole('button', { name: 'Voltar' })).not.toBeInTheDocument()
@@ -37,25 +53,16 @@ describe('TopBar', () => {
   })
 
   describe('início', () => {
-    it('mostra o nome do app, o Perfil com nome acessível e Sair escrito', () => {
-      render(<TopBar variant="home" profileHref="/perfil" onSignOut={() => undefined} />)
+    it('mostra só o nome do app, sem Perfil nem Sair', () => {
+      render(<TopBar variant="home" />)
 
       expect(screen.getByText('SAACI')).toBeInTheDocument()
-      expect(screen.getByRole('link', { name: 'Perfil' })).toHaveAttribute('href', '/perfil')
-      expect(screen.getByRole('button', { name: 'Sair' })).toHaveTextContent('Sair')
-    })
-
-    it('Sair chama onSignOut', async () => {
-      const onSignOut = vi.fn()
-      render(<TopBar variant="home" profileHref="/perfil" onSignOut={onSignOut} />)
-
-      await userEvent.click(screen.getByRole('button', { name: 'Sair' }))
-
-      expect(onSignOut).toHaveBeenCalledOnce()
+      expect(screen.queryByRole('link')).not.toBeInTheDocument()
+      expect(screen.queryByRole('button')).not.toBeInTheDocument()
     })
 
     it('não tem h1: o título da tela é do conteúdo', () => {
-      render(<TopBar variant="home" profileHref="/perfil" onSignOut={() => undefined} />)
+      render(<TopBar variant="home" />)
 
       expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument()
     })

@@ -1,5 +1,6 @@
 'use client'
 
+import { ClipboardList } from 'lucide-react'
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 
@@ -43,6 +44,13 @@ export function Demo(): ReactNode {
       <S.Wrap>
         {variant === 'loading' ? (
           <StateScreen variant="loading" label="Calculando suas horas" />
+        ) : variant === 'empty' ? (
+          <StateScreen
+            variant="empty"
+            icon={ClipboardList}
+            {...TEXTS.empty}
+            actions={hasActions ? <Button block>Continuar</Button> : undefined}
+          />
         ) : (
           <StateScreen
             variant={variant}

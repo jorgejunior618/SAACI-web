@@ -33,6 +33,11 @@ export function ButtonSection(): ReactNode {
             Tirar foto
           </Button>
         </Specimen>
+        <Specimen label='as="a" · botão que navega'>
+          <Button as="a" href="#guia">
+            Ver como entregar seu pedido
+          </Button>
+        </Specimen>
         <Specimen label="busy · gerúndio, sem clique">
           <Button busy busyLabel="Registrando">
             Registrar

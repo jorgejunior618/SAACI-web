@@ -55,4 +55,26 @@ describe('TotalProgress', () => {
     expect(screen.getByText('1h')).toBeInTheDocument()
     expect(screen.getByRole('progressbar')).toBeInTheDocument()
   })
+
+  it('completo com excedente avisa quanto os itens somam e que o resto não conta', () => {
+    render(<TotalProgress doneHours={124.6} goalHours={120} />)
+
+    expect(
+      screen.getByText('Seus itens somam 124h. O que passa de 120h não é aproveitado.'),
+    ).toBeInTheDocument()
+  })
+
+  it('completo na meta exata não mostra a frase do excedente', () => {
+    render(<TotalProgress doneHours={120} goalHours={120} />)
+
+    expect(screen.queryByText(/Seus itens somam/)).not.toBeInTheDocument()
+  })
+
+  it('com 0h mostra o cartão com a barra vazia', () => {
+    render(<TotalProgress doneHours={0} goalHours={120} />)
+
+    expect(screen.getByText('120h')).toBeInTheDocument()
+    expect(screen.getByText('0h feitas')).toBeInTheDocument()
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0')
+  })
 })
