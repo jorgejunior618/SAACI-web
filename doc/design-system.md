@@ -10,7 +10,6 @@ resultado final; o HTML e o CSS de lá não são copiados, os componentes são r
 Só componente catalogado em `design-system/` (`docs/componentes.md`, `docs/fundamentos.md`, `css/`),
 mesmo que nenhuma tela o use ainda. Fora do catálogo, ficam só:
 
-- `ThemeToggle`: pedido da equipe (botão de modo escuro em toda tela).
 - `AppFrame`: a coluna de 480px de `fundamentos.md`.
 - `LoadingState`: spinner grande de tela inteira.
 - `Icon`: o invólucro de `lucide-react` com o traço de 1,5px do design.
@@ -48,10 +47,8 @@ promover, o componente é movido e passa a ter uma origem só; cópia entre tela
 Os valores vivem em `tokens/` e no `panda.config.ts`. Este documento não os repete.
 
 - Componente consome token semântico, nunca valor cru.
-- Cores semânticas com versão clara e escura (`base` e `_dark`). O tema resolvido fica em
-  `data-theme` no `<html>`, escrito por um script antes da primeira pintura, para a tela não piscar
-  no tema errado. Sem escolha salva, segue o sistema (Automático); o `ThemeToggle` troca entre Claro
-  e Escuro.
+- Cores semânticas com versão clara e escura (`base` e `_dark`). O tema segue o do
+  sistema, só por CSS (`@media (prefers-color-scheme: dark)`), sem script e sem escolha manual.
 - Só a `preset-base` do Panda: valor fora dos tokens do SAACI não tem nome.
 - Tipografia por `textStyle` (hero, display, heading, title, body, bodyStrong, support, label,
   caption), com a fonte Geist servida pelo próprio site via `next/font`.

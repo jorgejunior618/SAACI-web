@@ -58,7 +58,7 @@ return (
 
 O `await` é de propósito: é ele que faz o HTML sair com o dado e o `useSuspenseQuery` não suspender na
 primeira pintura. O `Suspense` é rede de segurança (prefetch que falha, navegação no cliente). O
-`QueryClient` do servidor é **por requisição** (`React.cache()` em `providers/query-client/`), nunca
+`QueryClient` do servidor é **por requisição** (`React.cache()` em `providers/QueryProvider/query-client.ts`), nunca
 variável de módulo: ela viveria entre requisições e o dado de um aluno apareceria para outro (RNF04).
 
 ## `useSuspenseQuery` ou `useQuery`

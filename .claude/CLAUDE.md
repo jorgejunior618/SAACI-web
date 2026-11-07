@@ -95,7 +95,8 @@ arquivo e devolve os erros.
 ## Estado atual (06/11/2026)
 
 - Esqueleto inicial: `app/layout.tsx`, `app/page.tsx` e `features/inicio/Inicio` (provisória). Tema,
-  `QueryProvider` e tokens do design system estão prontos; não há componente, service nem teste.
+  `QueryProvider` e tokens do design system estão prontos; o tema segue o do sistema, só por CSS. Não
+  há componente, service nem teste.
 - Toda tela e todo componente novo entram por etapa, especificados e validados pela equipe.
 - Não há cliente HTTP nem variável de ambiente. O Supabase é o alvo, e só a camada `services/` muda
   quando ele chegar. O mock novo é em memória, por domínio (`doc/camada-servicos.md`).
