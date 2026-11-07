@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
 import { BadgeSection } from './_components/BadgeSection'
+import { BottomSheetSection } from './_components/BottomSheetSection'
 import { ButtonSection } from './_components/ButtonSection'
 import { CardSection } from './_components/CardSection'
 import { ChoiceGroupSection } from './_components/ChoiceGroupSection'
@@ -55,6 +56,7 @@ export const sections: GallerySection[] = [
   { id: 'choice-group', title: 'ChoiceGroup', group: 'Molecules', Component: ChoiceGroupSection },
   { id: 'file-upload', title: 'FileUpload', group: 'Molecules', Component: FileUploadSection },
   { id: 'notice', title: 'Notice', group: 'Molecules', Component: NoticeSection },
+  { id: 'bottom-sheet', title: 'BottomSheet', group: 'Molecules', Component: BottomSheetSection },
   { id: 'state-screen', title: 'StateScreen', group: 'Molecules', Component: StateScreenSection },
 ]
 

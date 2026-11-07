@@ -62,6 +62,16 @@ nasce ou muda.
 - Fora do componente: validação (Valibot, na tela) e máscara de data e horas (regra de domínio, na tela).
 - Galeria: `/design-system/text-field`.
 
+### BottomSheet
+
+- Uso: painel que sobe da base para confirmar uma ação que apaga algo, sem sair da tela. Véu `scrim` e painel em `surface.raised`, cantos de cima `card` e `shadow.overlay`: é o **único** componente com sombra. Alça, título em forma de pergunta (`title`), a consequência em `support` e as ações empilhadas em largura total, 24px abaixo do texto: a destrutiva (`Button danger block`) e a de manter (`Button secondary block`). "Manter" ou "Cancelar", nunca "Não". Apagar a conta usa tela própria com confirmação por senha, não um sheet.
+- Props: `ref` (`BottomSheetHandle` com `open()` e `close()`), `title`, `description`, `actions` (ReactNode, os botões vêm da tela), `returnFocusRef?` e `onClose?`. Não há prop `open`: a tela guarda um `useRef<BottomSheetHandle>(null)`, chama `ref.current?.open()` no gatilho e `ref.current?.close()` nos botões do sheet. `onClose` roda depois de qualquer fechamento e não diz qual foi.
+- Acessibilidade: `<dialog>` nativo aberto com `showModal()`, `aria-modal`, `aria-labelledby` no título e `aria-describedby` na consequência. O fundo fica inerte e o foco não escapa do painel. O foco vai para o título ao abrir e volta, ao fechar, para `returnFocusRef` ou para quem tinha o foco ao abrir. Todo fechamento (Esc, toque no véu, Voltar do aparelho, `close()`) passa pelo evento `close` do `<dialog>`, e é ali que o foco volta e a rolagem do corpo é destravada. Sem `useEffect`; se a tela desmontar com o sheet aberto, um callback ref estável destrava a rolagem.
+- Movimento: sobe da base por `transform` (`sheetIn`, `durations.fast`, `easings.out`). Com `prefers-reduced-motion` o painel só aparece.
+- Testes: o jsdom não implementa `showModal` e `close`; o `vitest.setup.ts` tem um stub que liga e desliga `open`, dispara `close` e fecha no `cancel` sem `preventDefault`. Foco preso e fundo inerte são do navegador e não são testados.
+- Medida: alça de 36 por 4px e altura máxima de 90dvh (o resto rola dentro do painel) ficam em px no `styles.ts`.
+- Galeria: `/design-system/bottom-sheet`.
+
 ### ChoiceGroup
 
 - Uso: escolha entre poucas opções (até 5) numa lista única, com o efeito de cada uma escrito embaixo. `fieldset` com `legend` em forma de pergunta; cada opção é um `label` com o `input` dentro, então a linha inteira é tocável (mínimo 48px, controle de 18px). A opção de rádio marcada ganha fundo `brand.soft`, o único fundo tingido do sistema. A linha de efeito ("Conta metade") fica sempre visível. Nada vem marcado de início. Mais de 5 opções, ou com número e regra, pedem o ItemPicker.
@@ -105,7 +115,7 @@ nasce ou muda.
 
 ## Medidas sem token
 
-`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup, 56px do símbolo do StateScreen e 300px e 340px de largura máxima do texto e das ações do StateScreen.
+`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup, 56px do símbolo do StateScreen 300px e 340px de largura máxima do texto e das ações do StateScreen, e 36 por 4px da alça do BottomSheet.
 
 ## Galeria
 

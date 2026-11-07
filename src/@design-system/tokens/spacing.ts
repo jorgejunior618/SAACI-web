@@ -45,7 +45,11 @@ export const semanticShadows = {
   },
 }
 
-/** Animações do design system. Hoje só `spin`, o giro do indicador de carregamento. */
+/**
+ * Animações do design system: `spin`, o giro do indicador de carregamento, e `sheetIn`, a subida
+ * do bottom sheet desde a base da tela.
+ */
 export const keyframes = {
   spin: { to: { transform: 'rotate(360deg)' } },
+  sheetIn: { from: { transform: 'translateY(100%)' }, to: { transform: 'translateY(0)' } },
 }
