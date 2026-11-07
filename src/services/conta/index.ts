@@ -1,6 +1,0 @@
-export { getSessao } from './conta.api'
-export { SenhaNaoConfereError } from './conta.errors'
-export { contaKeys } from './conta.keys'
-export { entrar, sair } from './conta.mutations'
-export { contaQueries } from './conta.queries'
-export type { Sessao } from './conta.types'
