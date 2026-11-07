@@ -77,6 +77,45 @@ repositório. Um teste (`tests/env.test.ts`) falha se alguém preencher um valor
 Os documentos em `doc/` ainda usam os nomes antigos (`anon` e `service_role`). Os nomes novos
 valem para o mesmo papel de cada chave.
 
+## Banco local
+
+Todo mundo sobe o mesmo Postgres no próprio computador e versiona as mudanças de tabela em
+`supabase/migrations/`. A CLI do Supabase já vem no `pnpm install`, então não há nada para instalar
+à parte. Só quem for mexer no banco precisa do [Docker](https://www.docker.com/products/docker-desktop/)
+aberto; o app com mock roda sem ele.
+
+| Comando          | O que faz                                                        |
+| ---------------- | ---------------------------------------------------------------- |
+| `pnpm db:start`  | sobe o banco e os serviços locais (a primeira vez baixa imagens) |
+| `pnpm db:stop`   | para os containers e guarda os dados em um volume do Docker      |
+| `pnpm db:reset`  | apaga o banco local e reaplica as migrations e o `seed.sql`      |
+| `pnpm db:status` | mostra as URLs e as chaves do banco local                        |
+
+O Studio (painel visual do banco) abre em `http://127.0.0.1:54323` com o banco no ar.
+
+### Como criar uma migration nova
+
+1. Com o banco no ar, crie o arquivo. O nome descreve a mudança, em português e `snake_case`:
+
+   ```bash
+   pnpm db:migration cria_tabela_perfis
+   ```
+
+   Isso gera `supabase/migrations/<data_e_hora>_cria_tabela_perfis.sql`.
+
+2. Escreva o SQL no arquivo. Siga as convenções de
+   [`doc/modelagem-dados.md`](doc/modelagem-dados.md): tabela e coluna em português, `snake_case`,
+   tabela no plural e chave primária `uuid`. Toda tabela nova nasce com RLS e policy na mesma
+   migration ([`doc/rls-e-permissoes.md`](doc/rls-e-permissoes.md)).
+3. Aplique do zero para provar que o histórico inteiro funciona:
+
+   ```bash
+   pnpm db:reset
+   ```
+
+4. Se o reset terminar sem erro, faça o commit do arquivo. Não edite uma migration que já foi para a
+   `main`: corrija com uma migration nova.
+
 ## Scripts
 
 | Comando          | O que faz                   |
@@ -87,6 +126,8 @@ valem para o mesmo papel de cada chave.
 | `pnpm typecheck` | TypeScript                  |
 | `pnpm test`      | Vitest                      |
 | `pnpm format`    | Prettier                    |
+
+Os comandos `pnpm db:*` estão na seção [Banco local](#banco-local).
 
 ## Documentação
 
