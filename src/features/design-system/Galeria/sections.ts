@@ -5,6 +5,7 @@ import { ButtonSection } from './_components/ButtonSection'
 import { CardSection } from './_components/CardSection'
 import { ChoiceGroupSection } from './_components/ChoiceGroupSection'
 import { Colors } from './_components/Colors'
+import { FileUploadSection } from './_components/FileUploadSection'
 import { IconSection } from './_components/IconSection'
 import { Layout } from './_components/Layout'
 import { LinkSection } from './_components/LinkSection'
@@ -50,6 +51,7 @@ export const sections: GallerySection[] = [
   { id: 'progress-bar', title: 'ProgressBar', group: 'Atoms', Component: ProgressBarSection },
   { id: 'text-field', title: 'TextField', group: 'Molecules', Component: TextFieldSection },
   { id: 'choice-group', title: 'ChoiceGroup', group: 'Molecules', Component: ChoiceGroupSection },
+  { id: 'file-upload', title: 'FileUpload', group: 'Molecules', Component: FileUploadSection },
 ]
 
 /**
