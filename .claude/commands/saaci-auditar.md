@@ -39,6 +39,11 @@ Para cada arquivo, cheque só as regras da categoria dele. Não aplique regra de
 arquivo de migration, por exemplo. Para todo símbolo exportado novo ou alterado em `.ts`/`.tsx`,
 confira se tem TSDoc (achado Baixo).
 
+Para componente novo, movido ou alterado em `src/features/**`, `src/components/**` ou
+`src/@design-system/**`, aplique `.claude/references/promocao-componente.md`: procure no repositório
+componente igual ou parecido em outra tela, e importação de `_components/` entre telas. A
+severidade está nesse arquivo.
+
 Mudança em `doc/**` sem uma ADR nova em `doc/adr/` no mesmo diff é achado Médio: o hook de commit
 recusa isso, a menos que tenha sido pulado com `--no-verify`.
 

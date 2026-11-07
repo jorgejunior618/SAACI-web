@@ -28,6 +28,10 @@ Descubra a categoria pela pasta e leia **só o documento dela** em `doc/`, nunca
 | `src/app/**`                           | `doc/estrutura-pastas.md`, `doc/arquitetura.md`                             |
 | testes                                 | `doc/testes.md`                                                             |
 
+Se o arquivo é (ou define) um componente, confira também `.claude/references/promocao-componente.md`
+e inclua "o lugar do componente está certo?" no checklist de conformidade, buscando no repositório
+quem mais o usa ou quem tem um parecido.
+
 ## Passo 3: montar o relatório em 6 seções
 
 1. **Pontos positivos**: o que o arquivo já faz bem, curto.

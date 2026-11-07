@@ -24,6 +24,7 @@ Organiza o pedido, confere o projeto, questiona o que for ambíguo e entrega um 
 2. **Organize o pedido.** Separe o que foi pedido do que é suposição. Liste o que está implícito (tipagem, TSDoc, estado global, tela nova) e o que falta para fechar o escopo.
 3. **Confira o projeto**, tudo local:
    - Leia o `.claude/CLAUDE.md` e **só o documento de `doc/` da tarefa**, pela tabela "Antes de agir". Nunca carregue o `doc/` inteiro. A estrutura de pastas não muda sem aprovação: proponha, mostre a alternativa e espere.
+   - Se o plano cria ou move componente, responda "onde ele mora?" com [../../references/promocao-componente.md](../../references/promocao-componente.md) e registre o destino na etapa (local, `components/` ou `@design-system`, e o `DS_REFERENCE.md` quando for o caso).
    - Procure como código parecido já foi resolvido (mesmo tipo de tela, mesmo hook, mesmo service). Convenção do projeto vale mais que boa prática genérica.
    - Mudar uma regra de `doc/` exige uma ADR no mesmo commit: se o plano precisa disso, vira uma etapa.
 4. **Libs tocadas.** O uso atual está correto na versão instalada (`package.json`, tipos)? Há forma melhor que o projeto não usa? Diga se entra no escopo (barata e no caminho) ou fica como sugestão à parte.
