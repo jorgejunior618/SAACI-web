@@ -26,15 +26,16 @@ export const Detail = styled('span', {
   base: { textStyle: 'caption', color: 'ink.muted', fontVariantNumeric: 'tabular-nums' },
 })
 
+// width e height leem `sizes`, que não tem escala numérica: a galeria usa rem direto.
 export const SpaceBar = styled('span', {
-  base: { flex: 'none', height: '2', background: 'brand' },
+  base: { flex: 'none', height: '0.5rem', background: 'brand' },
 })
 
 export const RadiusBox = styled('span', {
   base: {
     flex: 'none',
-    width: '8',
-    height: '8',
+    width: '2rem',
+    height: '2rem',
     background: 'surface.muted',
     borderWidth: '1px',
     borderStyle: 'solid',
@@ -43,5 +44,5 @@ export const RadiusBox = styled('span', {
 })
 
 export const SizeBar = styled('span', {
-  base: { flex: 'none', height: '2', background: 'ink.subtle', maxWidth: '100%' },
+  base: { flex: 'none', height: '0.5rem', background: 'ink.subtle', maxWidth: '100%' },
 })

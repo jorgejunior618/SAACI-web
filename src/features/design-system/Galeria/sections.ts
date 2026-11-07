@@ -1,7 +1,10 @@
 import type { ReactNode } from 'react'
 
 import { Colors } from './_components/Colors'
+import { IconSection } from './_components/IconSection'
 import { Layout } from './_components/Layout'
+import { ProgressBarSection } from './_components/ProgressBarSection'
+import { SpinnerSection } from './_components/SpinnerSection'
 import { TextStyles } from './_components/TextStyles'
 
 /** Grupo da sidebar em que a seção aparece. */
@@ -32,6 +35,9 @@ export const sections: GallerySection[] = [
   { id: 'cores', title: 'Cores', group: 'Fundamentos', Component: Colors },
   { id: 'texto', title: 'Texto', group: 'Fundamentos', Component: TextStyles },
   { id: 'espaco', title: 'Espaço e forma', group: 'Fundamentos', Component: Layout },
+  { id: 'icon', title: 'Icon', group: 'Atoms', Component: IconSection },
+  { id: 'spinner', title: 'Spinner', group: 'Atoms', Component: SpinnerSection },
+  { id: 'progress-bar', title: 'ProgressBar', group: 'Atoms', Component: ProgressBarSection },
 ]
 
 /**

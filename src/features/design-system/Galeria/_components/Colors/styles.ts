@@ -63,8 +63,9 @@ export const Mode = styled('div', {
 export const Chip = styled('span', {
   base: {
     flex: 'none',
-    width: '6',
-    height: '6',
+    // width e height leem `sizes`, que não tem escala numérica: a galeria usa rem direto.
+    width: '1.5rem',
+    height: '1.5rem',
     borderRadius: 'control',
     borderWidth: '1px',
     borderStyle: 'solid',

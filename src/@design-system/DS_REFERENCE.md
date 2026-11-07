@@ -3,7 +3,23 @@
 Catálogo dos componentes de `@design-system`. Cada componente entra aqui no mesmo commit em que
 nasce ou muda.
 
-Nenhum componente ainda.
+## Icon (atom)
+
+- Uso: invólucro do `lucide-react` com traço de 1,5px e `currentColor`. Escondido de leitor de tela; o texto ao lado carrega o significado. Nunca sozinho, sem emoji.
+- Props: `icon: LucideIcon`, `size?: 'sm' | 'md' | 'lg'` (16, 20 e 22px; padrão `md`).
+- Galeria: `/design-system/icon`.
+
+## Spinner (atom)
+
+- Uso: carregamento. `sm` (16px) herda a cor do texto e vai dentro de botão ou linha; `lg` (32px) usa `redemoinho` com a ponta em `brand` e é só de tela inteira. `role="status"` com texto para leitor de tela.
+- Props: `size?: 'sm' | 'lg'` (padrão `sm`), `label?: string` (padrão "Carregando"; use o gerúndio da ação).
+- Galeria: `/design-system/spinner`.
+
+## ProgressBar (atom)
+
+- Uso: progresso de horas, 4px, trilho `progress.track`. `role="progressbar"` com `aria-valuenow/min/max`. `value` é cortado entre 0 e `max`. O número ("4,0h de 20h") é texto de quem usa.
+- Props: `value: number`, `max: number`, `label: string` (vira `aria-label`).
+- Galeria: `/design-system/progress-bar`.
 
 ## Galeria
 
