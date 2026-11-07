@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+import { ActivityRowSection } from './_components/ActivityRowSection'
 import { AppFrameSection } from './_components/AppFrameSection'
 import { BadgeSection } from './_components/BadgeSection'
 import { BottomNavSection } from './_components/BottomNavSection'
@@ -9,6 +10,7 @@ import { CardSection } from './_components/CardSection'
 import { CategoryCardSection } from './_components/CategoryCardSection'
 import { ChoiceGroupSection } from './_components/ChoiceGroupSection'
 import { Colors } from './_components/Colors'
+import { DisclosureSection } from './_components/DisclosureSection'
 import { FileUploadSection } from './_components/FileUploadSection'
 import { IconSection } from './_components/IconSection'
 import { Layout } from './_components/Layout'
@@ -77,6 +79,8 @@ export const sections: GallerySection[] = [
     group: 'Molecules',
     Component: CategoryCardSection,
   },
+  { id: 'disclosure', title: 'Disclosure', group: 'Molecules', Component: DisclosureSection },
+  { id: 'activity-row', title: 'ActivityRow', group: 'Molecules', Component: ActivityRowSection },
   { id: 'app-frame', title: 'AppFrame', group: 'Templates', Component: AppFrameSection },
 ]
 
