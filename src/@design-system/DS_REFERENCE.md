@@ -129,6 +129,15 @@ nasce ou muda.
 - Props: `label: string`, no gerúndio ("Calculando suas horas").
 - Galeria: `/design-system/state-screen`.
 
+### TotalProgress
+
+- Uso: topo do painel. O total que **falta** em `display` ("47h"), o rótulo "Faltam para completar suas horas" 4px abaixo, a `ProgressBar` 16px abaixo e a linha de meta em `support` tabular ("73h feitas" à esquerda, "meta de 120h" à direita). Um `display` por tela. Com 0h a tela usa `StateScreen empty`, não este cartão com barra vazia.
+- Props: `doneHours`, `goalHours`, `guideHref?`, `linkAs?` (como `Link.as`). O componente recebe o valor pronto e não soma nada (RNF20); só formata com `formatHours` (`src/utils/format-hours.ts`).
+- Total: inteiro, arredondado para baixo (`Math.floor` nas horas feitas) e limitado à meta. A barra nunca passa de 100% e o "falta" nunca é negativo. 119,9h ainda não é completo.
+- Completo (`doneHours >= goalHours`): o número vira a meta em `brand.text`, o rótulo diz "Você completou suas horas", o link "Ver como entregar seu pedido" leva ao guia do formulário (só aparece com `guideHref`) e **não há barra**.
+- Skeleton: `TotalProgressSkeleton`, blocos em `progress.track` com o keyframe `pulse`, escondidos de leitor de tela (`aria-hidden`).
+- Galeria: `/design-system/total-progress`.
+
 ## Templates
 
 ### AppFrame
@@ -140,7 +149,7 @@ nasce ou muda.
 
 ## Medidas sem token
 
-`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup, 56px do símbolo do StateScreen, 300px e 340px de largura máxima do texto e das ações do StateScreen, 36 por 4px da alça do BottomSheet, e 24px do símbolo, 1px da linha e 16px de rolagem da borda da TopBar.
+`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup, 56px do símbolo do StateScreen, 300px e 340px de largura máxima do texto e das ações do StateScreen, 36 por 4px da alça do BottomSheet, e 24px do símbolo, 1px da linha e 16px de rolagem da borda da TopBar, e as larguras e alturas dos blocos do `Skeleton` do TotalProgress (72px, 60%, 36px, 20px).
 
 ## Galeria
 

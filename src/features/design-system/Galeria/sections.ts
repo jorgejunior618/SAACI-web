@@ -19,6 +19,7 @@ import { StateScreenSection } from './_components/StateScreenSection'
 import { TextFieldSection } from './_components/TextFieldSection'
 import { TextStyles } from './_components/TextStyles'
 import { TopBarSection } from './_components/TopBarSection'
+import { TotalProgressSection } from './_components/TotalProgressSection'
 
 /** Grupo da sidebar em que a seção aparece. */
 export type SectionGroup = 'Fundamentos' | 'Atoms' | 'Molecules' | 'Templates'
@@ -63,6 +64,12 @@ export const sections: GallerySection[] = [
   { id: 'state-screen', title: 'StateScreen', group: 'Molecules', Component: StateScreenSection },
   { id: 'top-bar', title: 'TopBar', group: 'Molecules', Component: TopBarSection },
   { id: 'bottom-nav', title: 'BottomNav', group: 'Molecules', Component: BottomNavSection },
+  {
+    id: 'total-progress',
+    title: 'TotalProgress',
+    group: 'Molecules',
+    Component: TotalProgressSection,
+  },
   { id: 'app-frame', title: 'AppFrame', group: 'Templates', Component: AppFrameSection },
 ]
 

@@ -47,10 +47,12 @@ export const semanticShadows = {
 
 /**
  * Animações do design system: `spin`, o giro do indicador de carregamento, `sheetIn`, a subida do
- * bottom sheet desde a base da tela, e `edgeIn`, a borda da `TopBar` que aparece conforme a página rola.
+ * bottom sheet desde a base da tela, `edgeIn`, a borda da `TopBar` que aparece conforme a página rola,
+ * e `pulse`, o piscar suave dos `Skeleton`.
  */
 export const keyframes = {
   spin: { to: { transform: 'rotate(360deg)' } },
   sheetIn: { from: { transform: 'translateY(100%)' }, to: { transform: 'translateY(0)' } },
   edgeIn: { from: { opacity: '0' }, to: { opacity: '1' } },
+  pulse: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.5' } },
 }
