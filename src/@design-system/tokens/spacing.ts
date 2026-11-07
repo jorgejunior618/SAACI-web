@@ -15,18 +15,23 @@ export const radii = {
   full: { value: '9999px' },
 }
 
+/**
+ * Tamanhos fixos do design system.
+ *
+ * @remarks
+ * `touch` é o alvo de toque mínimo de qualquer controle, mesmo quando o desenho é menor. `bottomnav`
+ * não conta a área segura do aparelho. `content` é a largura da coluna do `AppFrame`.
+ */
 export const sizes = {
   touch: { value: '48px' },
   control: { value: '48px' },
   topbar: { value: '56px' },
   bottomnav: { value: '60px' },
-  fab: { value: '48px' },
   content: { value: '480px' },
 }
 
 export const durations = {
   fast: { value: '200ms' },
-  pop: { value: '500ms' },
 }
 
 export const easings = {
@@ -40,15 +45,7 @@ export const semanticShadows = {
   },
 }
 
+/** Animações do design system. Hoje só `spin`, o giro do indicador de carregamento. */
 export const keyframes = {
   spin: { to: { transform: 'rotate(360deg)' } },
-  pop: {
-    from: { opacity: '0', transform: 'translateY(12px) scale(.96)' },
-    to: { opacity: '1', transform: 'none' },
-  },
-  pulse: {
-    '0%': { boxShadow: '0 0 0 0 color-mix(in srgb, var(--colors-brand) 35%, transparent)' },
-    '70%': { boxShadow: '0 0 0 10px transparent' },
-    '100%': { boxShadow: '0 0 0 0 transparent' },
-  },
 }

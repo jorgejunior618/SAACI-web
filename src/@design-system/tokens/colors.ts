@@ -1,8 +1,14 @@
-// Fonte: design-system/tokens/tokens.json. Cada valor tem a versão clara (base) e a escura (_dark).
 const pair = (light: string, dark: string): { value: { base: string; _dark: string } } => ({
   value: { base: light, _dark: dark },
 })
 
+/**
+ * Cores semânticas do design system, cada uma com a versão clara (`base`) e a escura (`_dark`).
+ *
+ * @remarks
+ * O componente consome o nome semântico, nunca o valor cru. `gorro` e `redemoinho` são de
+ * identidade: ficam restritos ao logo, à capa e ao indicador de carregamento grande.
+ */
 export const semanticColors = {
   surface: {
     DEFAULT: pair('#ffffff', '#1d1b17'),
@@ -43,6 +49,8 @@ export const semanticColors = {
   },
   focus: { value: '{colors.brand}' },
   scrim: pair('rgba(31, 29, 24, 0.44)', 'rgba(0, 0, 0, 0.6)'),
-  // Identidade: só logo, capa e indicador de carregamento grande. Nunca em componente.
+  // Vermelho do gorro do Saci. Só logo e capa. Nunca em componente.
+  gorro: pair('#d81e1e', '#e5393a'),
+  // Cinza do redemoinho. Só capa e indicador de carregamento grande. Nunca em componente.
   redemoinho: pair('#6f6f6f', '#9a9a9a'),
 }

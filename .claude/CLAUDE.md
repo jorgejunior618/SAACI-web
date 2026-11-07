@@ -13,7 +13,7 @@ Leia **apenas** o documento da tarefa. Não carregue `doc/` inteiro.
 | Criar arquivo ou pasta                     | `doc/estrutura-pastas.md`                                                           |
 | Service, mock, tradução de erro            | `doc/camada-servicos.md`                                                            |
 | Buscar, cachear ou invalidar dado          | `doc/react-query.md`                                                                |
-| Criar ou alterar tela                      | `design-system/docs/telas-e-fluxos.md` e o PNG em `design-system/saaci-design-png/` |
+| Criar ou alterar tela                      | `doc/design-system.md` (a tela é especificada e validada pela equipe)               |
 | Criar ou promover componente compartilhado | `doc/design-system.md` e `src/@design-system/DS_REFERENCE.md`                       |
 | Estilo, nomes, formulário                  | `doc/convencoes-codigo.md`                                                          |
 | Escrever ou decidir teste                  | `doc/testes.md`                                                                     |
@@ -32,9 +32,9 @@ Leia **apenas** o documento da tarefa. Não carregue `doc/` inteiro.
 - Verbo em inglês, substantivo de domínio em português. Texto exibido em PT-BR.
 - Horas computadas têm um cálculo só, consumido por painel, resumo e formulário (RNF20).
 - Autorização é RLS (alvo). Esconder botão é UX, não segurança.
-- Design system: só entra o que está catalogado em `design-system/`. Dele valem tokens, cores,
-  fonte, espaço e o resultado final; o HTML e o CSS de lá não são copiados. Variação visual é
-  `recipe.ts`; o resto, `styles.ts`.
+- Design system: só entra o que a equipe especificou e validou, registrado em
+  `src/@design-system/DS_REFERENCE.md`. Dele valem tokens, cores, fonte, espaço e o resultado final;
+  o HTML e o CSS do protótipo não são copiados. Variação visual é `recipe.ts`; o resto, `styles.ts`.
 - Mobile-first, com o mesmo conteúdo no desktop. Todo erro diz o que fazer a seguir.
 - Dado real que falta aparece como marcador visível (`[PRAZO DO RNF05]`), nunca inventado.
 - Símbolo exportado novo ou alterado em `src/` leva TSDoc em PT-BR (skill `saaci-tsdoc`). Sem
@@ -56,7 +56,6 @@ filesystem.
 SAACI-web/
   doc/                    documentação técnica
   doc/adr/                ADRs (modelo em 0000-modelo.md)
-  design-system/          pacote exportado do Claude Design (só leitura)
   scripts/                check-adr.mjs, eslint-pos-edicao.mjs
   tests/                  testes que não co-localizam com um arquivo
   src/app/                rotas

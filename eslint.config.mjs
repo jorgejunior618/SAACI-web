@@ -24,7 +24,7 @@ const importCustomGroups = [
 
 const eslintConfig = [
   {
-    ignores: ['.next/**', 'node_modules/**', 'src/styled-system/**', 'design-system/**'],
+    ignores: ['.next/**', 'node_modules/**', 'src/styled-system/**'],
   },
   ...nextCoreWebVitals,
   ...nextTypescript,
