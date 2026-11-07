@@ -94,12 +94,11 @@ arquivo e devolve os erros.
 
 ## Estado atual (06/11/2026)
 
-- O app foi reduzido ao login: `/login` (`features/autenticacao/Login`, `services/conta`) e `/`
-  (`features/inicio/Inicio`). Toda tela nova é validada pela equipe antes de entrar.
+- Esqueleto inicial: `app/layout.tsx`, `app/page.tsx` e `features/inicio/Inicio` (provisória). Tema,
+  `QueryProvider` e tokens do design system estão prontos; não há componente, service nem teste.
+- Toda tela e todo componente novo entram por etapa, especificados e validados pela equipe.
 - Não há cliente HTTP nem variável de ambiente. O Supabase é o alvo, e só a camada `services/` muda
-  quando ele chegar.
-- Legado que sai no reset do projeto: `services/_mock/` (guarda o banco no `localStorage`) e o
-  `MockPanel`. O mock novo é em memória, por domínio (`doc/camada-servicos.md`).
+  quando ele chegar. O mock novo é em memória, por domínio (`doc/camada-servicos.md`).
 
 ## Antes de terminar
 
