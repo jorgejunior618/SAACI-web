@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 
+import { AppFrameSection } from './_components/AppFrameSection'
 import { BadgeSection } from './_components/BadgeSection'
+import { BottomNavSection } from './_components/BottomNavSection'
 import { BottomSheetSection } from './_components/BottomSheetSection'
 import { ButtonSection } from './_components/ButtonSection'
 import { CardSection } from './_components/CardSection'
@@ -16,9 +18,10 @@ import { SpinnerSection } from './_components/SpinnerSection'
 import { StateScreenSection } from './_components/StateScreenSection'
 import { TextFieldSection } from './_components/TextFieldSection'
 import { TextStyles } from './_components/TextStyles'
+import { TopBarSection } from './_components/TopBarSection'
 
 /** Grupo da sidebar em que a seção aparece. */
-export type SectionGroup = 'Fundamentos' | 'Atoms' | 'Molecules'
+export type SectionGroup = 'Fundamentos' | 'Atoms' | 'Molecules' | 'Templates'
 
 /** Uma página da galeria, aberta em `/design-system/<id>`. */
 export type GallerySection = {
@@ -32,7 +35,7 @@ export type GallerySection = {
 }
 
 /** Ordem dos grupos na sidebar. */
-export const sectionGroups: SectionGroup[] = ['Fundamentos', 'Atoms', 'Molecules']
+export const sectionGroups: SectionGroup[] = ['Fundamentos', 'Atoms', 'Molecules', 'Templates']
 
 /**
  * Páginas da galeria, na ordem em que aparecem.
@@ -58,6 +61,9 @@ export const sections: GallerySection[] = [
   { id: 'notice', title: 'Notice', group: 'Molecules', Component: NoticeSection },
   { id: 'bottom-sheet', title: 'BottomSheet', group: 'Molecules', Component: BottomSheetSection },
   { id: 'state-screen', title: 'StateScreen', group: 'Molecules', Component: StateScreenSection },
+  { id: 'top-bar', title: 'TopBar', group: 'Molecules', Component: TopBarSection },
+  { id: 'bottom-nav', title: 'BottomNav', group: 'Molecules', Component: BottomNavSection },
+  { id: 'app-frame', title: 'AppFrame', group: 'Templates', Component: AppFrameSection },
 ]
 
 /**
