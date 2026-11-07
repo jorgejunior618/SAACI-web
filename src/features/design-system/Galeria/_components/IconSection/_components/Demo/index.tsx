@@ -14,7 +14,7 @@ import * as S from './styles'
 
 const ICONS = { Camera, ArrowLeft, User, Search } satisfies Record<string, LucideIcon>
 const NAMES = ['Camera', 'ArrowLeft', 'User', 'Search'] as const
-const SIZES = ['sm', 'md', 'lg'] as const satisfies readonly IconSize[]
+const SIZES = ['sm', 'md', 'lg', 'xl'] as const satisfies readonly IconSize[]
 
 /** Área de teste do `Icon`: escolhe o ícone do Lucide e o tamanho. */
 export function Demo(): ReactNode {

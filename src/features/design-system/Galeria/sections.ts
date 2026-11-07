@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
 import { BadgeSection } from './_components/BadgeSection'
+import { BottomSheetSection } from './_components/BottomSheetSection'
 import { ButtonSection } from './_components/ButtonSection'
 import { CardSection } from './_components/CardSection'
 import { ChoiceGroupSection } from './_components/ChoiceGroupSection'
@@ -9,8 +10,10 @@ import { FileUploadSection } from './_components/FileUploadSection'
 import { IconSection } from './_components/IconSection'
 import { Layout } from './_components/Layout'
 import { LinkSection } from './_components/LinkSection'
+import { NoticeSection } from './_components/NoticeSection'
 import { ProgressBarSection } from './_components/ProgressBarSection'
 import { SpinnerSection } from './_components/SpinnerSection'
+import { StateScreenSection } from './_components/StateScreenSection'
 import { TextFieldSection } from './_components/TextFieldSection'
 import { TextStyles } from './_components/TextStyles'
 
@@ -52,6 +55,9 @@ export const sections: GallerySection[] = [
   { id: 'text-field', title: 'TextField', group: 'Molecules', Component: TextFieldSection },
   { id: 'choice-group', title: 'ChoiceGroup', group: 'Molecules', Component: ChoiceGroupSection },
   { id: 'file-upload', title: 'FileUpload', group: 'Molecules', Component: FileUploadSection },
+  { id: 'notice', title: 'Notice', group: 'Molecules', Component: NoticeSection },
+  { id: 'bottom-sheet', title: 'BottomSheet', group: 'Molecules', Component: BottomSheetSection },
+  { id: 'state-screen', title: 'StateScreen', group: 'Molecules', Component: StateScreenSection },
 ]
 
 /**

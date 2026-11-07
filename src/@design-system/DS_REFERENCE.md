@@ -29,7 +29,7 @@ nasce ou muda.
 ### Icon
 
 - Uso: invólucro do `lucide-react` com traço de 1,5px e `currentColor`. Escondido de leitor de tela; o texto ao lado carrega o significado. Nunca sozinho, sem emoji.
-- Props: `icon: LucideIcon`, `size?: 'sm' | 'md' | 'lg'` (16, 20 e 22px; padrão `md`).
+- Props: `icon: LucideIcon`, `size?: 'sm' | 'md' | 'lg' | 'xl'` (16, 20, 22 e 32px; padrão `md`). O `xl` é só a arte da tela de estado.
 - Galeria: `/design-system/icon`.
 
 ### Link
@@ -62,6 +62,16 @@ nasce ou muda.
 - Fora do componente: validação (Valibot, na tela) e máscara de data e horas (regra de domínio, na tela).
 - Galeria: `/design-system/text-field`.
 
+### BottomSheet
+
+- Uso: painel que sobe da base para confirmar uma ação que apaga algo, sem sair da tela. Véu `scrim` e painel em `surface.raised`, cantos de cima `card` e `shadow.overlay`: é o **único** componente com sombra. Alça, título em forma de pergunta (`title`), a consequência em `support` e as ações empilhadas em largura total, 24px abaixo do texto: a destrutiva (`Button danger block`) e a de manter (`Button secondary block`). "Manter" ou "Cancelar", nunca "Não". Apagar a conta usa tela própria com confirmação por senha, não um sheet.
+- Props: `ref` (`BottomSheetHandle` com `open()` e `close()`), `title`, `description`, `actions` (ReactNode, os botões vêm da tela), `returnFocusRef?` e `onClose?`. Não há prop `open`: a tela guarda um `useRef<BottomSheetHandle>(null)`, chama `ref.current?.open()` no gatilho e `ref.current?.close()` nos botões do sheet. `onClose` roda depois de qualquer fechamento e não diz qual foi.
+- Acessibilidade: `<dialog>` nativo aberto com `showModal()`, `aria-modal`, `aria-labelledby` no título e `aria-describedby` na consequência. O fundo fica inerte e o foco não escapa do painel. O foco vai para o título ao abrir e volta, ao fechar, para `returnFocusRef` ou para quem tinha o foco ao abrir. Todo fechamento (Esc, toque no véu, Voltar do aparelho, `close()`) passa pelo evento `close` do `<dialog>`, e é ali que o foco volta e a rolagem do corpo é destravada. Sem `useEffect`; se a tela desmontar com o sheet aberto, um callback ref estável destrava a rolagem.
+- Movimento: sobe da base por `transform` (`sheetIn`, `durations.fast`, `easings.out`). Com `prefers-reduced-motion` o painel só aparece.
+- Testes: o jsdom não implementa `showModal` e `close`; o `vitest.setup.ts` tem um stub que liga e desliga `open`, dispara `close` e fecha no `cancel` sem `preventDefault`. Foco preso e fundo inerte são do navegador e não são testados.
+- Medida: alça de 36 por 4px e altura máxima de 90dvh (o resto rola dentro do painel) ficam em px no `styles.ts`.
+- Galeria: `/design-system/bottom-sheet`.
+
 ### ChoiceGroup
 
 - Uso: escolha entre poucas opções (até 5) numa lista única, com o efeito de cada uma escrito embaixo. `fieldset` com `legend` em forma de pergunta; cada opção é um `label` com o `input` dentro, então a linha inteira é tocável (mínimo 48px, controle de 18px). A opção de rádio marcada ganha fundo `brand.soft`, o único fundo tingido do sistema. A linha de efeito ("Conta metade") fica sempre visível. Nada vem marcado de início. Mais de 5 opções, ou com número e regra, pedem o ItemPicker.
@@ -79,9 +89,33 @@ nasce ou muda.
 - Câmera: `Tirar foto` usa `capture="environment"`. No desktop o navegador ignora e abre o seletor comum; os dois botões aparecem sempre. Não há arrastar e soltar.
 - Galeria: `/design-system/file-upload`.
 
+### Notice
+
+- Uso: aviso dentro da tela, com o que aconteceu e o que fazer a seguir. `format="inline"` (padrão) é uma frase `p` colada ao que comenta, só com a cor do texto do tom, sem caixa e sem ícone. `format="block"` é um `div` em `surface` sobre o creme (`inCard` troca para `surface.muted` dentro de cartão), raio `control`, sem borda e sem ícone; o título leva o tom, o corpo fica em `ink.muted` e as ações são `Link`. Use um só nível de ênfase por tela: se já existe um bloco, os outros avisos viram frase em linha. Título diz o fato, corpo diz o próximo passo; nunca "Ocorreu um erro", sem "por favor", "ops" ou "inválido".
+- Props: `format?: 'inline' | 'block'` (padrão `inline`), `tone?: 'neutral' | 'warning' | 'danger' | 'success'` (padrão `neutral`), `children`, `role?`, mais as props do elemento. No bloco: `title?`, `actions?`, `inCard?` e `ref`. O tipo é uma união: `title`, `actions` e `inCard` só existem com `format="block"`.
+- Role: `alert` no tom `danger` e `status` nos demais; `role` troca. Erro depois de ação é `alert`; o resto só informa.
+- Resumo de erros: bloco `danger` no topo do formulário, título "Falta corrigir N coisas" e uma lista de links, um por campo, que o corpo estiliza em `danger`. A tela passa `tabIndex={-1}` e um `ref` para mandar o foco até ele no envio. Aparece mesmo com um erro só.
+- Tom `success`: não existe token `success`, então usa `brand.text`.
+- Medida: o espaço entre título e corpo é 4px; o protótipo usa 2px, que não existe na escala.
+- Galeria: `/design-system/notice`.
+
+### StateScreen
+
+- Uso: conteúdo de tela inteira para os estados fora do caminho normal. `empty` mostra o símbolo do SAACI (56px, `/logo-simbolo.png` via `next/image`, `alt` vazio), `success` um check em `brand.text` e `connectionError` um wi-fi cortado em `danger`, os dois a 32px (`Icon xl`). A arte não ganha círculo de fundo. Título em `title`, texto em `support`, 8px entre os dois e 24px até as ações (coluna, até 340px). O símbolo do Saci nunca aparece em erro. O vazio orienta ("Registre a primeira atividade"), nunca diz "Nenhum item encontrado"; o erro diz que nada foi perdido, quando for verdade, e o próximo passo.
+- Props: união por `variant`. `'empty' | 'success' | 'connectionError'` pedem `title`, `description` e `actions?`. `'loading'` pede só `label`. Título, texto e ações são da tela; o componente só dá a estrutura e a arte.
+- Carregando: `Spinner lg` com `label` (lido pelo leitor de tela, uma vez) e a mesma frase visível abaixo.
+- Nível: fica em `molecules/`, porque só compõe atoms (`Icon`, `Spinner`); o plano pedia `organisms/`, mas organism não pula degrau.
+- Galeria: `/design-system/state-screen`.
+
+### LoadingState
+
+- Uso: carregamento de tela inteira. É o `StateScreen` com `variant="loading"` num atalho, sem desenho próprio.
+- Props: `label: string`, no gerúndio ("Calculando suas horas").
+- Galeria: `/design-system/state-screen`.
+
 ## Medidas sem token
 
-`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup.
+`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup, 56px do símbolo do StateScreen 300px e 340px de largura máxima do texto e das ações do StateScreen, e 36 por 4px da alça do BottomSheet.
 
 ## Galeria
 
