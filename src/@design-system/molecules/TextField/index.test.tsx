@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { Search } from 'lucide-react'
 import { describe, expect, it } from 'vitest'
 
 import { TextField } from './index'
@@ -101,6 +102,19 @@ describe('TextField', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Ocultar' }))
 
     expect(input).toHaveAttribute('type', 'password')
+  })
+
+  it('com icon desenha o ícone escondido do leitor de tela e mantém o rótulo como nome', () => {
+    const { container } = render(<TextField label="Buscar" type="search" icon={Search} />)
+
+    expect(screen.getByLabelText('Buscar')).toBeInTheDocument()
+    expect(container.querySelector('svg')).toHaveAttribute('aria-hidden', 'true')
+  })
+
+  it('sem icon não desenha ícone', () => {
+    const { container } = render(<TextField label="Buscar" />)
+
+    expect(container.querySelector('svg')).toBeNull()
   })
 
   it('sem type="password" não mostra o botão', () => {

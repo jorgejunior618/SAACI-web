@@ -1,8 +1,10 @@
 'use client'
 
+import type { LucideIcon } from 'lucide-react'
 import { useId, useState } from 'react'
 import type { ComponentPropsWithRef, ReactNode } from 'react'
 
+import { Icon } from '../../atoms/Icon'
 import * as S from './styles'
 
 type TextFieldBaseProps = Omit<ComponentPropsWithRef<'input'>, 'children'> & {
@@ -14,6 +16,8 @@ type TextFieldBaseProps = Omit<ComponentPropsWithRef<'input'>, 'children'> & {
   error?: string
   /** Escreve "(opcional)" no rótulo. Campo obrigatório não leva asterisco. */
   optional?: boolean
+  /** Ícone do `lucide-react` à esquerda do texto, como a lupa da busca (`Search`). É enfeite: o rótulo continua sendo o nome do campo. Precisa vir de um Client Component: o ícone é um objeto e não atravessa a fronteira a partir de um Server Component. */
+  icon?: LucideIcon
 }
 
 /**
@@ -44,9 +48,9 @@ const TEXT = {
  *
  * @remarks
  * A ordem é fixa: rótulo, regra, erro e campo. O erro fica antes do campo para o leitor de tela
- * ouvi-lo ao chegar. Senha é este mesmo componente, não existe `PasswordField`. O campo não é
- * limpo depois de um erro. Máscara de data e horas é da tela; aqui só chega o `inputMode`. Aceita
- * `ref` como prop, então funciona com o `register` do React Hook Form.
+ * ouvi-lo ao chegar. Senha é este mesmo componente, não existe `PasswordField`, e a busca com lupa
+ * também: é o `icon`. O campo não é limpo depois de um erro. Máscara de data e horas é da tela; aqui
+ * só chega o `inputMode`. Aceita `ref` como prop, então funciona com o `register` do React Hook Form.
  *
  * @example
  * ```tsx
@@ -64,6 +68,7 @@ export function TextField({
   hint,
   error,
   optional = false,
+  icon,
   status,
   unreadMessage,
   id,
@@ -114,12 +119,18 @@ export function TextField({
       {error ? <S.ErrorText id={errorId}>{error}</S.ErrorText> : null}
       {activeStatus === 'unread' ? <S.UnreadFlag id={flagId}>{unreadMessage}</S.UnreadFlag> : null}
       <S.InputWrap>
+        {icon ? (
+          <S.Glyph>
+            <Icon icon={icon} />
+          </S.Glyph>
+        ) : null}
         <S.Input
           {...rest}
           id={inputId}
           type={isPassword && isVisible ? 'text' : type}
           state={state}
           withAction={isPassword}
+          withIcon={Boolean(icon)}
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
         />

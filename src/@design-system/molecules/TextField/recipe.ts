@@ -29,6 +29,10 @@ export const input = cva({
     withAction: {
       true: { paddingInlineEnd: '84px' },
     },
+    // 12px de respiro + 20px do ícone + 8px até o texto.
+    withIcon: {
+      true: { paddingInlineStart: '40px' },
+    },
   },
   defaultVariants: { state: 'normal' },
 })

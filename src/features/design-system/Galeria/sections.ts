@@ -13,19 +13,22 @@ import { Colors } from './_components/Colors'
 import { DisclosureSection } from './_components/DisclosureSection'
 import { FileUploadSection } from './_components/FileUploadSection'
 import { IconSection } from './_components/IconSection'
+import { ItemPickerSection } from './_components/ItemPickerSection'
 import { Layout } from './_components/Layout'
 import { LinkSection } from './_components/LinkSection'
 import { NoticeSection } from './_components/NoticeSection'
 import { ProgressBarSection } from './_components/ProgressBarSection'
+import { RulePanelSection } from './_components/RulePanelSection'
 import { SpinnerSection } from './_components/SpinnerSection'
 import { StateScreenSection } from './_components/StateScreenSection'
+import { SuggestionCardSection } from './_components/SuggestionCardSection'
 import { TextFieldSection } from './_components/TextFieldSection'
 import { TextStyles } from './_components/TextStyles'
 import { TopBarSection } from './_components/TopBarSection'
 import { TotalProgressSection } from './_components/TotalProgressSection'
 
 /** Grupo da sidebar em que a seção aparece. */
-export type SectionGroup = 'Fundamentos' | 'Atoms' | 'Molecules' | 'Templates'
+export type SectionGroup = 'Fundamentos' | 'Atoms' | 'Molecules' | 'Organisms' | 'Templates'
 
 /** Uma página da galeria, aberta em `/design-system/<id>`. */
 export type GallerySection = {
@@ -39,7 +42,13 @@ export type GallerySection = {
 }
 
 /** Ordem dos grupos na sidebar. */
-export const sectionGroups: SectionGroup[] = ['Fundamentos', 'Atoms', 'Molecules', 'Templates']
+export const sectionGroups: SectionGroup[] = [
+  'Fundamentos',
+  'Atoms',
+  'Molecules',
+  'Organisms',
+  'Templates',
+]
 
 /**
  * Páginas da galeria, na ordem em que aparecem.
@@ -81,6 +90,14 @@ export const sections: GallerySection[] = [
   },
   { id: 'disclosure', title: 'Disclosure', group: 'Molecules', Component: DisclosureSection },
   { id: 'activity-row', title: 'ActivityRow', group: 'Molecules', Component: ActivityRowSection },
+  {
+    id: 'suggestion-card',
+    title: 'SuggestionCard',
+    group: 'Molecules',
+    Component: SuggestionCardSection,
+  },
+  { id: 'item-picker', title: 'ItemPicker', group: 'Organisms', Component: ItemPickerSection },
+  { id: 'rule-panel', title: 'RulePanel', group: 'Organisms', Component: RulePanelSection },
   { id: 'app-frame', title: 'AppFrame', group: 'Templates', Component: AppFrameSection },
 ]
 
