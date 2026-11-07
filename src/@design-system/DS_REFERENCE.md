@@ -51,9 +51,20 @@ nasce ou muda.
 - Medida: uma volta em 1,2s. O protótipo usa 0,8s, que parece rápido demais.
 - Galeria: `/design-system/spinner`.
 
+## Molecules
+
+### TextField
+
+- Uso: campo de texto com rótulo sempre visível e a regra logo abaixo. Ordem fixa: rótulo, `hint`, erro, campo; o erro fica antes do campo para o leitor de tela ouvir primeiro. Campo de 48px, borda 1px `line.strong`, texto de 16px (evita zoom no celular). Obrigatório não leva asterisco; opcional escreve "(opcional)" no rótulo. Não limpa o campo após um erro.
+- Props: `label`, `hint?`, `error?`, `optional?`, `status?: 'read' | 'unread'`, mais as props de `input` (`type`, `inputMode`, `ref`). `ref` vai como prop (React 19), então funciona com o `register` do React Hook Form.
+- Estados: `error` usa borda `danger` mais grossa e mensagem em `danger`, sem ícone e sem fundo, e liga `aria-invalid`. `read` pinta o campo de `surface.muted` e escreve "Lido do certificado, confira" à direita do rótulo. `unread` deixa o campo vazio com borda tracejada `warning` e mostra `unreadMessage`, obrigatório nesse estado (o tipo recusa `unread` sem a frase), dizendo o que digitar. `error` tem prioridade: com ele o selo de leitura não aparece. `aria-describedby` junta regra, erro e selo.
+- Senha: o mesmo componente com `type="password"`. O botão Mostrar/Ocultar (alvo de 48px, `aria-pressed`) aparece sozinho; não há prop `action` nem `PasswordField`.
+- Fora do componente: validação (Valibot, na tela) e máscara de data e horas (regra de domínio, na tela).
+- Galeria: `/design-system/text-field`.
+
 ## Medidas sem token
 
-`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar e 20px do Badge.
+`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge e 84px de respiro do TextField sob o botão Mostrar/Ocultar.
 
 ## Galeria
 
