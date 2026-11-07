@@ -39,6 +39,17 @@ export const InputWrap = styled('div', {
   base: { position: 'relative', display: 'flex', alignItems: 'center' },
 })
 
+// Fica sobre o campo e deixa o toque passar para ele.
+export const Glyph = styled('span', {
+  base: {
+    position: 'absolute',
+    insetInlineStart: '3',
+    display: 'flex',
+    color: 'ink.subtle',
+    pointerEvents: 'none',
+  },
+})
+
 export const Input = styled('input', input)
 
 export const Action = styled('button', {

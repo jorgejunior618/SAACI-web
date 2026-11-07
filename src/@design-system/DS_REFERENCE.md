@@ -56,9 +56,10 @@ nasce ou muda.
 ### TextField
 
 - Uso: campo de texto com rótulo sempre visível e a regra logo abaixo. Ordem fixa: rótulo, `hint`, erro, campo; o erro fica antes do campo para o leitor de tela ouvir primeiro. Campo de 48px, borda 1px `line.strong`, texto de 16px (evita zoom no celular). Obrigatório não leva asterisco; opcional escreve "(opcional)" no rótulo. Não limpa o campo após um erro.
-- Props: `label`, `hint?`, `error?`, `optional?`, `status?: 'read' | 'unread'`, mais as props de `input` (`type`, `inputMode`, `ref`). `ref` vai como prop (React 19), então funciona com o `register` do React Hook Form.
+- Props: `label`, `hint?`, `error?`, `optional?`, `icon?: LucideIcon`, `status?: 'read' | 'unread'`, mais as props de `input` (`type`, `inputMode`, `ref`). `ref` vai como prop (React 19), então funciona com o `register` do React Hook Form.
 - Estados: `error` usa borda `danger` mais grossa e mensagem em `danger`, sem ícone e sem fundo, e liga `aria-invalid`. `read` pinta o campo de `surface.muted` e escreve "Lido do certificado, confira" à direita do rótulo. `unread` deixa o campo vazio com borda tracejada `warning` e mostra `unreadMessage`, obrigatório nesse estado (o tipo recusa `unread` sem a frase), dizendo o que digitar. `error` tem prioridade: com ele o selo de leitura não aparece. `aria-describedby` junta regra, erro e selo.
 - Senha: o mesmo componente com `type="password"`. O botão Mostrar/Ocultar (alvo de 48px, `aria-pressed`) aparece sozinho; não há prop `action` nem `PasswordField`.
+- Ícone: `icon` põe um ícone do Lucide (`Search` na busca) à esquerda, em `ink.subtle`, 20px, com 12px de respiro e o texto começando a 40px. É enfeite (`aria-hidden`, sem toque): o rótulo continua sendo o nome do campo. Combina com `type="search"`. Passe `icon` de um Client Component: o ícone do Lucide é um objeto e não atravessa a fronteira vinda de um Server Component (o `TextField` é `'use client'`).
 - Fora do componente: validação (Valibot, na tela) e máscara de data e horas (regra de domínio, na tela).
 - Galeria: `/design-system/text-field`.
 
@@ -166,6 +167,17 @@ nasce ou muda.
 
 Organism é o bloco que usa pelo menos uma molecule e pode usar atoms junto. Quem só compõe atoms
 fica em `molecules/`.
+
+### ItemPicker
+
+- Uso: campo de busca que abre uma lista flutuante com os itens do formulário do curso, na ordem do formulário. Vem no bloco Item do registro, quando a leitura não sugeriu nada ou o aluno tocou em "Escolher outro". O campo é um `TextField` com a lupa (`icon={Search}`). A lista é um painel sobre o conteúdo, logo abaixo do campo: abre ao tocar ou digitar, fecha ao escolher, com Esc ou ao sair do campo, e **não empurra** o que vem depois. Cada linha: número numa coluna de 24px (tabular, `ink.muted`, à direita, sem cor de destaque), nome em `bodyStrong` e regra com o máximo em `support`, divisória com recuo de 52px. O item escolhido ganha `brand.soft`.
+- Props: `items: { number, name, rule }[]`, `value: number | null`, `onChange(number)`, `query`, `onQueryChange`, `label` (a pergunta do campo) e `suggestions?` (palavras da frase de busca vazia). É controlado. O consumidor fornece os itens do curso e a regra já com o máximo ("até 60h"). Depois de uma escolha o componente chama `onQueryChange('')`.
+- Regras: nenhum item vem marcado ao abrir e não existe "Não sei". Fechado, o campo mostra o item escolhido ("7 · Curso na área..."); aberto, volta a ser a busca e a lista mostra todos, com o escolhido marcado. O painel tem altura máxima de 280px (uns cinco itens) e rola por dentro; é a única rolagem aninhada do DS, aceita porque a lista não faz parte do fluxo. Sem resultado, o painel mostra uma frase que diz o que tentar ("Nenhum item tem 'hackathon'. Tente 'evento' ou 'curso'."), repetida numa região `role="status"` sempre montada.
+- Busca: `filterItems` (`organisms/ItemPicker/utils.ts`), função pura. Cada palavra digitada precisa aparecer no nome ou na regra, em qualquer ordem, sem acento e sem diferença de maiúscula (`normalize('NFD')`, vale para "ç" e "ã"). Mantém a ordem do formulário; busca vazia devolve todos.
+- Acessibilidade: padrão combobox com `listbox`/`option`. O foco fica no campo (`role="combobox"`, `aria-expanded`, `aria-controls`, `aria-autocomplete="list"`, `aria-activedescendant`). Setas movem o item destacado (contorno), Enter escolhe (sem enviar o formulário da tela), Esc fecha. Tocar numa linha não tira o foco do campo. Cada `option` leva `aria-selected`. Linha com alvo de toque de 48px.
+- Borda e sem sombra: o painel usa `surface.raised` com borda `line.strong`, sem a sombra `overlay`, que é do bottom sheet.
+- Client Component (guarda se está aberto e qual item está destacado).
+- Galeria: `/design-system/item-picker`.
 
 ### RulePanel
 

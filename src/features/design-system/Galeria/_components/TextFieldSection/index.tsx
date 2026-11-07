@@ -5,6 +5,7 @@ import { TextField } from '@design-system'
 import { Section } from '../Section'
 import { Specimen } from '../Specimen'
 import { Demo } from './_components/Demo'
+import { SearchExample } from './_components/SearchExample'
 import * as S from './styles'
 
 /** Página "TextField" da galeria: os quatro estados, a senha e a área de teste. */
@@ -57,6 +58,11 @@ export function TextFieldSection(): ReactNode {
               inputMode="numeric"
               placeholder="dd/mm/aaaa"
             />
+          </S.Wide>
+        </Specimen>
+        <Specimen label="icon · busca com lupa">
+          <S.Wide>
+            <SearchExample />
           </S.Wide>
         </Specimen>
         <Specimen label="optional · (opcional) no rótulo">

@@ -13,6 +13,7 @@ import { Colors } from './_components/Colors'
 import { DisclosureSection } from './_components/DisclosureSection'
 import { FileUploadSection } from './_components/FileUploadSection'
 import { IconSection } from './_components/IconSection'
+import { ItemPickerSection } from './_components/ItemPickerSection'
 import { Layout } from './_components/Layout'
 import { LinkSection } from './_components/LinkSection'
 import { NoticeSection } from './_components/NoticeSection'
@@ -88,6 +89,7 @@ export const sections: GallerySection[] = [
   },
   { id: 'disclosure', title: 'Disclosure', group: 'Molecules', Component: DisclosureSection },
   { id: 'activity-row', title: 'ActivityRow', group: 'Molecules', Component: ActivityRowSection },
+  { id: 'item-picker', title: 'ItemPicker', group: 'Organisms', Component: ItemPickerSection },
   { id: 'rule-panel', title: 'RulePanel', group: 'Organisms', Component: RulePanelSection },
   { id: 'app-frame', title: 'AppFrame', group: 'Templates', Component: AppFrameSection },
 ]
