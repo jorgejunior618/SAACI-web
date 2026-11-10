@@ -56,8 +56,8 @@ do perfil derruba o progresso (`react-query.md`).
 
 O arquivo vai para um **bucket privado do Storage**, na pasta do dono, e a tabela guarda só o
 caminho, o tipo e o tamanho. Nunca existe URL pública (RNF04): a tela pede uma URL assinada, de vida
-curta, a cada abertura. Formatos PDF, JPG e PNG (RNF25); `[TAMANHO MÁXIMO DO COMPROVANTE]`: o design
-fixou 10 MB, a confirmar (RF31).
+curta, a cada abertura. Formatos PDF, JPG e PNG (RNF25), até 10 MB (RF31). Os dois limites ficam no
+próprio bucket (ADR 0004).
 
 **Salvar completo ou nada (RNF24).** Storage e Postgres não fazem transação juntos. O desenho: sobe o
 arquivo, chama a RPC com o caminho, e a RPC grava atividade e referência numa transação só. Se a RPC

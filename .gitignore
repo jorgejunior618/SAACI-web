@@ -13,6 +13,7 @@ src/styled-system-studio/
 
 # Testes
 coverage/
+.vitest/
 
 # Ambiente
 .env
