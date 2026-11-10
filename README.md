@@ -93,7 +93,8 @@ aberto; o app com mock roda sem ele.
 | `pnpm db:types`  | regera `src/@supabase/database.types.ts` a partir do banco local  |
 | `pnpm test:db`   | roda os testes pgTAP de `supabase/tests/database/` no banco local |
 
-O Studio (painel visual do banco) abre em `http://127.0.0.1:54323` com o banco no ar.
+O Studio (painel visual do banco) abre em `http://127.0.0.1:54323` com o banco no ar. Os e-mails do
+Auth (confirmação e nova senha) não saem de verdade: caem no Mailpit, em `http://127.0.0.1:54324`.
 
 ### Como criar uma migration nova
 
@@ -146,6 +147,30 @@ volta vazia, sem erro. Detalhes em [`doc/camada-servicos.md`](doc/camada-servico
 Os clientes leem `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (seção
 [Supabase](#supabase)). Sem elas, o app com mock abre normalmente, e só a criação de um cliente
 falha, com a mensagem do que preencher.
+
+### Levar o Auth para produção
+
+Nada é feito à mão no painel: o que vale no banco local está em `supabase/migrations/` (funções, gatilho
+e limpeza de conta) e em `supabase/config.toml` (confirmação, validade do link, retornos, templates e
+hook). Com o projeto de produção criado:
+
+```bash
+pnpm exec supabase link --project-ref <ref>
+pnpm exec supabase db push        # migrations
+pnpm exec supabase config push    # config.toml
+```
+
+Antes de subir:
+
+- **`site_url` e `additional_redirect_urls`** do `config.toml` apontam para `127.0.0.1`. Em produção
+  precisam da URL real, com `/confirme-email` e `/nova-senha`. Não confirmado: o jeito de manter dois
+  ambientes no mesmo arquivo (bloco `[remotes.<nome>]`) deve ser conferido na documentação da CLI.
+- **SMTP próprio.** O SMTP padrão do Supabase só serve para teste e limita os envios por hora, o que
+  trava o cadastro com a confirmação obrigatória.
+- **`pg_cron` habilitado** no projeto, para a limpeza de conta não confirmada (7 dias, ADR 0003).
+
+Depois de subir, repita o teste da regra de domínio: o signup com `@gmail.com` precisa falhar com 403,
+e o de `@aluno.ifce.edu.br` precisa criar a conta.
 
 ## Scripts
 

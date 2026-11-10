@@ -67,8 +67,9 @@ O SAACI tem **autocadastro** (RF01). O risco não é "alguém criou conta", é "
 e-mail que não é do IFCE".
 
 - **Domínio institucional (RF02) é barrado no servidor**, por Auth Hook de antes da criação do
-  usuário ou por gatilho em `auth.users`. Validar só na tela não conta: a chave `anon` é pública e o
-  `/auth/v1/signup` aceita chamada direta.
+  usuário (`before_user_created`, 403 no cadastro) e por gatilho em `auth.users` (barra a troca de
+  e-mail depois do cadastro, que o hook não vê). Validar só na tela não conta: a chave `anon` é
+  pública e o `/auth/v1/signup` aceita chamada direta (ADR 0003).
 
   ```bash
   curl -X POST .../auth/v1/signup -H "apikey: <anon>" \
@@ -84,8 +85,8 @@ e-mail que não é do IFCE".
 - **A config é uma linha invisível em code review** e volta ao padrão num projeto criado do zero. Um
   teste de integração tenta cadastrar um e-mail de fora do IFCE (precisa falhar) e um do IFCE
   (precisa criar). Confira isso ao criar o projeto de produção.
-- Links de confirmação e de redefinição têm validade limitada e uso único (RNF03), configurados no
-  Auth. A senha é guardada com hash e salt pelo Supabase (RNF01); o SAACI nunca a vê.
+- Links de confirmação e de redefinição valem 1 hora e têm uso único (RNF03), configurados no Auth
+  (`otp_expiry`, um valor só para os dois). A senha é guardada com hash e salt pelo Supabase (RNF01); o SAACI nunca a vê.
 - Em aberto: corrigir o e-mail de uma conta não confirmada (RF40) quando ela não tem sessão.
 
 ## Apagar a conta
