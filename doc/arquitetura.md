@@ -104,6 +104,9 @@ disparar uma busca. A exceção está explicada em `react-query.md`.
 - RLS é a única fronteira de autorização; filtro no front é conveniência (RNF04). O domínio
   institucional (RF02) é barrado no servidor (`rls-e-permissoes.md`).
 - RPC usa `security invoker`. Qualquer `security definer` entra aqui, por nome, antes de ser escrito.
+  Registrados: `apagar_contas_nao_confirmadas` (RNF27, ADR 0003), que só o dono executa.
+- **Agendamento que só mexe no banco e não usa segredo** roda como função SQL com `pg_cron`, sem Route
+  Handler. A limpeza de conta não confirmada (RNF27) é assim (ADR 0003).
 - Tabela editável inclui `updated_at` no `WHERE` de todo update/delete: zero linhas afetadas é
   conflito de concorrência, não sucesso.
 - Feature não importa `supabase-js`; fala só com `services/`.

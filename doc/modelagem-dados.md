@@ -85,7 +85,7 @@ subir depois) deixaria uma atividade sem comprovante, o estado que RNF24 proíbe
   cascade é proposital: o dono dos dados pede para apagá-los (LGPD), e linha órfã seria o defeito. Os
   arquivos do Storage **não** saem por cascade: uma rotina os apaga. `[PRAZO DO RNF05]` diz em
   quanto tempo tudo some, cópias de segurança inclusas.
-- **Conta não confirmada (RNF27)** é apagada por rotina agendada depois de `[PRAZO DO RNF27]`.
+- **Conta não confirmada (RNF27)** é apagada por rotina agendada depois de 7 dias (ADR 0003).
 - Antes de apagar, o aluno pode baixar os comprovantes (RF34). A lista de registros não é exportada
   no MVP.
 

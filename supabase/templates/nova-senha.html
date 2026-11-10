@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="pt-BR">
+  <body style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.5; max-width: 480px">
+    <h2>Crie uma nova senha</h2>
+    <p>Recebemos um pedido para criar uma nova senha no SAACI com este e-mail.</p>
+    <p>
+      <a
+        href="{{ .SiteURL }}/nova-senha?token_hash={{ .TokenHash }}&type=recovery"
+        style="
+          display: inline-block;
+          padding: 12px 20px;
+          background: #1d6b3a;
+          color: #ffffff;
+          text-decoration: none;
+          border-radius: 6px;
+        "
+        >Criar nova senha</a
+      >
+    </p>
+    <p>
+      O link vale por 1 hora e só funciona uma vez. Se ele expirar, peça outro na tela de entrada.
+    </p>
+    <p>Não pediu uma nova senha? Ignore este e-mail. Sua senha atual continua valendo.</p>
+  </body>
+</html>
