@@ -2,9 +2,9 @@
 -- por aluno (`<auth.uid()>/<arquivo>`), e a tela abre por URL assinada de vida curta. Nunca existe
 -- URL pública (doc/modelagem-dados.md, seção "Comprovantes").
 
--- RF31: o limite é [TAMANHO MÁXIMO DO COMPROVANTE]. O design fixou 10 MB e falta confirmar. O valor é
--- o mesmo de `PROOF_MAX_BYTES` em `src/services/activities/activities.types.ts`. Mudar o limite é uma
--- migration de uma linha, nos dois lugares.
+-- RF31: o comprovante pode ter até 10 MB (10 * 1024 * 1024 bytes). O valor é o mesmo de
+-- `PROOF_MAX_BYTES` em `src/services/activities/activities.types.ts`. Mudar o limite é uma migration
+-- de uma linha, nos dois lugares.
 -- RNF25: só PDF, JPG e PNG, a mesma lista de `PROOF_MIME_TYPES`.
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (

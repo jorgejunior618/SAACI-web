@@ -1,6 +1,6 @@
 import * as v from 'valibot'
 
-/** Tamanho máximo do comprovante, em bytes. O design fixou 10 MB; falta confirmar (RF31). */
+/** Tamanho máximo do comprovante, em bytes: 10 MB (RF31). O bucket `comprovantes` usa o mesmo valor. */
 export const PROOF_MAX_BYTES = 10 * 1024 * 1024
 
 /** Tipos de arquivo aceitos como comprovante (RNF25). */

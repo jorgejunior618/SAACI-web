@@ -7,8 +7,7 @@
 
 Cada aluno vê só os próprios comprovantes (RNF04). Ler o arquivo de outro não dá erro, só devolve
 nada, então a regra precisa estar no banco e ter teste (`doc/testes.md`). O arquivo aceita PDF, JPG e
-PNG (RNF25) e o limite de tamanho ainda é `[TAMANHO MÁXIMO DO COMPROVANTE]`: o design fixou 10 MB e
-falta confirmar (RF31). Sem esta decisão, a integração de atividades teria de inventar o bucket, as
+PNG (RNF25), com até 10 MB cada (RF31). Sem esta decisão, a integração de atividades teria de inventar o bucket, as
 policies e o nome da pasta.
 
 ## Decisão
@@ -26,8 +25,8 @@ policies e o nome da pasta.
   e registra de novo. Sem `update`, o `upsert` do Storage também é recusado.
 - **Nunca URL pública.** A tela pede uma URL assinada de vida curta a cada abertura, e ela só sai
   para quem passa na policy de `select`. Nenhum arquivo de `src/` usa `getPublicUrl`.
-- **O limite segue como `[TAMANHO MÁXIMO DO COMPROVANTE]`** até a equipe confirmar. Mudar é uma
-  migration de uma linha e o ajuste de `PROOF_MAX_BYTES`.
+- **O limite é de 10 MB por arquivo.** Mudá-lo é uma migration de uma linha mais o ajuste de
+  `PROOF_MAX_BYTES`, e o teste de repositório acusa se um dos dois ficar para trás.
 
 ## Consequências
 
