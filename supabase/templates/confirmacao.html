@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt-BR">
+  <body style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.5; max-width: 480px">
+    <h2>Confirme seu e-mail</h2>
+    <p>Olá! Você criou uma conta no SAACI com este e-mail.</p>
+    <p>Para entrar, confirme que o e-mail é seu:</p>
+    <p>
+      <a
+        href="{{ .SiteURL }}/confirme-email?token_hash={{ .TokenHash }}&type=email"
+        style="
+          display: inline-block;
+          padding: 12px 20px;
+          background: #1d6b3a;
+          color: #ffffff;
+          text-decoration: none;
+          border-radius: 6px;
+        "
+        >Confirmar meu e-mail</a
+      >
+    </p>
+    <p>
+      O link vale por 1 hora e só funciona uma vez. Se ele expirar, peça outro na tela de entrada.
+    </p>
+    <p>Não criou essa conta? Ignore este e-mail. Sem confirmação, a conta é apagada.</p>
+  </body>
+</html>
