@@ -26,6 +26,7 @@ Thumbs.db
 # Editor
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
 
 # Export do design system e planos de trabalho locais
 planos/
