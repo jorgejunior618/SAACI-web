@@ -1,7 +1,7 @@
 # RLS e permissões
 
-> Alvo (Supabase): nada deste documento está implementado. Vale como regra para quem escrever a
-> primeira migration.
+> Alvo (Supabase): só a seção Storage está implementada (ADR 0004). O resto vale como regra para quem
+> escrever a próxima migration.
 
 Autorização é decidida no banco. O front esconde botão por conveniência de UX, nunca como barreira
 (RNF04). O SAACI tem um papel só, o aluno, dono do que registra. Não há papel de coordenação no MVP;
@@ -47,6 +47,12 @@ with check (
 **Storage.** O bucket é privado e a tela abre o arquivo por URL assinada de vida curta (RNF04). O
 buraco típico é um `select` sem a condição de pasta, que deixaria qualquer aluno logado listar os
 arquivos de todos.
+
+O bucket `comprovantes` nasce em migration, com o limite de tamanho e os tipos de arquivo no próprio
+bucket (ADR 0004). Há policy de `select`, `insert` e `delete` na pasta do dono e **nenhuma de
+`update`**: o comprovante não se troca, e sem `update` o `upsert` também é recusado. Nunca se pede
+URL pública (`getPublicUrl`). O `delete` direto em `storage.objects` é barrado pelo Storage, que só
+libera com `storage.allow_delete_query = 'true'`, como a API faz; o teste liga esse ajuste.
 
 ## Regras
 
