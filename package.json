@@ -24,7 +24,8 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:status": "supabase status",
-    "db:migration": "supabase migration new"
+    "db:migration": "supabase migration new",
+    "db:types": "supabase gen types typescript --schema public > src/@supabase/database.types.ts.tmp && mv src/@supabase/database.types.ts.tmp src/@supabase/database.types.ts && prettier --write src/@supabase/database.types.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.2",

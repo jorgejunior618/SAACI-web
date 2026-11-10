@@ -90,6 +90,7 @@ aberto; o app com mock roda sem ele.
 | `pnpm db:stop`   | para os containers e guarda os dados em um volume do Docker      |
 | `pnpm db:reset`  | apaga o banco local e reaplica as migrations e o `seed.sql`      |
 | `pnpm db:status` | mostra as URLs e as chaves do banco local                        |
+| `pnpm db:types`  | regera `src/@supabase/database.types.ts` a partir do banco local |
 
 O Studio (painel visual do banco) abre em `http://127.0.0.1:54323` com o banco no ar.
 
@@ -113,8 +114,37 @@ O Studio (painel visual do banco) abre em `http://127.0.0.1:54323` com o banco n
    pnpm db:reset
    ```
 
-4. Se o reset terminar sem erro, faça o commit do arquivo. Não edite uma migration que já foi para a
-   `main`: corrija com uma migration nova.
+4. Regere os tipos do banco, com o banco no ar:
+
+   ```bash
+   pnpm db:types
+   ```
+
+   Isso reescreve `src/@supabase/database.types.ts`. Faça o commit dele junto com a migration. Se o
+   comando falhar, o arquivo atual fica como estava: confira se o Docker está aberto e se
+   `pnpm db:start` rodou.
+
+5. Se o reset terminar sem erro, faça o commit da migration e dos tipos. Não edite uma migration
+   que já foi para a `main`: corrija com uma migration nova.
+
+### Cliente do Supabase no código
+
+Os clientes ficam em `src/@supabase/` e só os `services/` os usam. Tela, componente e
+`@design-system` não importam `@supabase/*` (o ESLint barra).
+
+| Onde o código roda                   | Importe                                    |
+| ------------------------------------ | ------------------------------------------ |
+| navegador (padrão do parâmetro `db`) | `createClient` de `@supabase/client`       |
+| servidor (Server Component e `app/`) | `createServerClient` de `@supabase/server` |
+
+O service recebe o cliente por parâmetro, com o do navegador como padrão:
+`getActivities(filtros, db = createClient())`. No servidor, **passe sempre o cliente do servidor**.
+Se esquecer, o service cai no cliente do navegador, que não enxerga o cookie de sessão, e a busca
+volta vazia, sem erro. Detalhes em [`doc/camada-servicos.md`](doc/camada-servicos.md).
+
+Os clientes leem `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (seção
+[Supabase](#supabase)). Sem elas, o app com mock abre normalmente, e só a criação de um cliente
+falha, com a mensagem do que preencher.
 
 ## Scripts
 
