@@ -84,13 +84,14 @@ Todo mundo sobe o mesmo Postgres no próprio computador e versiona as mudanças 
 à parte. Só quem for mexer no banco precisa do [Docker](https://www.docker.com/products/docker-desktop/)
 aberto; o app com mock roda sem ele.
 
-| Comando          | O que faz                                                        |
-| ---------------- | ---------------------------------------------------------------- |
-| `pnpm db:start`  | sobe o banco e os serviços locais (a primeira vez baixa imagens) |
-| `pnpm db:stop`   | para os containers e guarda os dados em um volume do Docker      |
-| `pnpm db:reset`  | apaga o banco local e reaplica as migrations e o `seed.sql`      |
-| `pnpm db:status` | mostra as URLs e as chaves do banco local                        |
-| `pnpm db:types`  | regera `src/@supabase/database.types.ts` a partir do banco local |
+| Comando          | O que faz                                                         |
+| ---------------- | ----------------------------------------------------------------- |
+| `pnpm db:start`  | sobe o banco e os serviços locais (a primeira vez baixa imagens)  |
+| `pnpm db:stop`   | para os containers e guarda os dados em um volume do Docker       |
+| `pnpm db:reset`  | apaga o banco local e reaplica as migrations e o `seed.sql`       |
+| `pnpm db:status` | mostra as URLs e as chaves do banco local                         |
+| `pnpm db:types`  | regera `src/@supabase/database.types.ts` a partir do banco local  |
+| `pnpm test:db`   | roda os testes pgTAP de `supabase/tests/database/` no banco local |
 
 O Studio (painel visual do banco) abre em `http://127.0.0.1:54323` com o banco no ar.
 
