@@ -70,7 +70,9 @@ SAACI-web/
 ```
 
 `supabase/` (banco local e migrations, ver README, seção "Banco local") já existe, com a migration
-inicial vazia. `src/@supabase/` entra com a integração e ainda não existe.
+inicial vazia. `src/@supabase/` já tem `client.ts`, `server.ts` e `database.types.ts` (regerado com
+`pnpm db:types`); só `services/` os importa, e no servidor o service recebe sempre o cliente do
+servidor.
 
 ## Skills
 

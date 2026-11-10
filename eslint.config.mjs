@@ -24,7 +24,13 @@ const importCustomGroups = [
 
 const eslintConfig = [
   {
-    ignores: ['.next/**', 'node_modules/**', 'src/styled-system/**'],
+    ignores: [
+      '.next/**',
+      'node_modules/**',
+      'src/styled-system/**',
+      // Gerado por `pnpm db:types`.
+      'src/@supabase/database.types.ts',
+    ],
   },
   ...nextCoreWebVitals,
   ...nextTypescript,
@@ -65,7 +71,8 @@ const eslintConfig = [
     files: ['src/**/*.queries.ts'],
     rules: { '@typescript-eslint/explicit-module-boundary-types': 'off' },
   },
-  // Feature fala só com a superfície pública de services/, nunca com o mock por trás dela.
+  // Feature fala só com a superfície pública de services/, nunca com o mock por trás dela, e nunca
+  // com o Supabase (`@supabase/*` cobre os clientes do projeto e os pacotes npm do mesmo escopo).
   {
     files: ['src/features/**/*.{ts,tsx}'],
     rules: {
@@ -76,6 +83,27 @@ const eslintConfig = [
             {
               group: ['@/services/*/*'],
               message: 'Importe de @/services/<dominio>, não de um arquivo interno.',
+            },
+            {
+              group: ['@supabase/*'],
+              message: 'Tela não importa o Supabase: fale com @/services/<dominio>.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  // Componente compartilhado com lógica também fala só com services/, nunca com o Supabase.
+  {
+    files: ['src/components/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@supabase/*'],
+              message: 'Componente não importa o Supabase: fale com @/services/<dominio>.',
             },
           ],
         },
@@ -118,6 +146,10 @@ const eslintConfig = [
             {
               group: ['@/services/*', '@/features/*', 'next/navigation'],
               message: '@design-system é UI pura.',
+            },
+            {
+              group: ['@supabase/*'],
+              message: '@design-system é UI pura: não importa o Supabase.',
             },
           ],
         },
