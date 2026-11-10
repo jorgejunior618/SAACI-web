@@ -42,6 +42,46 @@ jobs:
       # O build baixa a fonte Geist do Google, então precisa de rede.
       - run: pnpm build
 
+  # Sobe o Postgres local, aplica as migrations, confere se database.types.ts está em dia e roda
+  # os testes pgTAP. Usa a CLI do Supabase do lockfile, então a versão é a mesma de quem
+  # desenvolve. Não usa nenhum segredo: as chaves do banco local são as de demonstração da CLI.
+  # Segredo futuro entra só por ${{ secrets.NOME }}, nunca no repositório.
+  banco:
+    name: Banco, tipos e testes pgTAP
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+        env:
+          HUSKY: 0
+
+      # Aplica as migrations e o seed. Studio, imgproxy, edge-runtime, logflare, vector, supavisor
+      # e realtime ficam de fora para encurtar a subida. Não confirmado: se faltar algum deles,
+      # troque por "pnpm exec supabase start" puro.
+      - name: Subir o banco local e aplicar as migrations
+        run: pnpm exec supabase start -x studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime
+
+      - name: Regerar os tipos e conferir se mudaram
+        run: |
+          pnpm db:types
+          if ! git diff --exit-code -- src/@supabase/database.types.ts; then
+            echo "::error file=src/@supabase/database.types.ts::Os tipos do banco estão desatualizados. Rode 'pnpm db:start' e 'pnpm db:types' e faça o commit do arquivo junto com a migration."
+            exit 1
+          fi
+
+      - name: Rodar os testes pgTAP
+        run: pnpm test:db
+
   # doc/ só muda com uma ADR (doc/adr/). Aqui é aviso e não bloqueio: o --no-verify para
   # correção de digitação é uma exceção documentada em doc/README.md.
   adr:
