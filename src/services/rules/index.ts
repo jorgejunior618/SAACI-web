@@ -1,5 +1,5 @@
 export { getCourse, getCourses, getRuleItems } from './rules.api'
 export { rulesKeys } from './rules.keys'
 export { rulesQueries } from './rules.queries'
-export { CourseSchema, RuleItemSchema } from './rules.types'
-export type { Course, RuleItem } from './rules.types'
+export { CourseSchema, RatioSchema, RatioUnitSchema, RuleItemSchema } from './rules.types'
+export type { Course, Ratio, RatioUnit, RuleItem } from './rules.types'
