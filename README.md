@@ -129,6 +129,29 @@ Auth (confirmação e nova senha) não saem de verdade: caem no Mailpit, em `htt
 5. Se o reset terminar sem erro, faça o commit da migration e dos tipos. Não edite uma migration
    que já foi para a `main`: corrija com uma migration nova.
 
+### No CI
+
+Todo pull request roda o job `banco` ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)). Ele
+sobe o mesmo banco local, aplica as migrations e o seed, regera os tipos e roda os testes pgTAP.
+Falha em dois casos:
+
+- **Tipos desatualizados.** O `database.types.ts` regerado difere do que está no commit. Para
+  corrigir, repita o passo no seu computador e faça o commit do arquivo:
+
+  ```bash
+  pnpm db:start
+  pnpm db:reset
+  pnpm db:types
+  git diff src/@supabase/database.types.ts   # deve estar vazio depois do commit
+  ```
+
+- **Teste pgTAP falhando.** Reproduza com `pnpm db:reset && pnpm test:db`.
+
+O job não usa segredo: as chaves do banco local são as de demonstração geradas pela CLI. Se um
+passo futuro precisar de segredo (por exemplo, o deploy), ele entra só em
+**Settings > Secrets and variables > Actions** do GitHub e é lido por `${{ secrets.NOME }}`. Nunca
+vai para o repositório nem para o `config.toml`.
+
 ### Cliente do Supabase no código
 
 Os clientes ficam em `src/@supabase/` e só os `services/` os usam. Tela, componente e
