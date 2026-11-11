@@ -1,3 +1,5 @@
+import { END_BEFORE_START_MESSAGE } from './activities.types'
+
 /** A atividade não existe ou é de outro aluno. A tela mostra o "não encontrado" da entidade. */
 export class ActivityNotFoundError extends Error {
   constructor() {
@@ -14,6 +16,17 @@ export class StaleActivityError extends Error {
   constructor() {
     super('Esta atividade mudou desde que você a abriu.')
     this.name = 'AtividadeDesatualizadaError'
+  }
+}
+
+/**
+ * A correção deixaria a data de fim antes da de início. Acontece quando o aluno corrige só uma das
+ * datas. A tela mostra a mensagem junto às datas.
+ */
+export class InvalidActivityDatesError extends Error {
+  constructor() {
+    super(END_BEFORE_START_MESSAGE)
+    this.name = 'DatasDaAtividadeInvalidasError'
   }
 }
 

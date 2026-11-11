@@ -1,20 +1,47 @@
 import * as v from 'valibot'
 
+import { computeActivities } from '@/utils/compute-hours'
 import { simulateLatency } from '@/utils/simulate-latency'
 
-import { findActivity, listActivities, proofUrl, suggestFromFile } from './activities.mock'
+import { getProfile } from '../profile/profile.api'
+import { getRuleItems } from '../rules/rules.api'
+import { listActivities, proofUrl, suggestFromFile } from './activities.mock'
+import type { StoredActivity } from './activities.mock'
 import { ActivitySchema, ProofSuggestionSchema } from './activities.types'
 import type { Activity, ProofSuggestion } from './activities.types'
 
 /**
+ * Lê todas as atividades do aluno já com as horas do cálculo único, na ordem da lista.
+ *
+ * @remarks
+ * Uso interno do domínio (api e mutations), fora do `index.ts`. Faz o papel da View do banco:
+ * junta o dado bruto, as regras do curso e o semestre de ingresso do perfil. Calcula
+ * sempre a lista inteira, porque o máximo do item é dividido entre as atividades.
+ *
+ * @returns As atividades validadas pelo `ActivitySchema`.
+ */
+export async function readActivitiesWithHours(): Promise<Activity[]> {
+  const profile = await getProfile()
+  const ruleItems = profile.courseId ? await getRuleItems(profile.courseId) : []
+  const stored: StoredActivity[] = listActivities()
+  const hours = computeActivities(stored, ruleItems, profile.startSemester)
+
+  return v.parse(
+    v.array(ActivitySchema),
+    stored.map((activity, index) => ({ ...activity, ...hours[index] })),
+  )
+}
+
+/**
  * Lista as atividades do aluno, ordenadas por item e, dentro do item, pela data em que terminaram.
  *
- * @returns Todas as atividades, inclusive as que não contam. Lista vazia para quem não registrou.
+ * @returns Todas as atividades, inclusive as que não contam, com `countedHours`, `status` e
+ * `reason` do cálculo único. Lista vazia para quem não registrou.
  */
 export async function getActivities(): Promise<Activity[]> {
   await simulateLatency()
 
-  return v.parse(v.array(ActivitySchema), listActivities())
+  return readActivitiesWithHours()
 }
 
 /**
@@ -25,16 +52,16 @@ export async function getActivities(): Promise<Activity[]> {
  */
 export async function getActivity(id: string): Promise<Activity | null> {
   await simulateLatency()
-  const activity = findActivity(id)
+  const activities = await readActivitiesWithHours()
 
-  return activity ? v.parse(ActivitySchema, activity) : null
+  return activities.find((activity) => activity.id === id) ?? null
 }
 
 /**
  * Pede a leitura do comprovante e devolve o que ela sugere para o formulário.
  *
  * @remarks
- * Alvo: o serviço de IA é chamado por um Route Handler, e a chave nunca chega ao navegador (RF41).
+ * Alvo: o serviço de IA é chamado por um Route Handler, e a chave nunca chega ao navegador.
  * No mock, o nome do arquivo escolhe o resultado: `ilegivel` falha e `sem-item` não sugere item.
  *
  * @param comprovante Arquivo escolhido pelo aluno.

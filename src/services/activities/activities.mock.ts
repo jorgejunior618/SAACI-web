@@ -1,5 +1,6 @@
 import {
   ActivityNotFoundError,
+  InvalidActivityDatesError,
   StaleActivityError,
   UnreadableProofError,
 } from './activities.errors'
@@ -11,34 +12,40 @@ import type {
   ProofSuggestion,
 } from './activities.types'
 
-type Seed = [id: number, name: string, item: number, quantity: number, data: string, hours: number]
+/**
+ * Atividade como o banco guarda: só o que o aluno informou. `countedHours`, `status` e `reason` são
+ * derivados na leitura pelo cálculo único, como uma View faria.
+ */
+export type StoredActivity = Omit<Activity, 'countedHours' | 'status' | 'reason'>
 
-// As 9 atividades do protótipo (Atividades, "Atividade que não conta"). As horas contadas somam
-// 59h, o mesmo do mock de `progress`. A última termina antes do ingresso (2023.2) e não conta.
+type Seed = [id: number, name: string, item: number, quantity: number, start: string, end: string]
+
+// As 9 atividades do protótipo (Atividades, "Atividade que não conta"). Pelas regras do curso somam
+// 59h, e `tests/seeds-consistency.test.ts` confere isso. A última começa antes do ingresso (2023.2)
+// e não conta. As datas de início não vêm do protótipo: foram escolhidas para cada atividade caber
+// no período que o nome sugere.
 const SEEDS: Seed[] = [
-  [1, 'Curso de inglês intermediário', 6, 60, '2025-06-30', 15],
-  [2, 'Curso de Git e GitHub', 7, 32, '2025-05-03', 8],
-  [3, 'Curso de Python para análise de dados', 7, 40, '2025-11-14', 10],
-  [4, 'Semana de Engenharia de Computação 2025', 12, 3, '2025-09-19', 12],
-  [5, 'Hackathon IFCE', 12, 1, '2026-03-08', 4],
-  [6, 'Palestra sobre computação quântica', 13, 1, '2025-03-12', 2],
-  [7, 'Palestra sobre IA em sistemas embarcados', 13, 1, '2025-09-20', 2],
-  [8, 'Ciclo de Palestras Tech IFCE', 13, 3, '2026-10-22', 6],
-  [9, 'Palestra de boas-vindas aos calouros', 13, 1, '2023-02-10', 0],
+  [1, 'Curso de inglês intermediário', 6, 60, '2025-02-03', '2025-06-30'],
+  [2, 'Curso de Git e GitHub', 7, 32, '2025-04-07', '2025-05-03'],
+  [3, 'Curso de Python para análise de dados', 7, 40, '2025-09-15', '2025-11-14'],
+  [4, 'Semana de Engenharia de Computação 2025', 12, 3, '2025-09-17', '2025-09-19'],
+  [5, 'Hackathon IFCE', 12, 1, '2026-03-08', '2026-03-08'],
+  [6, 'Palestra sobre computação quântica', 13, 1, '2025-03-12', '2025-03-12'],
+  [7, 'Palestra sobre IA em sistemas embarcados', 13, 1, '2025-09-20', '2025-09-20'],
+  [8, 'Ciclo de Palestras Tech IFCE', 13, 3, '2026-10-20', '2026-10-22'],
+  [9, 'Palestra de boas-vindas aos calouros', 13, 1, '2023-02-10', '2023-02-10'],
 ]
 
-function seedActivities(): Activity[] {
-  return SEEDS.map(([n, name, itemNumber, quantity, activityDate, countedHours]) => ({
+function seedActivities(): StoredActivity[] {
+  return SEEDS.map(([n, name, itemNumber, quantity, startDate, endDate]) => ({
     id: `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`,
     name,
     itemNumber,
     quantity,
-    activityDate,
-    registeredAt: `${activityDate}T12:00:00.000Z`,
-    updatedAt: `${activityDate}T12:00:00.000Z`,
-    countedHours,
-    status: countedHours > 0 ? 'conta' : 'nao_conta',
-    reason: countedHours > 0 ? null : 'antes_do_ingresso',
+    startDate,
+    endDate,
+    registeredAt: `${endDate}T12:00:00.000Z`,
+    updatedAt: `${endDate}T12:00:00.000Z`,
     proof: {
       fileName: `comprovante-${n}.pdf`,
       sizeBytes: 700_000 + n * 1_000,
@@ -47,7 +54,7 @@ function seedActivities(): Activity[] {
   }))
 }
 
-let activities: Activity[] = seedActivities()
+let activities: StoredActivity[] = seedActivities()
 
 /** Volta o mock às 9 atividades de exemplo. Testes chamam no `beforeEach`. */
 export function resetActivitiesMock(): void {
@@ -60,36 +67,26 @@ function toType(file: File): Proof['type'] {
 }
 
 /** Atividades ordenadas por item e, dentro do item, pela data em que terminaram. */
-export function listActivities(): Activity[] {
+export function listActivities(): StoredActivity[] {
   const sorted = [...activities].sort(
-    (a, b) => a.itemNumber - b.itemNumber || a.activityDate.localeCompare(b.activityDate),
+    (a, b) => a.itemNumber - b.itemNumber || a.endDate.localeCompare(b.endDate),
   )
 
   return structuredClone(sorted)
 }
 
-/** Atividade pelo id, ou `null`. */
-export function findActivity(id: string): Activity | null {
-  const found = activities.find((item) => item.id === id)
-
-  return found ? structuredClone(found) : null
-}
-
-// PROVISÓRIO: sem o cálculo único (RNF20) a atividade nova conta a quantidade inteira. A issue do
-// cálculo troca isto pela regra do item, do máximo e do ingresso. Não copie esta conta para a tela.
-export function insertActivity(input: NewActivity): Activity {
+/** Grava a atividade nova com o dado bruto. As horas saem do cálculo único, na leitura. */
+export function insertActivity(input: NewActivity): StoredActivity {
   const now = new Date().toISOString()
-  const activity: Activity = {
+  const activity: StoredActivity = {
     id: crypto.randomUUID(),
     name: input.name,
     itemNumber: input.itemNumber,
     quantity: input.quantity,
-    activityDate: input.activityDate,
+    startDate: input.startDate,
+    endDate: input.endDate,
     registeredAt: now,
     updatedAt: now,
-    countedHours: input.quantity,
-    status: 'conta',
-    reason: null,
     proof: {
       fileName: input.proof.name,
       sizeBytes: input.proof.size,
@@ -101,25 +98,24 @@ export function insertActivity(input: NewActivity): Activity {
   return structuredClone(activity)
 }
 
-/** Aplica a correção se `updatedAt` ainda é o que o aluno viu. Mesmo provisório de `insertActivity`. */
+/**
+ * Aplica a correção se `updatedAt` ainda é o que o aluno viu. `registeredAt` não muda: corrigir não
+ * tira a atividade da vez dela no máximo do item.
+ */
 export function patchActivity(
   id: string,
   updatedAt: string,
   changes: ActivityCorrection,
-): Activity {
+): StoredActivity {
   const index = activities.findIndex((item) => item.id === id)
   const current = activities[index]
 
   if (!current) throw new ActivityNotFoundError()
   if (current.updatedAt !== updatedAt) throw new StaleActivityError()
 
-  const next: Activity = {
-    ...current,
-    ...changes,
-    updatedAt: new Date().toISOString(),
-    countedHours: changes.quantity ?? current.countedHours,
-  }
+  const next: StoredActivity = { ...current, ...changes, updatedAt: new Date().toISOString() }
 
+  if (next.endDate < next.startDate) throw new InvalidActivityDatesError()
   activities[index] = next
   return structuredClone(next)
 }
@@ -135,14 +131,15 @@ export function deleteActivity(id: string): void {
 export function suggestFromFile(file: File): ProofSuggestion {
   if (file.name.includes('ilegivel')) throw new UnreadableProofError()
   if (file.name.includes('sem-item')) {
-    return { itemNumber: null, name: null, quantity: null, activityDate: null }
+    return { itemNumber: null, name: null, quantity: null, startDate: null, endDate: null }
   }
 
   return {
     itemNumber: 7,
     name: 'Curso de React com TypeScript',
     quantity: 40,
-    activityDate: '2026-09-12',
+    startDate: '2026-08-03',
+    endDate: '2026-09-12',
   }
 }
 
