@@ -9,7 +9,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      apagar_contas_nao_confirmadas: { Args: { prazo?: string }; Returns: number }
+      barrar_email_externo: { Args: { event: Json }; Returns: Json }
+      email_institucional: { Args: { email: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
