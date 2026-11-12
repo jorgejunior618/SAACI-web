@@ -60,6 +60,30 @@ function consumeLink(token: string, kind: LinkKind): AccountRow {
   return account
 }
 
+/**
+ * Lê o link de nova senha sem consumir. Token desconhecido, `expirado` ou de confirmação devolve
+ * `null`.
+ */
+export function readPasswordLink(token: string): { email: string } | null {
+  const link = links.get(token)
+  const account = link?.kind === 'password' ? findAccount(link.email) : undefined
+
+  return account ? { email: account.email } : null
+}
+
+/**
+ * Só para teste e demonstração: último token emitido para o e-mail e o tipo de link. Quem usa o
+ * mock não enxerga o token fora do console, então o teste o busca aqui.
+ */
+export function peekLastLinkMock(email: string, kind: LinkKind): string | undefined {
+  let found: string | undefined
+
+  for (const [token, link] of links) {
+    if (link.email === email && link.kind === kind) found = token
+  }
+  return found
+}
+
 /** Sessão atual, ou `null` sem login. */
 export function readSession(): Session | null {
   const account = sessionEmail ? findAccount(sessionEmail) : undefined
