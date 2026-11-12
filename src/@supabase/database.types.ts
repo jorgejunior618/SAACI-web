@@ -3,7 +3,94 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      cursos: {
+        Row: {
+          campus: string
+          carga_total_horas: number
+          created_at: string
+          grau: string
+          id: string
+          nome: string
+          nome_busca: string | null
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          campus: string
+          carga_total_horas: number
+          created_at?: string
+          grau: string
+          id?: string
+          nome: string
+          nome_busca?: never
+          updated_at?: string
+        }
+        Update: {
+          campus?: string
+          carga_total_horas?: number
+          created_at?: string
+          grau?: string
+          id?: string
+          nome?: string
+          nome_busca?: never
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      itens_curso: {
+        Row: {
+          a_cada: number
+          created_at: string
+          curso_id: string
+          horas: number
+          id: string
+          maximo_horas: number
+          nome: string
+          numero: number
+          regra: string
+          tipo_regra: string
+          unidade: string
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          a_cada: number
+          created_at?: string
+          curso_id: string
+          horas: number
+          id?: string
+          maximo_horas: number
+          nome: string
+          numero: number
+          regra: string
+          tipo_regra: string
+          unidade: string
+          updated_at?: string
+        }
+        Update: {
+          a_cada?: number
+          created_at?: string
+          curso_id?: string
+          horas?: number
+          id?: string
+          maximo_horas?: number
+          nome?: string
+          numero?: number
+          regra?: string
+          tipo_regra?: string
+          unidade?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'itens_curso_curso_id_fkey'
+            columns: ['curso_id']
+            isOneToOne: false
+            referencedRelation: 'cursos'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -13,6 +100,7 @@ export type Database = {
       apagar_minha_conta: { Args: Record<PropertyKey, never>; Returns: number }
       barrar_email_externo: { Args: { event: Json }; Returns: Json }
       email_institucional: { Args: { email: string }; Returns: boolean }
+      sem_acento: { Args: { texto: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
