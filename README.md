@@ -22,13 +22,13 @@ no Node 20 é recusado pelo `.npmrc`, e no Node 22 bagunça o `node_modules` do 
 ```bash
 nvm use
 pnpm install
-cp .env.example .env.local
+cp .env.example .env.development.local
 pnpm dev
 ```
 
-Preencha o `.env.local` antes de rodar, como mostra a seção [Supabase](#supabase). A conta e o login
+Preencha o `.env.development.local` antes de rodar, como mostra a seção [Supabase](#supabase). A conta e o login
 já falam com o Supabase Auth: para abrir as telas de Acesso, suba o banco local com `pnpm db:start`
-(precisa do Docker aberto) e preencha o `.env.local` com a URL e a chave que `pnpm db:status` mostra.
+(precisa do Docker aberto) e preencha o `.env.development.local` com a URL e a chave que `pnpm db:status` mostra. O `.env.production.local` guarda o projeto remoto e só vale para `pnpm build` e `pnpm start`.
 Os outros domínios ainda leem dados de mock. O backend entra por domínio, em issues separadas.
 
 ## Supabase
@@ -47,7 +47,7 @@ armazenamento têm cada um a sua issue.
 4. Crie o seu arquivo de ambiente e cole os dois valores:
 
    ```bash
-   cp .env.example .env.local
+   cp .env.example .env.development.local
    ```
 
    | Variável                               | Valor           |
@@ -55,7 +55,7 @@ armazenamento têm cada um a sua issue.
    | `NEXT_PUBLIC_SUPABASE_URL`             | Project URL     |
    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable key |
 
-5. Confira que o git ignora o arquivo: `git status` não deve listar o `.env.local`.
+5. Confira que o git ignora o arquivo: `git status` não deve listar o `.env.development.local`.
 
 O `.env.example` guarda só os nomes, sem valor, e é o único arquivo de ambiente que vai para o
 repositório. Um teste (`tests/env.test.ts`) falha se alguém preencher um valor nele ou versionar um
