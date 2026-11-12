@@ -50,7 +50,6 @@ export function AccountLinks(): ReactNode {
         >
           {signOutMutation.isPending ? 'Saindo' : 'Sair'}
         </Link>
-        {/* TODO: a rota /excluir-conta só existe depois da etapa 4 (tela Excluir conta). */}
         <Link as={NextLink} href="/excluir-conta" isStandalone style={S.quietLink}>
           Excluir conta
         </Link>
