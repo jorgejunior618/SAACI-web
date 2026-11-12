@@ -10,6 +10,7 @@ export type Database = {
     }
     Functions: {
       apagar_contas_nao_confirmadas: { Args: { prazo?: string }; Returns: number }
+      apagar_minha_conta: { Args: Record<PropertyKey, never>; Returns: number }
       barrar_email_externo: { Args: { event: Json }; Returns: Json }
       email_institucional: { Args: { email: string }; Returns: boolean }
     }

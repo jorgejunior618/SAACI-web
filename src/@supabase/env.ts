@@ -12,7 +12,7 @@ export interface SupabaseEnv {
  * @remarks
  * As variáveis são lidas pelo nome literal de propósito: o Next.js só embute `NEXT_PUBLIC_*` no
  * código do navegador quando o acesso é `process.env.NOME`, nunca por chave dinâmica. Só roda quando
- * um cliente é criado, então o app com mock abre mesmo com o `.env.local` vazio.
+ * um cliente é criado, então o app com mock abre mesmo com o `.env.development.local` vazio.
  *
  * @returns A URL e a publishable key, já conferidas.
  * @throws Error quando alguma das duas variáveis está vazia ou ausente.
@@ -32,7 +32,7 @@ export function getSupabaseEnv(): SupabaseEnv {
   if (!url || !publishableKey) {
     throw new Error(
       `Variável de ambiente ausente: ${missing.join(', ')}. ` +
-        'Copie o .env.example para .env.local e preencha os valores (README, seção "Supabase"). ' +
+        'Copie o .env.example para .env.development.local e preencha os valores (README, seção "Supabase"). ' +
         'Depois, reinicie o servidor de desenvolvimento.',
     )
   }
