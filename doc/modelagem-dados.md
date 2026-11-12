@@ -61,8 +61,8 @@ ela dá o mesmo resultado da função SQL (ADR 0003). O valor gravado é sempre 
 
 O arquivo vai para um **bucket privado do Storage**, na pasta do dono, e a tabela guarda só o
 caminho, o tipo e o tamanho. Nunca existe URL pública (RNF04): a tela pede uma URL assinada, de vida
-curta, a cada abertura. Formatos PDF, JPG e PNG (RNF25); `[TAMANHO MÁXIMO DO COMPROVANTE]`: o design
-fixou 10 MB, a confirmar (RF31).
+curta, a cada abertura. Formatos PDF, JPG e PNG (RNF25), até 10 MB (RF31). Os dois limites ficam no
+próprio bucket (ADR 0004).
 
 **Salvar completo ou nada (RNF24).** Storage e Postgres não fazem transação juntos. O desenho: sobe o
 arquivo, chama a RPC com o caminho, e a RPC grava atividade e referência numa transação só. Se a RPC
@@ -90,7 +90,7 @@ subir depois) deixaria uma atividade sem comprovante, o estado que RNF24 proíbe
   cascade é proposital: o dono dos dados pede para apagá-los (LGPD), e linha órfã seria o defeito. Os
   arquivos do Storage **não** saem por cascade: uma rotina os apaga. `[PRAZO DO RNF05]` diz em
   quanto tempo tudo some, cópias de segurança inclusas.
-- **Conta não confirmada (RNF27)** é apagada por rotina agendada depois de `[PRAZO DO RNF27]`.
+- **Conta não confirmada (RNF27)** é apagada por rotina agendada depois de 7 dias (ADR 0003).
 - Antes de apagar, o aluno pode baixar os comprovantes (RF34). A lista de registros não é exportada
   no MVP.
 

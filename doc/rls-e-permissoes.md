@@ -1,7 +1,7 @@
 # RLS e permissões
 
-> Alvo (Supabase): nada deste documento está implementado. Vale como regra para quem escrever a
-> primeira migration.
+> Alvo (Supabase): só a seção Storage está implementada (ADR 0004). O resto vale como regra para quem
+> escrever a próxima migration.
 
 Autorização é decidida no banco. O front esconde botão por conveniência de UX, nunca como barreira
 (RNF04). O SAACI tem um papel só, o aluno, dono do que registra. Não há papel de coordenação no MVP;
@@ -48,6 +48,12 @@ with check (
 buraco típico é um `select` sem a condição de pasta, que deixaria qualquer aluno logado listar os
 arquivos de todos.
 
+O bucket `comprovantes` nasce em migration, com o limite de tamanho e os tipos de arquivo no próprio
+bucket (ADR 0004). Há policy de `select`, `insert` e `delete` na pasta do dono e **nenhuma de
+`update`**: o comprovante não se troca, e sem `update` o `upsert` também é recusado. Nunca se pede
+URL pública (`getPublicUrl`). O `delete` direto em `storage.objects` é barrado pelo Storage, que só
+libera com `storage.allow_delete_query = 'true'`, como a API faz; o teste liga esse ajuste.
+
 ## Regras
 
 - Toda tabela tem RLS habilitado. Tabela sem policy fica inacessível, não liberada.
@@ -67,8 +73,9 @@ O SAACI tem **autocadastro** (RF01). O risco não é "alguém criou conta", é "
 e-mail que não é do IFCE".
 
 - **Domínio institucional (RF02) é barrado no servidor**, por Auth Hook de antes da criação do
-  usuário ou por gatilho em `auth.users`. Validar só na tela não conta: a chave `anon` é pública e o
-  `/auth/v1/signup` aceita chamada direta.
+  usuário (`before_user_created`, 403 no cadastro) e por gatilho em `auth.users` (barra a troca de
+  e-mail depois do cadastro, que o hook não vê). Validar só na tela não conta: a chave `anon` é
+  pública e o `/auth/v1/signup` aceita chamada direta (ADR 0003).
 
   ```bash
   curl -X POST .../auth/v1/signup -H "apikey: <anon>" \
@@ -84,8 +91,8 @@ e-mail que não é do IFCE".
 - **A config é uma linha invisível em code review** e volta ao padrão num projeto criado do zero. Um
   teste de integração tenta cadastrar um e-mail de fora do IFCE (precisa falhar) e um do IFCE
   (precisa criar). Confira isso ao criar o projeto de produção.
-- Links de confirmação e de redefinição têm validade limitada e uso único (RNF03), configurados no
-  Auth. A senha é guardada com hash e salt pelo Supabase (RNF01); o SAACI nunca a vê.
+- Links de confirmação e de redefinição valem 1 hora e têm uso único (RNF03), configurados no Auth
+  (`otp_expiry`, um valor só para os dois). A senha é guardada com hash e salt pelo Supabase (RNF01); o SAACI nunca a vê.
 - Em aberto: corrigir o e-mail de uma conta não confirmada (RF40) quando ela não tem sessão.
 
 ## Apagar a conta
