@@ -1,24 +1,53 @@
 'use client'
 
-import { Mail } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import type { ReactNode } from 'react'
 
-import { AppFrame, StateScreen } from '@design-system'
+import { AppFrame, LoadingState } from '@design-system'
+
+import { ConfirmingLink } from './_components/ConfirmingLink'
+import { PendingConfirmation } from './_components/PendingConfirmation'
+
+export type ConfirmeEmailProps = {
+  /** Token do link de confirmação (`?token=`). Com ele, a tela confirma o e-mail na hora. */
+  token?: string
+  /** E-mail que recebeu o link (`?email=`). Sem token e sem e-mail, a tela leva a Entrar. */
+  email?: string
+  /** Origem da visita (`?from=`). `sign-in` mostra o aviso de que falta confirmar para entrar. */
+  from?: string
+}
 
 /**
- * Mostra a tela provisória deste fluxo. Quem pegar a issue troca o corpo e mantém o nome e o caminho
- * do arquivo, porque a rota já importa daqui.
+ * Tela Confirme seu e-mail, com dois modos escolhidos pelos parâmetros da URL.
+ *
+ * @remarks
+ * Com `token`, confirma o link e abre a sessão (`ConfirmingLink`). Sem `token`, mostra o aviso de
+ * link enviado e o reenvio (`PendingConfirmation`). Sem nenhum dos dois não há o que mostrar, então
+ * leva a Entrar.
+ *
+ * @example
+ * ```tsx
+ * <ConfirmeEmail email="ana@aluno.ifce.edu.br" from="sign-in" />
+ * ```
  */
-export function ConfirmeEmail(): ReactNode {
+export function ConfirmeEmail({ token, email, from }: ConfirmeEmailProps): ReactNode {
+  const router = useRouter()
+  const hasNothingToShow = !token && !email
+
+  useEffect(() => {
+    if (hasNothingToShow) router.replace('/entrar')
+  }, [hasNothingToShow, router])
+
   return (
     <AppFrame>
-      <StateScreen
-        variant="empty"
-        icon={Mail}
-        eyebrow="Em construção"
-        title="Confirme seu e-mail"
-        description="Esta tela ainda não foi montada."
-      />
+      {token ? (
+        <ConfirmingLink token={token} />
+      ) : email ? (
+        <PendingConfirmation email={email} isFromSignIn={from === 'sign-in'} />
+      ) : (
+        <LoadingState label="Levando você para Entrar" />
+      )}
     </AppFrame>
   )
 }

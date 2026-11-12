@@ -1,6 +1,7 @@
+import * as v from 'valibot'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { getSession } from './account.api'
+import { getPasswordLink, getSession } from './account.api'
 import {
   EmailAlreadyRegisteredError,
   EmailDomainError,
@@ -8,8 +9,16 @@ import {
   ExpiredLinkError,
   InvalidCredentialsError,
 } from './account.errors'
-import { resetAccountMock } from './account.mock'
-import { createAccount, deleteAccount, signIn, signOut, updatePassword } from './account.mutations'
+import { peekLastLinkMock, resetAccountMock } from './account.mock'
+import {
+  createAccount,
+  deleteAccount,
+  requestPasswordReset,
+  signIn,
+  signOut,
+  updatePassword,
+} from './account.mutations'
+import { StudentEmailSchema } from './account.types'
 
 const EMAIL = 'ana.moura07@aluno.ifce.edu.br'
 
@@ -73,5 +82,27 @@ describe('conta', () => {
 
     expect(await getSession()).toBeNull()
     await expect(signIn(EMAIL, 'senhaforte1')).rejects.toBeInstanceOf(InvalidCredentialsError)
+  })
+
+  it('lê o link de nova senha sem gastá-lo', async () => {
+    await requestPasswordReset(EMAIL)
+    const token = peekLastLinkMock(EMAIL, 'password') ?? ''
+
+    expect(await getPasswordLink(token)).toEqual({ email: EMAIL })
+    expect(await getPasswordLink(token)).toEqual({ email: EMAIL })
+  })
+
+  it('devolve null para link vencido, desconhecido ou de confirmação', async () => {
+    await createAccount('novo.aluno@aluno.ifce.edu.br', 'minhasenha9')
+    const confirmation = peekLastLinkMock('novo.aluno@aluno.ifce.edu.br', 'confirmation') ?? ''
+
+    expect(await getPasswordLink('expirado')).toBeNull()
+    expect(await getPasswordLink('qualquer-coisa')).toBeNull()
+    expect(await getPasswordLink(confirmation)).toBeNull()
+  })
+
+  it('aceita só e-mail de aluno, ignorando espaço e maiúscula', () => {
+    expect(v.parse(StudentEmailSchema, '  ANA@Aluno.IFCE.edu.br ')).toBe('ana@aluno.ifce.edu.br')
+    expect(v.safeParse(StudentEmailSchema, 'ana@gmail.com').success).toBe(false)
   })
 })

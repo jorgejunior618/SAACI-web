@@ -17,10 +17,12 @@ SAACI-web/
     │   └── (<grupo>)/<rota>/     page.tsx, loading.tsx, error.tsx
     │
     ├── features/                 UI e lógica de tela
-    │   └── <dominio>/<Tela>/
-    │       ├── index.tsx  styles.ts  types.ts  schema.ts
-    │       ├── Loading.tsx  Error.tsx  Empty.tsx
-    │       └── _components/<Componente>/{index.tsx,styles.ts}
+    │   └── <dominio>/
+    │       ├── _components/<Componente>/{index.tsx,styles.ts}   de 2+ telas do domínio
+    │       └── <Tela>/
+    │           ├── index.tsx  styles.ts  types.ts  schema.ts
+    │           ├── Loading.tsx  Error.tsx  Empty.tsx
+    │           └── _components/<Componente>/{index.tsx,styles.ts}
     │
     ├── components/<Componente>/  2+ telas E lógica além de UI
     ├── services/<dominio>/       fronteira com a origem do dado
@@ -44,6 +46,7 @@ Não existe `SupabaseProvider`: os clientes são funções de `@supabase/`, não
 | Rota nova                                | `app/<grupo>/<rota>/page.tsx`, só importando a feature |
 | Tela                                     | `features/<dominio>/<Tela>/index.tsx`                  |
 | Sub-componente de uma tela só            | `features/<dominio>/<Tela>/_components/<Componente>/`  |
+| Componente de 2+ telas do mesmo domínio  | `features/<dominio>/_components/<Componente>/`         |
 | Componente puro de UI, em 2+ telas       | `@design-system/<nível>/`                              |
 | Componente com lógica, em 2+ telas/rotas | `components/<Componente>/`                             |
 | Leitura de dado                          | `services/<dominio>/<dominio>.api.ts`                  |
@@ -105,7 +108,7 @@ raiz pode ter `metadata`: num segmento o `<title>` da página já foi enviado qu
 - `app/` nunca contém componente de UI, estilo ou regra de negócio.
 - Arquivo interno de um módulo não importa do `index.ts` do próprio módulo.
 - Pasta auxiliar tem underscore e plural: `_components/`, `_hooks/`.
-- Máximo 2 níveis dentro de um domínio: `<dominio>/<Tela>/`.
+- Máximo 2 níveis dentro de um domínio: `<dominio>/<Tela>/` ou `<dominio>/_components/` (ADR 0005).
 - Componente em `_components/` é pasta com `index.tsx` e `styles.ts` próprio, nunca `.tsx` solto.
 - O `styles.ts` da tela guarda só o que a tela usa. Estilo que dois irmãos dividem é definido em
   cada um: um `_components/` que importa `../../styles` volta a acoplar o que a pasta separou.

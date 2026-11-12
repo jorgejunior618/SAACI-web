@@ -1,0 +1,36 @@
+import { styled } from '@/styled-system/jsx'
+
+export const Page = styled('div', {
+  base: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6',
+    minHeight: '100dvh',
+    paddingInline: '6',
+    paddingBlock: '6',
+  },
+})
+
+export const Heading = styled('div', {
+  base: { display: 'flex', flexDirection: 'column', gap: '2' },
+})
+
+export const Title = styled('h1', {
+  base: { margin: '0', textStyle: 'title' },
+})
+
+export const For = styled('p', {
+  base: { margin: '0', textStyle: 'body', color: 'ink.muted', overflowWrap: 'anywhere' },
+})
+
+export const Form = styled('form', {
+  base: { display: 'flex', flexDirection: 'column', gap: '6' },
+})
+
+export const PasswordBlock = styled('div', {
+  base: { display: 'flex', flexDirection: 'column', gap: '3' },
+})
+
+export const Note = styled('p', {
+  base: { margin: '0', textAlign: 'center', textStyle: 'support', color: 'ink.muted' },
+})

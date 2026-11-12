@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 
-// Até o SessionGate decidir de verdade (issue de Acesso), toda visita à raiz cai no painel.
+// A raiz leva ao painel. O SessionGate de `(aluno)` manda quem está sem sessão para /entrar.
 export default function Page(): never {
   redirect('/inicio')
 }

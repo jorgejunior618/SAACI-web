@@ -119,7 +119,8 @@ compoundVariants: [
 
 ```
 Sub-componente serve a 2+ telas?
-  sim → @design-system, no nível atômico correspondente
+  sim, de domínios diferentes → @design-system (UI pura) ou components/ (com lógica)
+  sim, do mesmo domínio, fora do catálogo do DS → features/<dominio>/_components/ (ADR 0005)
   não → _components/ da própria tela
 ```
 

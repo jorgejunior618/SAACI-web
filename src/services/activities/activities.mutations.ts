@@ -16,7 +16,7 @@ import type { Activity, ActivityCorrection, NewActivity } from './activities.typ
  * Alvo: o arquivo sobe antes e uma RPC grava atividade e referência numa transação só. Se falhar,
  * o que o aluno preencheu continua na tela. Chame `invalidateAfterActivityWrite` no `onSuccess`.
  *
- * @param nova Dados da atividade e o arquivo. Aceita PDF, JPG ou PNG, até 10 MB.
+ * @param inputDados da atividade e o arquivo. Aceita PDF, JPG ou PNG, até 10 MB.
  * @returns A atividade gravada, já com `countedHours` e `situacao`.
  */
 export async function createActivity(input: NewActivity): Promise<Activity> {
@@ -32,7 +32,7 @@ export async function createActivity(input: NewActivity): Promise<Activity> {
  * As horas contadas são recalculadas pelo cálculo único. Chame `invalidateAfterActivityWrite`.
  *
  * @param id Identificador da atividade.
- * @param atualizadaEm O `updatedAt` que a tela leu. Se a atividade mudou desde então, a escrita é
+ * @param updatedAtO `updatedAt` que a tela leu. Se a atividade mudou desde então, a escrita é
  * recusada em vez de sobrescrever.
  * @param changes Campos a corrigir. Só os enviados mudam.
  * @returns A atividade depois da correção.

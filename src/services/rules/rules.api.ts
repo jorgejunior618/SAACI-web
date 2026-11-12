@@ -9,7 +9,7 @@ import type { Course, RuleItem } from './rules.types'
 /**
  * Lista os cursos que já têm regras cadastradas, filtrados pelo nome.
  *
- * @param busca Parte do nome do curso. Ignora acento e caixa. Sem texto, devolve todos.
+ * @param searchParte do nome do curso. Ignora acento e caixa. Sem texto, devolve todos.
  * @returns Cursos em ordem alfabética. Lista vazia quando nenhum curso combina.
  */
 export async function getCourses(search?: string): Promise<Course[]> {
@@ -34,7 +34,7 @@ export async function getCourse(id: string): Promise<Course | null> {
 /**
  * Lista os itens do formulário de um curso, com a regra de contagem e o máximo de cada um.
  *
- * @param cursoId Identificador do curso.
+ * @param courseIdIdentificador do curso.
  * @returns Itens na ordem do formulário. Lista vazia para curso sem regras.
  */
 export async function getRuleItems(courseId: string): Promise<RuleItem[]> {

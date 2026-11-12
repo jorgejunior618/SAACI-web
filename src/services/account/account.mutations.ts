@@ -3,6 +3,7 @@ import * as v from 'valibot'
 
 import { simulateLatency } from '@/utils/simulate-latency'
 
+import { accountKeys } from './account.keys'
 import {
   changePasswordByToken,
   closeSession,
@@ -24,8 +25,8 @@ function normalizeEmail(email: string): string {
  * Entra com e-mail e senha.
  *
  * @param email E-mail de aluno. Espaços e maiúsculas são ignorados.
- * @param senha Senha da conta.
- * @returns A nova sessão. A tela a grava no cache com `setQueryData(accountKeys.sessao(), sessao)`.
+ * @param password Senha da conta.
+ * @returns A nova sessão. A tela a grava no cache com `setQueryData(accountKeys.session(), session)`.
  * @throws {InvalidCredentialsError} E-mail desconhecido ou senha errada, sem dizer qual.
  * @throws {EmailNotConfirmedError} A conta existe, mas o e-mail não foi confirmado.
  */
@@ -45,7 +46,7 @@ export async function signOut(): Promise<void> {
  * Cria a conta e envia o link de confirmação. Não abre sessão.
  *
  * @param email E-mail de aluno, o que termina em `@aluno.ifce.edu.br`.
- * @param senha Senha nova. A regra de força vive no schema do formulário.
+ * @param password Senha nova. A regra de força vive no schema do formulário.
  * @throws {EmailDomainError} O e-mail não é de aluno.
  * @throws {EmailAlreadyRegisteredError} Já existe conta com este e-mail.
  */
@@ -86,7 +87,7 @@ export async function requestPasswordReset(email: string): Promise<void> {
  * Grava a senha nova pelo link e abre a sessão.
  *
  * @param token Token do link recebido por e-mail.
- * @param senha Senha nova.
+ * @param password Senha nova.
  * @throws {ExpiredLinkError} O link venceu, já foi usado ou foi trocado por um mais novo.
  */
 export async function updatePassword(token: string, password: string): Promise<Session> {
@@ -96,9 +97,26 @@ export async function updatePassword(token: string, password: string): Promise<S
 }
 
 /**
+ * Marca como vencida a leitura do link de nova senha, depois que `updatePassword` o gastou.
+ *
+ * @remarks
+ * Só marca, sem buscar de novo: a tela que mostrava o formulário está saindo. Se a pessoa voltar a
+ * ela, a leitura é refeita e o link aparece como vencido.
+ *
+ * @param queryClient Cliente de cache da aplicação.
+ * @param token Token do link que foi usado.
+ */
+export function invalidateAfterPasswordUpdate(queryClient: QueryClient, token: string): void {
+  void queryClient.invalidateQueries({
+    queryKey: accountKeys.passwordLink(token),
+    refetchType: 'none',
+  })
+}
+
+/**
  * Apaga a conta, as atividades e os comprovantes de quem está logado.
  *
- * @param senha Senha da conta, pedida de novo para confirmar.
+ * @param password Senha da conta, pedida de novo para confirmar.
  * @throws {InvalidCredentialsError} A senha não confere.
  */
 export async function deleteAccount(password: string): Promise<void> {
