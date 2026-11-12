@@ -74,7 +74,7 @@ export function CourseConfirm({ course, onChooseOther }: CourseConfirmProps): Re
         <S.Fields>
           <TextField
             label="Em que semestre você entrou no curso?"
-            hint="Só contam as atividades feitas a partir dele."
+            hint="Digite o ano e o semestre, como 2023.2. Só contam as atividades feitas a partir dele."
             inputMode="decimal"
             autoComplete="off"
             placeholder="2023.2"

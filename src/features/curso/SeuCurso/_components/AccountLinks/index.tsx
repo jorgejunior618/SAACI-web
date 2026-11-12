@@ -50,7 +50,7 @@ export function AccountLinks(): ReactNode {
         >
           {signOutMutation.isPending ? 'Saindo' : 'Sair'}
         </Link>
-        <Link as={NextLink} href="/excluir-conta" isStandalone style={S.quietLink}>
+        <Link as={NextLink} href="/excluir-conta" isStandalone>
           Excluir conta
         </Link>
       </S.Row>

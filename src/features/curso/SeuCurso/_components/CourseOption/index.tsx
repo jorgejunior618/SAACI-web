@@ -1,5 +1,3 @@
-'use client'
-
 import { ChevronRight, GraduationCap } from 'lucide-react'
 import type { ReactNode } from 'react'
 

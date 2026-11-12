@@ -1,5 +1,3 @@
-'use client'
-
 import type { ReactNode } from 'react'
 
 import { CourseOption } from '@/features/curso/SeuCurso/_components/CourseOption'

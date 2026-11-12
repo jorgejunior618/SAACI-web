@@ -9,11 +9,18 @@ function toIsoDate(text: string): string {
   return `${year}-${term === '1' ? '01' : '07'}-01`
 }
 
+/** Hoje como `AAAA-MM-DD` no fuso do aparelho, para a virada do dia valer para quem digita. */
+function getToday(): string {
+  const now = new Date()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+
+  return `${now.getFullYear()}-${month}-${day}`
+}
+
 /** Diz se o semestre começa depois de hoje. Compara texto `AAAA-MM-DD`, que ordena como data. */
 function startsInFuture(text: string): boolean {
-  const today = new Date().toISOString().slice(0, 10)
-
-  return toIsoDate(text) > today
+  return toIsoDate(text) > getToday()
 }
 
 /**

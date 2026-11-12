@@ -51,7 +51,6 @@ export function CourseSearch({ courses, onSelect }: CourseSearchProps): ReactNod
         <S.Lead>Assim o SAACI sabe quais atividades contam e quanto cada uma vale.</S.Lead>
       </S.Intro>
 
-      {/* TODO: o print do protótipo não tem rótulo nem placeholder neste campo. Validar com a equipe. */}
       <TextField
         label="Nome do curso"
         type="search"
