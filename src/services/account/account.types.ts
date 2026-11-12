@@ -26,8 +26,8 @@ export const StudentEmailSchema = v.pipe(
   v.string(),
   v.trim(),
   v.toLowerCase(),
-  v.email(),
-  v.endsWith('@aluno.ifce.edu.br'),
+  v.email('Digite o e-mail completo, como nome@aluno.ifce.edu.br.'),
+  v.endsWith('@aluno.ifce.edu.br', 'Use o e-mail de aluno, o que termina em @aluno.ifce.edu.br.'),
 )
 
 export type StudentEmail = v.InferOutput<typeof StudentEmailSchema>

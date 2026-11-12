@@ -18,9 +18,9 @@ let sessionEmail: string | null = null
 let links = new Map<string, { email: string; kind: LinkKind }>()
 
 /**
- * Volta o mock ao estado de exemplo: a aluna do protótipo, com e-mail confirmado e já logada.
- * Começar logado deixa as telas de dentro do app serem feitas antes do login existir. Testes
- * chamam no `beforeEach`.
+ * Volta o mock ao estado de exemplo: a aluna do protótipo (senha `senhaforte1`), com e-mail
+ * confirmado e já logada. Testes chamam no `beforeEach`. Ao abrir o app, o módulo logo abaixo deixa
+ * a sessão fechada.
  */
 export function resetAccountMock(): void {
   accounts = [{ email: SEED_EMAIL, password: 'senhaforte1', emailConfirmed: true }]
@@ -29,6 +29,9 @@ export function resetAccountMock(): void {
 }
 
 resetAccountMock()
+// O app nasce deslogado, para o fluxo de Acesso (entrar, criar conta, recuperar senha) poder ser
+// visto. Não há botão Sair até a issue de Perfil, e a sessão do mock se perde a cada recarga.
+sessionEmail = null
 
 function toSession(account: AccountRow): Session {
   return { email: account.email, emailConfirmed: account.emailConfirmed }
