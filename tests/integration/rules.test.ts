@@ -52,7 +52,10 @@ describe('regras do curso', () => {
       .update({ maximo_horas: 999 })
       .eq('curso_id', COURSE_ID)
 
+    const items = await getRuleItems(COURSE_ID)
+
     expect(update.error).not.toBeNull()
-    expect((await getRuleItems(COURSE_ID)).every((item) => item.maxHours < 999)).toBe(true)
+    expect(items).toHaveLength(24) // pré-condição: há o que comparar
+    expect(items.every((item) => item.maxHours < 999)).toBe(true)
   })
 })

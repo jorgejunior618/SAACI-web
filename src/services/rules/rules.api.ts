@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/client'
 import type { DbClient } from '@supabase/client'
+import type { Tables } from '@supabase/database.types'
 import * as v from 'valibot'
 
 import { CourseSchema, RuleItemSchema } from './rules.types'
@@ -30,20 +31,9 @@ function escapeLike(text: string): string {
   return text.replace(/[\\%_]/g, '\\$&')
 }
 
-type CourseRow = {
-  id: string
-  nome: string
-  grau: string
-  campus: string
-  carga_total_horas: number
-}
-
-type ItemRow = {
-  numero: number
-  nome: string
-  regra: string
-  maximo_horas: number
-}
+// Só as colunas que o `select` pede, tiradas dos tipos gerados do banco.
+type CourseRow = Pick<Tables<'cursos'>, 'id' | 'nome' | 'grau' | 'campus' | 'carga_total_horas'>
+type ItemRow = Pick<Tables<'itens_curso'>, 'numero' | 'nome' | 'regra' | 'maximo_horas'>
 
 function toCourse(row: CourseRow): Course {
   return v.parse(CourseSchema, {
