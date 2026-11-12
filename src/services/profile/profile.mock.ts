@@ -1,11 +1,12 @@
 import { CourseLockedError } from './profile.errors'
 import type { Profile, UpdateProfile } from './profile.types'
 
+// Conta recém-criada: curso e semestre nascem nulos e o aluno os escolhe em Seu curso (RF09, RF11).
 const SEED: Profile = {
   name: 'Ana Beatriz Moura',
   enrollmentId: '2023104501',
-  startSemester: '2023-07-01',
-  courseId: 'engenharia-de-computacao',
+  startSemester: null,
+  courseId: null,
 }
 
 let profile: Profile = structuredClone(SEED)
@@ -14,7 +15,10 @@ let profile: Profile = structuredClone(SEED)
 // outro domínio. Os 9 vêm do exemplo do protótipo.
 let registeredActivities = 9
 
-/** Volta o mock ao perfil de exemplo, com 9 atividades lançadas. Testes chamam no `beforeEach`. */
+/**
+ * Volta o mock ao perfil de exemplo, sem curso nem semestre e com 9 atividades lançadas. Testes
+ * chamam no `beforeEach`.
+ */
 export function resetProfileMock(): void {
   profile = structuredClone(SEED)
   registeredActivities = 9
