@@ -2,6 +2,7 @@ import { CourseLockedError } from './profile.errors'
 import type { Profile, UpdateProfile } from './profile.types'
 
 // Conta recém-criada: curso e semestre nascem nulos e o aluno os escolhe em Seu curso (RF09, RF11).
+// TODO: mock. Sai com a migração para o Supabase, onde a linha nasce com esses campos nulos.
 const SEED: Profile = {
   name: 'Ana Beatriz Moura',
   enrollmentId: '2023104501',
