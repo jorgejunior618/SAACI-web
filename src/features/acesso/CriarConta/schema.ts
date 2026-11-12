@@ -1,8 +1,7 @@
 import * as v from 'valibot'
 
+import { PasswordSchema } from '@/features/acesso/_components/PasswordRules/utils'
 import { StudentEmailSchema } from '@/services/account'
-
-import { PasswordSchema } from './_components/PasswordRules/utils'
 
 /** Campos do formulário de Criar conta: e-mail de aluno (RF02) e senha com as regras de `PasswordRules`. */
 export const SignUpSchema = v.object({

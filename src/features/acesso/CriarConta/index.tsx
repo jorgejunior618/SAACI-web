@@ -11,10 +11,10 @@ import { useForm, useWatch } from 'react-hook-form'
 import { AppFrame, Button, Link, Notice, TextField } from '@design-system'
 
 import { AccessHeader } from '@/features/acesso/_components/AccessHeader'
+import { PasswordRules } from '@/features/acesso/_components/PasswordRules'
+import { PASSWORD_RULES } from '@/features/acesso/_components/PasswordRules/utils'
 import { createAccount, EmailAlreadyRegisteredError, EmailDomainError } from '@/services/account'
 
-import { PasswordRules } from './_components/PasswordRules'
-import { PASSWORD_RULES } from './_components/PasswordRules/utils'
 import { SignUpSchema } from './schema'
 import type { SignUpInput, SignUpOutput } from './schema'
 import * as S from './styles'

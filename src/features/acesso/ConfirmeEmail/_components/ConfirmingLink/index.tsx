@@ -6,9 +6,8 @@ import type { ReactNode } from 'react'
 
 import { Button, LoadingState, StateScreen } from '@design-system'
 
+import { ExpiredLink } from '@/features/acesso/_components/ExpiredLink'
 import { accountKeys, confirmEmail, ExpiredLinkError } from '@/services/account'
-
-import { ExpiredLink } from '../ExpiredLink'
 
 export type ConfirmingLinkProps = {
   /** Token do link recebido por e-mail, lido de `?token=` da URL. */

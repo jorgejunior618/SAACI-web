@@ -7,12 +7,11 @@ import type { ReactNode } from 'react'
 import { Button, StateScreen } from '@design-system'
 
 /**
- * Tela de link vencido da confirmação de e-mail.
+ * Tela de link vencido, para as telas de Acesso que abrem por link de e-mail.
  *
  * @remarks
- * Diz o que fazer a seguir: pedir um link novo ou voltar para Entrar. Quando outra tela de Acesso
- * precisar do mesmo aviso (Nova senha), este componente sobe para `features/acesso/_components/`
- * (ADR 0005).
+ * Diz o que fazer a seguir: pedir um link novo ou voltar para Entrar. Subiu para
+ * `features/acesso/_components/` quando Confirme seu e-mail e Nova senha passaram a usá-lo (ADR 0005).
  *
  * @example
  * ```tsx
