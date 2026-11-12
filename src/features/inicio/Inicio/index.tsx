@@ -38,7 +38,7 @@ export function Inicio(): ReactNode {
   const { data: ruleItems } = useSuspenseQuery(rulesQueries.items(profile.courseId ?? ''))
 
   if (progress.categories.length === 0) {
-    return <Empty targetHours={progress.targetHours} ruleItems={ruleItems} />
+    return <Empty targetHours={progress.targetHours} />
   }
 
   const isComplete = progress.totalHours >= progress.targetHours
@@ -56,7 +56,7 @@ export function Inicio(): ReactNode {
         ) : null}
 
         <TotalProgress
-          doneHours={progress.totalHours}
+          doneHours={progress.itemsSum}
           goalHours={progress.targetHours}
           guideHref="/atividades/pedido"
           linkAs={NextLink}
