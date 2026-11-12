@@ -61,9 +61,10 @@ libera com `storage.allow_delete_query = 'true'`, como a API faz; o teste liga e
 - Tabela nova nasce com RLS e policy na mesma migration.
 - `UPDATE`/`DELETE` só alcança uma linha se ela também passar por uma policy de `select`. Sem ela, o
   comando afeta zero linhas **em silêncio**. Ao escrever policy de escrita, confira a leitura.
-- RPC é `security invoker`, então o RLS de quem chamou continua valendo. `security definer` não existe
-  hoje: se uma RPC precisar, entra em `arquitetura.md` por nome, lê `auth.uid()` em vez de receber o
-  dono por parâmetro e devolve o mínimo (a ausência de policy de `select` não protege o retorno).
+- RPC é `security invoker`, então o RLS de quem chamou continua valendo. `security definer` só nas
+  registradas em `arquitetura.md` (a limpeza de contas não confirmadas e `apagar_minha_conta`). Outra
+  RPC que precisar entra lá por nome, lê `auth.uid()` em vez de receber o dono por parâmetro e
+  devolve o mínimo (a ausência de policy de `select` não protege o retorno).
 - Nenhuma chave `service_role` em código que o navegador alcança. Travado por lint e por um teste de
   repositório (`tests/*.test.ts`).
 
@@ -97,16 +98,16 @@ e-mail que não é do IFCE".
 
 ## Apagar a conta
 
-Apagar usuário exige a chave `service_role`, que **ignora RLS por completo**. É a razão de existir um
-Route Handler (`DELETE /api/conta`) e a fronteira mais perigosa do sistema. Dois clientes, fronteira
-explícita:
+Apagar o usuário do Auth exige o dono do schema ou a chave `service_role`, que **ignora RLS por
+completo**. O SAACI usa o primeiro caminho (ADR 0006): a RPC `apagar_minha_conta` é `security definer`,
+lê `auth.uid()`, não recebe o dono por parâmetro e devolve só quantas contas apagou. Só `authenticated`
+a executa.
 
-```ts
-const db = await createClient() // cookies de quem chamou → RLS ativa
-const admin = createAdminClient() // service_role → RLS ignorada
-```
+O service `deleteAccount` pede a senha de novo e a confere com `signInWithPassword` antes de chamar a
+RPC (RF33). Essa confirmação é UX contra clique acidental e aparelho emprestado: o servidor não a
+exige, porque quem tem sessão válida já é o dono do dado (RNF04). Perfil e atividades saem em cascata,
+e os arquivos do Storage por rotina agendada (`modelagem-dados.md`).
 
-O `admin` só apaga o usuário de autenticação. Ler atividades e apagar arquivos passa pelo cliente de
-quem chamou. A chave não traz autorização junto: o handler começa lendo a sessão e exigindo a senha
-atual (RF33). A fábrica do cliente admin fica atrás de `import 'server-only'`, que quebra o build se
-um Client Component a alcançar.
+Não há Route Handler `DELETE /api/conta` nem cliente admin, e a `service_role` segue fora do projeto.
+Se um dia apagar a conta precisar dela, o cliente admin fica atrás de `import 'server-only'` e nasce
+com uma ADR nova.
