@@ -50,11 +50,11 @@ describe('getFullCategories', () => {
 describe('sortCategoriesForPanel', () => {
   const categories = [category(6, 15, 60), category(7, 18, 60), category(13, 30, 30)]
 
-  it('mantém a ordem do formulário sem fullFirst', () => {
+  it('mantém a ordem do formulário sem isFullFirst', () => {
     expect(sortCategoriesForPanel(categories, false).map((c) => c.itemNumber)).toEqual([6, 7, 13])
   })
 
-  it('sobe os itens cheios com fullFirst, sem mexer na lista recebida', () => {
+  it('sobe os itens cheios com isFullFirst, sem mexer na lista recebida', () => {
     expect(sortCategoriesForPanel(categories, true).map((c) => c.itemNumber)).toEqual([13, 6, 7])
     expect(categories.map((c) => c.itemNumber)).toEqual([6, 7, 13])
   })

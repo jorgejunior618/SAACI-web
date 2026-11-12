@@ -1,6 +1,6 @@
 'use client'
 
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useSuspenseQueries, useSuspenseQuery } from '@tanstack/react-query'
 import NextLink from 'next/link'
 import type { ReactNode } from 'react'
 
@@ -33,9 +33,16 @@ import * as S from './styles'
  * ```
  */
 export function Inicio(): ReactNode {
-  const { data: progress } = useSuspenseQuery(progressQueries.summary())
-  const { data: profile } = useSuspenseQuery(profileQueries.detail())
-  const { data: ruleItems } = useSuspenseQuery(rulesQueries.items(profile.courseId ?? ''))
+  const [{ data: progress }, { data: profile }] = useSuspenseQueries({
+    queries: [progressQueries.summary(), profileQueries.detail()],
+  })
+
+  // O SessionGate leva quem não tem curso para Seu curso, então aqui o curso sempre existe. Sem esta
+  // checagem, `null` viraria uma busca com id vazio e uma lista de itens vazia, sem aviso.
+  if (profile.courseId === null) throw new Error('O Início abriu sem curso no perfil.')
+
+  // Depende do perfil, então espera a busca de cima. As duas de cima saem juntas.
+  const { data: ruleItems } = useSuspenseQuery(rulesQueries.items(profile.courseId))
 
   if (progress.categories.length === 0) {
     return <Empty targetHours={progress.targetHours} />
@@ -56,7 +63,7 @@ export function Inicio(): ReactNode {
         ) : null}
 
         <TotalProgress
-          doneHours={progress.itemsSum}
+          doneHours={isComplete ? progress.itemsSum : progress.totalHours}
           goalHours={progress.targetHours}
           guideHref="/atividades/pedido"
           linkAs={NextLink}

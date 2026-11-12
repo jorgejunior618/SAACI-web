@@ -12,6 +12,10 @@ export type LimitNotice = {
 /**
  * Indica se o item chegou ao máximo de horas. É a mesma regra que vira o cartão `full`.
  *
+ * @remarks
+ * A regra mora também no `CategoryCard` (`@design-system`), que não pode importar daqui. Se ela
+ * mudar lá, mude aqui no mesmo commit, ou o aviso de limite e o cartão passam a discordar.
+ *
  * @param category Horas do item no total do aluno.
  * @returns `true` quando as horas que contam alcançaram o máximo do item.
  */
@@ -53,18 +57,18 @@ export function getFullCategories(categories: ProgressCategory[]): ProgressCateg
  * Ordena os cartões do painel.
  *
  * @remarks
- * Com `fullFirst`, os itens cheios sobem para o topo, que é o que o aviso de limite anuncia. Sem ele,
+ * Com `isFullFirst`, os itens cheios sobem para o topo, que é o que o aviso de limite anuncia. Sem ele,
  * a ordem do formulário se mantém. Em ambos os casos a ordem relativa dentro de cada grupo não muda.
  *
  * @param categories Itens com horas, na ordem do formulário.
- * @param fullFirst Sobe os itens cheios para o começo da lista.
+ * @param isFullFirst Sobe os itens cheios para o começo da lista.
  * @returns Uma cópia ordenada. A lista recebida não é alterada.
  */
 export function sortCategoriesForPanel(
   categories: ProgressCategory[],
-  fullFirst: boolean,
+  isFullFirst: boolean,
 ): ProgressCategory[] {
-  if (!fullFirst) return [...categories]
+  if (!isFullFirst) return [...categories]
 
   return [...getFullCategories(categories), ...categories.filter((c) => !isCategoryFull(c))]
 }
