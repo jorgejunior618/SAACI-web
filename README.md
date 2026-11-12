@@ -99,6 +99,11 @@ Auth (confirmação e nova senha) não saem de verdade: caem no Mailpit, em `htt
 O link de cada e-mail abre `/confirme-email?token=...` ou `/nova-senha?token=...`: copie-o do Mailpit.
 O link vale 1 hora e só funciona uma vez.
 
+Abra o app sempre em `http://localhost:3000`, nunca em `127.0.0.1`: o `site_url` do Auth local é
+`localhost`, e o `next dev` bloqueia a origem `127.0.0.1` (a página não hidrata e o link do e-mail
+fica em "Confirmando seu e-mail" para sempre). Se mudar o `site_url` em `supabase/config.toml`,
+reinicie com `pnpm db:stop` e `pnpm db:start`.
+
 ### Como criar uma migration nova
 
 1. Com o banco no ar, crie o arquivo. O nome descreve a mudança, em português e `snake_case`:
@@ -188,7 +193,7 @@ pnpm exec supabase config push    # config.toml
 
 Antes de subir:
 
-- **`site_url` e `additional_redirect_urls`** do `config.toml` apontam para `127.0.0.1`. Em produção
+- **`site_url` e `additional_redirect_urls`** do `config.toml` apontam para `localhost`. Em produção
   precisam da URL real, com `/confirme-email` e `/nova-senha`. Não confirmado: o jeito de manter dois
   ambientes no mesmo arquivo (bloco `[remotes.<nome>]`) deve ser conferido na documentação da CLI.
 - **SMTP próprio.** O SMTP padrão do Supabase só serve para teste e limita os envios por hora, o que
