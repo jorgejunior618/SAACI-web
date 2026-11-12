@@ -1,28 +1,29 @@
 'use client'
 
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { GraduationCap } from 'lucide-react'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import type { ReactNode } from 'react'
 
-import { AppFrame, Button, StateScreen, TopBar } from '@design-system'
+import { AppFrame, LoadingState, TopBar } from '@design-system'
 
 import { rulesQueries } from '@/services/rules'
 
 import { AccountLinks } from './_components/AccountLinks'
+import { CourseConfirm } from './_components/CourseConfirm'
 import { CourseSearch } from './_components/CourseSearch'
 import { Empty } from './Empty'
 import * as S from './styles'
 
 /**
- * Tela Seu curso, do primeiro acesso: a pessoa escolhe o curso e, no passo seguinte, o semestre em
- * que entrou.
+ * Tela Seu curso, do primeiro acesso: a pessoa escolhe o curso e, no passo seguinte, confirma a meta
+ * de horas e informa o semestre em que entrou.
  *
  * @remarks
- * Guarda só o id do curso escolhido. Sem escolha, mostra a busca. Com escolha, mostra a confirmação
- * com a meta de horas. Quem leva a pessoa ao painel depois de salvar é o `SessionGate` do grupo
- * `(onboarding)`, que percebe o curso no perfil. A página envolve este componente em `Suspense`,
- * com `Loading` como fallback.
+ * Guarda só o id do curso escolhido. Sem escolha, mostra a busca. Com escolha, mostra a confirmação,
+ * e "Escolher outro" volta à busca. Quem leva a pessoa ao painel depois de salvar é o `SessionGate`
+ * do grupo `(onboarding)`, que percebe o curso no perfil. A página envolve este componente em
+ * `Suspense`, com `Loading` como fallback. A confirmação tem um `Suspense` próprio, porque os itens
+ * do curso chegam depois da lista.
  *
  * @example
  * ```tsx
@@ -41,26 +42,16 @@ export function SeuCurso(): ReactNode {
 
   return (
     <AppFrame topBar={<TopBar variant="home" />}>
-      <S.Page>
-        {selectedCourse ? (
-          // TODO: provisório. Trocar pelo CourseConfirm (meta de horas e semestre) na etapa 3.
-          <StateScreen
-            variant="empty"
-            icon={GraduationCap}
-            eyebrow="Em construção"
-            title={selectedCourse.name}
-            description="A confirmação do curso ainda não foi montada."
-            actions={
-              <Button variant="secondary" block onClick={() => setSelectedCourseId(null)}>
-                Escolher outro
-              </Button>
-            }
-          />
-        ) : (
+      {selectedCourse ? (
+        <Suspense fallback={<LoadingState label="Buscando as regras do curso" />}>
+          <CourseConfirm course={selectedCourse} onChooseOther={() => setSelectedCourseId(null)} />
+        </Suspense>
+      ) : (
+        <S.Page>
           <CourseSearch courses={courses} onSelect={setSelectedCourseId} />
-        )}
-        <AccountLinks />
-      </S.Page>
+          <AccountLinks />
+        </S.Page>
+      )}
     </AppFrame>
   )
 }

@@ -40,3 +40,11 @@ export const StartSemesterFormSchema = v.pipe(
 export type StartSemesterInput = v.InferInput<typeof StartSemesterFormSchema>
 /** Semestre depois da validação, como data `AAAA-MM-DD` de 1º de janeiro ou de julho. */
 export type StartSemesterOutput = v.InferOutput<typeof StartSemesterFormSchema>
+
+/** Campos do formulário de confirmação do curso: só o semestre em que a pessoa entrou. */
+export const CourseConfirmSchema = v.object({ startSemester: StartSemesterFormSchema })
+
+/** Valores do formulário de confirmação como a pessoa digita, antes da validação. */
+export type CourseConfirmInput = v.InferInput<typeof CourseConfirmSchema>
+/** Valores do formulário de confirmação depois da validação, já limpos pelo schema. */
+export type CourseConfirmOutput = v.InferOutput<typeof CourseConfirmSchema>
