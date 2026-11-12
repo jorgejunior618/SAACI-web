@@ -37,7 +37,7 @@ export async function getActivity(id: string): Promise<Activity | null> {
  * Alvo: o serviço de IA é chamado por um Route Handler, e a chave nunca chega ao navegador (RF41).
  * No mock, o nome do arquivo escolhe o resultado: `ilegivel` falha e `sem-item` não sugere item.
  *
- * @param comprovante Arquivo escolhido pelo aluno.
+ * @param proofArquivo escolhido pelo aluno.
  * @returns A sugestão. Campo `null` é o que não foi lido.
  * @throws {UnreadableProofError} A leitura falhou. A tela deixa preencher à mão.
  */
