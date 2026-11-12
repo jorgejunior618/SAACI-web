@@ -11,6 +11,9 @@ import {
 import { accountKeys } from './account.keys'
 import type { Session } from './account.types'
 
+// As mutations criam o cliente por dentro, sem o parâmetro `db` das leituras: só rodam no navegador,
+// e o `mutationFn` do TanStack Query passa um contexto como 2º argumento (`mutationFn: confirmEmail`
+// o jogaria em `db`). Não "corrija" para o padrão de `doc/camada-servicos.md`.
 function normalizeEmail(email: string): string {
   return email.trim().toLowerCase()
 }

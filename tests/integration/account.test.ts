@@ -95,7 +95,7 @@ describe('criar conta', () => {
 
     // Comportamento do Supabase: reenvia a confirmação e responde sucesso.
     await expect(createAccount(email, PASSWORD)).resolves.toBeUndefined()
-    expect(await countEmails(email)).toBeGreaterThanOrEqual(1)
+    expect(await countEmails(email)).toBe(2)
   })
 })
 
