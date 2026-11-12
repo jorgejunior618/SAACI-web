@@ -26,7 +26,22 @@ describe('perfil', () => {
     })
   })
 
+  it('nasce sem curso e sem semestre, como uma conta nova', async () => {
+    expect(await getProfile()).toMatchObject({ courseId: null, startSemester: null })
+  })
+
+  it('aceita a primeira escolha de curso mesmo com atividades lançadas', async () => {
+    await expect(
+      updateProfile({ courseId: 'engenharia-de-computacao', startSemester: '2023-07-01' }),
+    ).resolves.toMatchObject({
+      courseId: 'engenharia-de-computacao',
+      startSemester: '2023-07-01',
+    })
+  })
+
   it('trava a troca de curso com atividades lançadas (RF10)', async () => {
+    await updateProfile({ courseId: 'engenharia-de-computacao' })
+
     await expect(updateProfile({ courseId: 'outro-curso' })).rejects.toBeInstanceOf(
       CourseLockedError,
     )
@@ -34,6 +49,7 @@ describe('perfil', () => {
   })
 
   it('libera a troca de curso sem atividades', async () => {
+    await updateProfile({ courseId: 'engenharia-de-computacao' })
     setRegisteredActivitiesMock(0)
 
     await expect(updateProfile({ courseId: 'outro-curso' })).resolves.toMatchObject({
