@@ -10,7 +10,8 @@ export const accountQueries = {
   session: () =>
     queryOptions({
       queryKey: accountKeys.session(),
-      queryFn: getSession,
+      // Função de seta: o `queryFn` recebe o contexto da query, que não pode cair no parâmetro `db`.
+      queryFn: () => getSession(),
       staleTime: STALE_TIME.cadastro,
     }),
   /** Link de nova senha, lido sem gastar. `data` é `null` quando o link não vale. */

@@ -26,9 +26,10 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-Preencha o `.env.local` antes de rodar, como mostra a seção [Supabase](#supabase). Hoje as telas
-ainda leem dados de mock, então o app abre mesmo com as variáveis vazias. O backend entra por
-domínio, em issues separadas.
+Preencha o `.env.local` antes de rodar, como mostra a seção [Supabase](#supabase). A conta e o login
+já falam com o Supabase Auth: para abrir as telas de Acesso, suba o banco local com `pnpm db:start`
+(precisa do Docker aberto) e preencha o `.env.local` com a URL e a chave que `pnpm db:status` mostra.
+Os outros domínios ainda leem dados de mock. O backend entra por domínio, em issues separadas.
 
 ## Supabase
 
@@ -95,6 +96,8 @@ aberto; o app com mock roda sem ele.
 
 O Studio (painel visual do banco) abre em `http://127.0.0.1:54323` com o banco no ar. Os e-mails do
 Auth (confirmação e nova senha) não saem de verdade: caem no Mailpit, em `http://127.0.0.1:54324`.
+O link de cada e-mail abre `/confirme-email?token=...` ou `/nova-senha?token=...`: copie-o do Mailpit.
+O link vale 1 hora e só funciona uma vez.
 
 ### Como criar uma migration nova
 
