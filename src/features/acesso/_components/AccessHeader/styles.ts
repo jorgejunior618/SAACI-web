@@ -18,3 +18,6 @@ export const back = css({
   marginBlockEnd: '2',
   color: 'ink',
 })
+
+// A imagem preenche a largura do `Logo`, que é quem fixa a medida do desenho.
+export const logoImage = css({ display: 'block', width: '100%', height: 'auto' })

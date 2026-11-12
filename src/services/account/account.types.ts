@@ -30,6 +30,7 @@ export const StudentEmailSchema = v.pipe(
   v.endsWith('@aluno.ifce.edu.br', 'Use o e-mail de aluno, o que termina em @aluno.ifce.edu.br.'),
 )
 
+/** E-mail de aluno já limpo: sem espaços nas pontas e em minúsculas. */
 export type StudentEmail = v.InferOutput<typeof StudentEmailSchema>
 
 /** Dados do link de nova senha que a tela mostra antes de a pessoa digitar a senha. */
@@ -37,4 +38,5 @@ export const PasswordLinkSchema = v.object({
   email: v.pipe(v.string(), v.email()),
 })
 
+/** E-mail dono de um link de nova senha que ainda vale. */
 export type PasswordLink = v.InferOutput<typeof PasswordLinkSchema>

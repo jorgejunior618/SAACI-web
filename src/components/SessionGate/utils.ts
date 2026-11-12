@@ -1,7 +1,8 @@
 import type { Session } from '@/services/account'
 import type { Profile } from '@/services/profile'
 
-import type { SessionGateMode } from './index'
+/** Para quem um grupo de rota existe: só quem tem sessão e curso, só quem não tem sessão, ou quem ainda escolhe o curso. */
+export type SessionGateMode = 'private' | 'public' | 'onboarding'
 
 /**
  * Diz para onde levar a pessoa, dado o grupo de rota, a sessão e o perfil.

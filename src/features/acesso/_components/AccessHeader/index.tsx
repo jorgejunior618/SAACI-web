@@ -45,7 +45,7 @@ export function AccessHeader({ size }: AccessHeaderProps): ReactNode {
           height={Math.round((width * 466) / 520)}
           alt="SAACI, Sistema de Apoio Acadêmico Colaborativo do IFCE"
           priority
-          style={{ display: 'block', width: '100%', height: 'auto' }}
+          className={S.logoImage}
         />
       </S.Logo>
     </S.Root>

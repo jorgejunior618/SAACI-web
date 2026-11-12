@@ -12,6 +12,7 @@ export {
   confirmEmail,
   createAccount,
   deleteAccount,
+  invalidateAfterPasswordUpdate,
   requestPasswordReset,
   resendConfirmation,
   signIn,

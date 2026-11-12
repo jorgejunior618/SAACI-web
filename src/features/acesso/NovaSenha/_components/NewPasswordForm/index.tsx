@@ -11,8 +11,13 @@ import { Button, Notice, TextField } from '@design-system'
 import { AccessHeader } from '@/features/acesso/_components/AccessHeader'
 import { ExpiredLink } from '@/features/acesso/_components/ExpiredLink'
 import { PasswordRules } from '@/features/acesso/_components/PasswordRules'
-import { PASSWORD_RULES } from '@/features/acesso/_components/PasswordRules/utils'
-import { accountKeys, ExpiredLinkError, updatePassword } from '@/services/account'
+import { isPasswordValid } from '@/features/acesso/_components/PasswordRules/utils'
+import {
+  accountKeys,
+  ExpiredLinkError,
+  invalidateAfterPasswordUpdate,
+  updatePassword,
+} from '@/services/account'
 
 import { NewPasswordSchema } from '../../schema'
 import type { NewPasswordInput, NewPasswordOutput } from '../../schema'
@@ -55,15 +60,14 @@ export function NewPasswordForm({ token, email }: NewPasswordFormProps): ReactNo
   const mutation = useMutation({
     mutationFn: ({ password: value }: NewPasswordOutput) => updatePassword(token, value),
     onSuccess: (session) => {
-      // O link foi gasto: a leitura em cache não pode mais mostrar o formulário.
-      queryClient.setQueryData(accountKeys.passwordLink(token), null)
+      invalidateAfterPasswordUpdate(queryClient, token)
       queryClient.setQueryData(accountKeys.session(), session)
     },
   })
 
   if (mutation.error instanceof ExpiredLinkError) return <ExpiredLink />
 
-  const isPasswordValid = PASSWORD_RULES.every((rule) => rule.isMet(password))
+  const hasValidPassword = isPasswordValid(password)
 
   return (
     <S.Page>
@@ -97,7 +101,7 @@ export function NewPasswordForm({ token, email }: NewPasswordFormProps): ReactNo
         <Button
           type="submit"
           block
-          disabled={!isPasswordValid}
+          disabled={!hasValidPassword}
           busy={mutation.isPending || mutation.isSuccess}
           busyLabel="Salvando"
         >

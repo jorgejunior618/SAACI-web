@@ -7,12 +7,14 @@ import type { ReactNode } from 'react'
 
 import { AppFrame, LoadingState } from '@design-system'
 
+import { ErrorScreen } from '@/components/ErrorScreen'
 import { accountQueries } from '@/services/account'
 import { profileQueries } from '@/services/profile'
 
 import { getSessionRedirect } from './utils'
+import type { SessionGateMode } from './utils'
 
-export type SessionGateMode = 'private' | 'public' | 'onboarding'
+export type { SessionGateMode } from './utils'
 
 export type SessionGateProps = {
   /**
@@ -36,7 +38,8 @@ function subscribeNothing(): () => void {
  * Lê a sessão no navegador, só depois de montar, porque o servidor não enxerga o mock (exceção do
  * `enabled` registrada em `doc/react-query.md`). O perfil só é buscado com sessão, para quem está
  * deslogado não esperar duas buscas em cascata. A regra de destino vive em `getSessionRedirect`.
- * Enquanto carrega ou redireciona, mostra um carregamento em vez das telas.
+ * Enquanto carrega ou redireciona, mostra um carregamento em vez das telas. Se uma busca falhar,
+ * mostra a tela de erro com o botão de tentar de novo.
  *
  * @example
  * ```tsx
@@ -45,20 +48,25 @@ function subscribeNothing(): () => void {
  */
 export function SessionGate({ mode, children }: SessionGateProps): ReactNode {
   const router = useRouter()
-  const mounted = useSyncExternalStore(
+  const isMounted = useSyncExternalStore(
     subscribeNothing,
     () => true,
     () => false,
   )
 
-  // `enabled: mounted`: o servidor não enxerga o mock em memória, então a sessão só é lida no navegador.
-  const session = useQuery({ ...accountQueries.session(), enabled: mounted })
+  // `enabled: isMounted`: o servidor não enxerga o mock em memória, então a sessão só é lida no navegador.
+  const session = useQuery({ ...accountQueries.session(), enabled: isMounted })
   const hasSession = session.data != null
   // Sem sessão não há perfil para buscar.
   const profile = useQuery({ ...profileQueries.detail(), enabled: hasSession })
 
-  const ready = mounted && session.isSuccess && (!hasSession || profile.isSuccess)
-  const destination = ready
+  // Só a falha da primeira carga conta. Busca em segundo plano que falha com dado em cache não
+  // derruba a tela de quem já está logado.
+  const hasSessionFailed = session.isError && session.data === undefined
+  const hasProfileFailed = profile.isError && profile.data === undefined
+  const hasFailed = hasSessionFailed || hasProfileFailed
+  const isReady = isMounted && session.isSuccess && (!hasSession || profile.isSuccess)
+  const destination = isReady
     ? getSessionRedirect(mode, session.data ?? null, profile.data ?? null)
     : null
 
@@ -66,7 +74,17 @@ export function SessionGate({ mode, children }: SessionGateProps): ReactNode {
     if (destination) router.replace(destination)
   }, [destination, router])
 
-  if (!ready || destination) {
+  // `useQuery` não lança: sem isto, uma busca que falha deixaria o carregamento na tela para sempre.
+  if (hasFailed) {
+    return (
+      <ErrorScreen
+        error={session.error ?? profile.error}
+        retry={() => void (hasSessionFailed ? session.refetch() : profile.refetch())}
+      />
+    )
+  }
+
+  if (!isReady || destination) {
     return (
       <AppFrame>
         <LoadingState label="Conferindo sua sessão" />

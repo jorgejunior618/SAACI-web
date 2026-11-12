@@ -9,5 +9,7 @@ export const SignUpSchema = v.object({
   password: PasswordSchema,
 })
 
+/** Valores do formulário de Criar conta como a pessoa digita, antes da validação. */
 export type SignUpInput = v.InferInput<typeof SignUpSchema>
+/** Valores do formulário de Criar conta depois da validação, já limpos pelo schema. */
 export type SignUpOutput = v.InferOutput<typeof SignUpSchema>

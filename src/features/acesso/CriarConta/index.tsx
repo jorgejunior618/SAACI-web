@@ -12,7 +12,7 @@ import { AppFrame, Button, Link, Notice, TextField } from '@design-system'
 
 import { AccessHeader } from '@/features/acesso/_components/AccessHeader'
 import { PasswordRules } from '@/features/acesso/_components/PasswordRules'
-import { PASSWORD_RULES } from '@/features/acesso/_components/PasswordRules/utils'
+import { isPasswordValid } from '@/features/acesso/_components/PasswordRules/utils'
 import { createAccount, EmailAlreadyRegisteredError, EmailDomainError } from '@/services/account'
 
 import { SignUpSchema } from './schema'
@@ -61,8 +61,8 @@ export function CriarConta(): ReactNode {
     mutation.isError && !isAlreadyRegistered && !(mutation.error instanceof EmailDomainError)
   const emailError =
     mutation.error instanceof EmailDomainError ? mutation.error.message : errors.email?.message
-  const isPasswordValid = PASSWORD_RULES.every((rule) => rule.isMet(password))
-  const showRules = password.length > 0 && !isAlreadyRegistered
+  const hasValidPassword = isPasswordValid(password)
+  const isRulesVisible = password.length > 0 && !isAlreadyRegistered
 
   return (
     <AppFrame>
@@ -108,14 +108,14 @@ export function CriarConta(): ReactNode {
             <S.PasswordBlock>
               <TextField
                 label="Crie uma senha"
-                hint={showRules ? undefined : PASSWORD_HINT}
+                hint={isRulesVisible ? undefined : PASSWORD_HINT}
                 type="password"
                 autoComplete="new-password"
-                aria-describedby={showRules ? rulesId : undefined}
+                aria-describedby={isRulesVisible ? rulesId : undefined}
                 error={errors.password?.message}
                 {...register('password')}
               />
-              {showRules ? <PasswordRules id={rulesId} password={password} /> : null}
+              {isRulesVisible ? <PasswordRules id={rulesId} password={password} /> : null}
             </S.PasswordBlock>
           </S.Fields>
 
@@ -129,7 +129,7 @@ export function CriarConta(): ReactNode {
           <Button
             type="submit"
             block
-            disabled={!isPasswordValid}
+            disabled={!hasValidPassword}
             busy={mutation.isPending || mutation.isSuccess}
             busyLabel="Criando"
           >

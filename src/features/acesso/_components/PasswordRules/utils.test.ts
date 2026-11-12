@@ -1,7 +1,7 @@
 import * as v from 'valibot'
 import { describe, expect, it } from 'vitest'
 
-import { getMissingLength, PASSWORD_RULES, PasswordSchema } from './utils'
+import { getMissingPasswordLength, isPasswordValid, PASSWORD_RULES, PasswordSchema } from './utils'
 
 const [letterAndNumber, minLength] = PASSWORD_RULES
 
@@ -15,8 +15,14 @@ describe('regras da senha', () => {
   it('exige 8 caracteres e conta quantos faltam', () => {
     expect(minLength.isMet('1234567')).toBe(false)
     expect(minLength.isMet('12345678')).toBe(true)
-    expect(getMissingLength('saaci1')).toBe(2)
-    expect(getMissingLength('senhaforte1')).toBe(0)
+    expect(getMissingPasswordLength('saaci1')).toBe(2)
+    expect(getMissingPasswordLength('senhaforte1')).toBe(0)
+  })
+
+  it('só aceita a senha que cumpre as duas regras', () => {
+    expect(isPasswordValid('senhaforte1')).toBe(true)
+    expect(isPasswordValid('saaci1')).toBe(false)
+    expect(isPasswordValid('somenteletras')).toBe(false)
   })
 
   it('o schema segue as mesmas regras', () => {

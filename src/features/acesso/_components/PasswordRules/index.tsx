@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 
 import { Icon } from '@design-system'
 
-import { getMissingLength, PASSWORD_RULES } from './utils'
+import { getMissingPasswordLength, PASSWORD_RULES } from './utils'
 import * as S from './styles'
 
 export type PasswordRulesProps = {
@@ -27,7 +27,7 @@ export type PasswordRulesProps = {
  * ```
  */
 export function PasswordRules({ id, password }: PasswordRulesProps): ReactNode {
-  const missing = getMissingLength(password)
+  const missing = getMissingPasswordLength(password)
 
   return (
     <S.List id={id} aria-live="polite">

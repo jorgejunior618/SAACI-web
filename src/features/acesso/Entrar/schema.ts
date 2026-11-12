@@ -18,5 +18,7 @@ export const SignInSchema = v.object({
   password: v.pipe(v.string(), v.nonEmpty('Digite sua senha.')),
 })
 
+/** Valores do formulário de Entrar como a pessoa digita, antes da validação. */
 export type SignInInput = v.InferInput<typeof SignInSchema>
+/** Valores do formulário de Entrar depois da validação, já limpos pelo schema. */
 export type SignInOutput = v.InferOutput<typeof SignInSchema>

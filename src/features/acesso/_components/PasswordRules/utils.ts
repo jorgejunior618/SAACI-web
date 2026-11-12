@@ -26,8 +26,18 @@ export const PASSWORD_RULES = [
  * @param password Senha digitada até agora.
  * @returns Zero quando já tem o tamanho mínimo.
  */
-export function getMissingLength(password: string): number {
+export function getMissingPasswordLength(password: string): number {
   return Math.max(0, PASSWORD_MIN_LENGTH - password.length)
+}
+
+/**
+ * Diz se a senha cumpre todas as regras de `PASSWORD_RULES`.
+ *
+ * @param password Senha digitada até agora.
+ * @returns `true` quando todas as regras valem.
+ */
+export function isPasswordValid(password: string): boolean {
+  return PASSWORD_RULES.every((rule) => rule.isMet(password))
 }
 
 /** Senha de conta nova: ao menos 8 caracteres, com uma letra e um número. */

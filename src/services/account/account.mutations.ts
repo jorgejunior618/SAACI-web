@@ -3,6 +3,7 @@ import * as v from 'valibot'
 
 import { simulateLatency } from '@/utils/simulate-latency'
 
+import { accountKeys } from './account.keys'
 import {
   changePasswordByToken,
   closeSession,
@@ -93,6 +94,23 @@ export async function updatePassword(token: string, password: string): Promise<S
   await simulateLatency()
 
   return v.parse(SessionSchema, changePasswordByToken(token, password))
+}
+
+/**
+ * Marca como vencida a leitura do link de nova senha, depois que `updatePassword` o gastou.
+ *
+ * @remarks
+ * Só marca, sem buscar de novo: a tela que mostrava o formulário está saindo. Se a pessoa voltar a
+ * ela, a leitura é refeita e o link aparece como vencido.
+ *
+ * @param queryClient Cliente de cache da aplicação.
+ * @param token Token do link que foi usado.
+ */
+export function invalidateAfterPasswordUpdate(queryClient: QueryClient, token: string): void {
+  void queryClient.invalidateQueries({
+    queryKey: accountKeys.passwordLink(token),
+    refetchType: 'none',
+  })
 }
 
 /**
