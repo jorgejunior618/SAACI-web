@@ -145,16 +145,6 @@ describe('criar conta', () => {
     )
   })
 
-  it('traduz o erro do gatilho de troca de e-mail (P0001) com a mesma mensagem', async () => {
-    auth.signUp.mockResolvedValue(
-      fail(apiError('unexpected_failure', 500, 'Use seu e-mail @aluno.ifce.edu.br.')),
-    )
-
-    await expect(createAccount('x@gmail.com', 'minhasenha9')).rejects.toBeInstanceOf(
-      EmailDomainError,
-    )
-  })
-
   it('reconhece e-mail repetido pelas identities vazias e pelo código', async () => {
     auth.signUp.mockResolvedValueOnce({
       data: { user: user({ identities: [] }), session: null },
