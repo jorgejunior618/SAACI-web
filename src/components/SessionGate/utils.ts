@@ -1,7 +1,10 @@
 import type { Session } from '@/services/account'
 import type { Profile } from '@/services/profile'
 
-/** Para quem um grupo de rota existe: só quem tem sessão e curso, só quem não tem sessão, ou quem ainda escolhe o curso. */
+/**
+ * Para quem um grupo de rota existe: só quem tem sessão e curso, só quem não tem sessão, ou quem
+ * ainda escolhe o curso.
+ */
 export type SessionGateMode = 'private' | 'public' | 'onboarding'
 
 /**

@@ -78,7 +78,7 @@ export function SessionGate({ mode, children }: SessionGateProps): ReactNode {
   if (hasFailed) {
     return (
       <ErrorScreen
-        error={session.error ?? profile.error}
+        error={hasSessionFailed ? session.error : profile.error}
         retry={() => void (hasSessionFailed ? session.refetch() : profile.refetch())}
       />
     )
