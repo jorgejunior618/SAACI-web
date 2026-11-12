@@ -11,6 +11,7 @@ import { profileQueries } from '@/services/profile'
 import { progressQueries } from '@/services/progress'
 import { rulesQueries } from '@/services/rules'
 
+import { Empty } from './Empty'
 import { formatLimitNotice, getItemsWithoutHours, sortCategoriesForPanel } from './utils'
 import * as S from './styles'
 
@@ -36,6 +37,10 @@ export function Inicio(): ReactNode {
   const { data: profile } = useSuspenseQuery(profileQueries.detail())
   const { data: ruleItems } = useSuspenseQuery(rulesQueries.items(profile.courseId ?? ''))
 
+  if (progress.categories.length === 0) {
+    return <Empty targetHours={progress.targetHours} ruleItems={ruleItems} />
+  }
+
   const isComplete = progress.totalHours >= progress.targetHours
   const notice = isComplete ? null : formatLimitNotice(progress.categories, ruleItems)
   const categories = sortCategoriesForPanel(progress.categories, notice !== null)
@@ -57,27 +62,25 @@ export function Inicio(): ReactNode {
           linkAs={NextLink}
         />
 
-        {categories.length > 0 ? (
-          <S.Section>
-            <S.SectionTitle>Onde você já tem horas</S.SectionTitle>
-            <S.CardList>
-              {categories.map((category) => (
-                <CategoryCard
-                  key={category.itemNumber}
-                  itemNumber={category.itemNumber}
-                  name={category.name}
-                  countedHours={category.countedHours}
-                  maxHours={category.maxHours}
-                  overflowHours={category.hoursOverLimit}
-                  href={`/atividades?item=${category.itemNumber}`}
-                  linkAs={NextLink}
-                />
-              ))}
-            </S.CardList>
-          </S.Section>
-        ) : null}
+        <S.Section>
+          <S.SectionTitle>Onde você já tem horas</S.SectionTitle>
+          <S.CardList>
+            {categories.map((category) => (
+              <CategoryCard
+                key={category.itemNumber}
+                itemNumber={category.itemNumber}
+                name={category.name}
+                countedHours={category.countedHours}
+                maxHours={category.maxHours}
+                overflowHours={category.hoursOverLimit}
+                href={`/atividades?item=${category.itemNumber}`}
+                linkAs={NextLink}
+              />
+            ))}
+          </S.CardList>
+        </S.Section>
 
-        {categories.length > 0 && itemsWithoutHours.length > 0 ? (
+        {itemsWithoutHours.length > 0 ? (
           <Disclosure title="Outras atividades que contam" count={itemsWithoutHours.length}>
             {itemsWithoutHours.map((item) => (
               <Disclosure.Row
