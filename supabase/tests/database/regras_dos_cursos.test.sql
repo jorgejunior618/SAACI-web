@@ -4,7 +4,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(13);
+select plan(15);
 
 select ok(
   (select relrowsecurity from pg_class where oid = 'public.cursos'::regclass),
@@ -49,6 +49,22 @@ select is(
   (select tipo_regra from public.itens_curso where numero = 16),
   'pagina',
   'o item 16 conta por página'
+);
+
+-- O cálculo único usa só a razão (`horas`, `a_cada`, `unidade`) e o máximo; o texto é o que a tela
+-- mostra. Os dois precisam dizer a mesma coisa.
+select results_eq(
+  $$select horas, a_cada, unidade from public.itens_curso
+    where numero in (6, 9, 13, 16, 24) order by numero$$,
+  $$values (1::numeric, 4::numeric, 'hora'::text), (2, 1, 'hora'), (2, 1, 'palestra'),
+           (3, 10, 'pagina'), (8, 1, 'publicacao')$$,
+  'a razão dos itens bate com o texto da regra'
+);
+select is(
+  (select count(*)::int from public.itens_curso
+    where regra not like ('%até ' || maximo_horas::int || 'h%')),
+  0,
+  'todo item traz o máximo no texto da regra'
 );
 
 -- Escrita: nenhuma, nem com sessão.
