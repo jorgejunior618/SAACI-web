@@ -15,7 +15,7 @@ const RULES: HoursRuleInput[] = [
   {
     itemNumber: 18,
     name: 'Pôster',
-    ratio: { hours: 5, per: 1, unit: 'fator_qualis' },
+    ratio: { hours: 5, per: 1, unit: 'publicacao' },
     maxHours: 40,
   },
 ]

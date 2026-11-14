@@ -16,20 +16,21 @@ export type Course = v.InferOutput<typeof CourseSchema>
  * Unidade em que o aluno informa a `quantity` da atividade, conforme o item.
  *
  * @remarks
- * `fator_qualis`: o aluno informa o fator da publicação. `[TABELA DO FATOR QUALIS]` a confirmar com
- * a coordenação.
+ * Mesmos valores do `check` da coluna `itens_curso.unidade`: o banco é a fonte, e o service não
+ * traduz. `publicacao`: o aluno informa o fator Qualis da publicação. `[TABELA DO FATOR QUALIS]` a
+ * confirmar com a coordenação.
  */
 export const RatioUnitSchema = v.picklist([
-  'periodo',
+  'hora',
+  'periodo_letivo',
   'disciplina',
   'projeto',
-  'hora',
   'certificacao',
   'evento',
-  'dia',
+  'dia_evento',
   'palestra',
   'pagina',
-  'fator_qualis',
+  'publicacao',
 ])
 
 export type RatioUnit = v.InferOutput<typeof RatioUnitSchema>

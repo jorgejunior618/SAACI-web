@@ -7,7 +7,7 @@ import { CourseSchema, RuleItemSchema } from './rules.types'
 import type { Course, RuleItem } from './rules.types'
 
 const COURSE_COLUMNS = 'id, nome, grau, campus, carga_total_horas'
-const ITEM_COLUMNS = 'numero, nome, regra, maximo_horas'
+const ITEM_COLUMNS = 'numero, nome, regra, horas, a_cada, unidade, maximo_horas'
 
 const UuidSchema = v.pipe(v.string(), v.uuid())
 
@@ -33,7 +33,10 @@ function escapeLike(text: string): string {
 
 // Só as colunas que o `select` pede, tiradas dos tipos gerados do banco.
 type CourseRow = Pick<Tables<'cursos'>, 'id' | 'nome' | 'grau' | 'campus' | 'carga_total_horas'>
-type ItemRow = Pick<Tables<'itens_curso'>, 'numero' | 'nome' | 'regra' | 'maximo_horas'>
+type ItemRow = Pick<
+  Tables<'itens_curso'>,
+  'numero' | 'nome' | 'regra' | 'horas' | 'a_cada' | 'unidade' | 'maximo_horas'
+>
 
 function toCourse(row: CourseRow): Course {
   return v.parse(CourseSchema, {
@@ -50,6 +53,7 @@ function toRuleItem(row: ItemRow): RuleItem {
     itemNumber: row.numero,
     name: row.nome,
     rule: row.regra,
+    ratio: { hours: row.horas, per: row.a_cada, unit: row.unidade },
     maxHours: row.maximo_horas,
   })
 }
@@ -89,7 +93,8 @@ export async function getCourse(id: string, db: DbClient = createClient()): Prom
 }
 
 /**
- * Lista os itens do formulário de um curso, com a regra de contagem e o máximo de cada um.
+ * Lista os itens do formulário de um curso, com a regra de contagem, a razão de conversão e o
+ * máximo de cada um.
  *
  * @param courseId Identificador do curso.
  * @param db Cliente do Supabase. No servidor, passe o de `@supabase/server`.
