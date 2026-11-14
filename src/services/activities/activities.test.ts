@@ -1,7 +1,8 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { resetProfileMock } from '../profile/profile.mock'
 import { updateProfile } from '../profile/profile.mutations'
+import type { RuleItem } from '../rules/rules.types'
 import { getActivities, getActivity, readProof } from './activities.api'
 import {
   InvalidActivityDatesError,
@@ -11,14 +12,53 @@ import {
 import { resetActivitiesMock } from './activities.mock'
 import { createActivity, removeActivity, updateActivity } from './activities.mutations'
 
+// As regras moram no Supabase. Aqui ficam só os itens que as seeds e os testes usam, com a razão e o
+// máximo da migration `regras_dos_cursos`.
+const rules = vi.hoisted(() => ({
+  courseId: '3b1f6d2e-5a47-4c80-9e1b-7d0c2a4f8e11',
+  items: [
+    {
+      itemNumber: 6,
+      name: 'Curso de línguas',
+      rule: '1h a cada 4h de curso, até 60h',
+      ratio: { hours: 1, per: 4, unit: 'hora' },
+      maxHours: 60,
+    },
+    {
+      itemNumber: 7,
+      name: 'Curso na área de engenharia de computação',
+      rule: '1h a cada 4h de curso, até 60h',
+      ratio: { hours: 1, per: 4, unit: 'hora' },
+      maxHours: 60,
+    },
+    {
+      itemNumber: 12,
+      name: 'Participação em eventos técnicos ou científicos na área do curso',
+      rule: '4h por dia de evento, até 40h',
+      ratio: { hours: 4, per: 1, unit: 'dia_evento' },
+      maxHours: 40,
+    },
+    {
+      itemNumber: 13,
+      name: 'Ouvinte em palestras da área do curso',
+      rule: '2h por palestra, até 30h',
+      ratio: { hours: 2, per: 1, unit: 'palestra' },
+      maxHours: 30,
+    },
+  ] satisfies RuleItem[],
+}))
+
+vi.mock('../rules/rules.api', () => ({ getRuleItems: () => Promise.resolve(rules.items) }))
+
 function pdf(name = 'certificado.pdf'): File {
   return new File(['conteudo'], name, { type: 'application/pdf' })
 }
 
 describe('atividades', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     resetActivitiesMock()
     resetProfileMock()
+    await updateProfile({ courseId: rules.courseId, startSemester: '2023-07-01' })
   })
 
   it('lista as 9 atividades por item e pela data em que terminaram', async () => {
