@@ -10,8 +10,9 @@ Usado por `saaci-plano`, `/saaci-auditar` e `/saaci-revisar-codigo`. As regras v
    tela usando, e entra no `DS_REFERENCE.md` no mesmo commit. Se não, siga adiante.
 2. **Quantas telas usam hoje?** Uma só: fica em `_components/` da tela. Subir por antecipação
    ("vamos precisar") não é aceito; sobe quando a **segunda** tela precisa.
-3. **Duas ou mais telas, e tem lógica?** Chama `services/` ou decide navegação: `components/<Componente>/`.
-   UI pura: `@design-system/<nível>/`.
+3. **Duas ou mais telas, e tem lógica?** Todas do mesmo domínio e fora do catálogo do DS:
+   `features/<dominio>/_components/<Componente>/` (ADR 0005). De domínios diferentes: chama
+   `services/` ou decide navegação, `components/<Componente>/`; UI pura, `@design-system/<nível>/`.
 4. **Subiu por qual caminho?** Foi **movido**, com uma origem só. Cópia entre telas não é aceita.
 5. **É variação de algo existente?** Se só difere em conteúdo ou formatação, é o mesmo atom com
    prop, não um componente novo.

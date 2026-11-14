@@ -1,45 +1,144 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getCourse, getCourses, getRuleItems } from './rules.api'
 
-describe('regras', () => {
-  it('entrega os 24 itens do formulário em ordem', async () => {
-    const items = await getRuleItems('engenharia-de-computacao')
+const COURSE_ID = '3b1f6d2e-5a47-4c80-9e1b-7d0c2a4f8e11'
 
-    expect(items).toHaveLength(24)
-    expect(items.map((item) => item.itemNumber)).toEqual(
-      Array.from({ length: 24 }, (_, i) => i + 1),
-    )
+const COURSE_ROW = {
+  id: COURSE_ID,
+  nome: 'Engenharia de Computação',
+  grau: 'Bacharelado',
+  campus: 'Fortaleza',
+  carga_total_horas: 120,
+}
+
+const ITEM_ROW = {
+  numero: 6,
+  nome: 'Curso de línguas',
+  regra: '1h a cada 4h de curso, até 60h',
+  maximo_horas: 60,
+}
+
+const ilike = vi.fn()
+const eq = vi.fn()
+const order = vi.fn()
+const maybeSingle = vi.fn()
+const select = vi.fn()
+const from = vi.fn()
+
+// Só o navegador cria cliente; o mock devolve sempre o mesmo, com o construtor de query falso.
+vi.mock('@supabase/client', () => ({ createClient: () => ({ from }) }))
+
+beforeEach(() => {
+  vi.resetAllMocks()
+
+  const builder = { ilike, eq, order, maybeSingle }
+
+  from.mockReturnValue({ select })
+  select.mockReturnValue(builder)
+  ilike.mockReturnValue(builder)
+  eq.mockReturnValue(builder)
+})
+
+describe('cursos', () => {
+  it('traduz a row do banco para o tipo de domínio', async () => {
+    order.mockResolvedValue({ data: [COURSE_ROW], error: null })
+
+    expect(await getCourses()).toEqual([
+      {
+        id: COURSE_ID,
+        name: 'Engenharia de Computação',
+        degree: 'Bacharelado',
+        campus: 'Fortaleza',
+        targetHours: 120,
+      },
+    ])
+    expect(from).toHaveBeenCalledWith('cursos')
+    expect(ilike).not.toHaveBeenCalled()
+    expect(order).toHaveBeenCalledWith('nome')
   })
 
-  it('guarda a razão em campos coerente com o texto da regra', async () => {
-    const items = await getRuleItems('engenharia-de-computacao')
-    const byNumber = new Map(items.map((item) => [item.itemNumber, item]))
+  it('normaliza o termo, tirando acento e caixa, antes de filtrar', async () => {
+    order.mockResolvedValue({ data: [], error: null })
 
-    expect(byNumber.get(6)).toMatchObject({
-      rule: '1h a cada 4h de curso, até 60h',
-      ratio: { hours: 1, per: 4, unit: 'hora' },
-      maxHours: 60,
-    })
-    expect(byNumber.get(9)?.ratio).toEqual({ hours: 2, per: 1, unit: 'hora' })
-    expect(byNumber.get(13)?.ratio).toEqual({ hours: 2, per: 1, unit: 'palestra' })
-    expect(byNumber.get(16)?.ratio).toEqual({ hours: 3, per: 10, unit: 'pagina' })
-    expect(byNumber.get(24)?.ratio).toEqual({ hours: 8, per: 1, unit: 'fator_qualis' })
+    await getCourses('  COMPUTAÇÃO ')
+
+    expect(ilike).toHaveBeenCalledWith('nome_busca', '%computacao%')
   })
 
-  it('todo item tem o máximo escrito no texto da regra', async () => {
-    const items = await getRuleItems('engenharia-de-computacao')
+  it('escapa os caracteres que o ilike trata como padrão', async () => {
+    order.mockResolvedValue({ data: [], error: null })
 
-    for (const item of items) expect(item.rule).toContain(`até ${item.maxHours}h`)
+    await getCourses('100%_a\\b')
+
+    expect(ilike).toHaveBeenCalledWith('nome_busca', '%100\\%\\_a\\\\b%')
   })
 
-  it('busca curso sem diferenciar acento nem caixa', async () => {
-    expect(await getCourses('COMPUTACAO')).toHaveLength(1)
-    expect(await getCourses('arquitetura')).toEqual([])
+  it('repassa o erro do banco sem traduzir', async () => {
+    const failure = new Error('falha de rede')
+
+    order.mockResolvedValue({ data: null, error: failure })
+
+    await expect(getCourses()).rejects.toBe(failure)
   })
 
-  it('devolve null para curso que não existe e lista vazia sem regras', async () => {
-    expect(await getCourse('nao-existe')).toBeNull()
+  it('recusa a row fora do formato em vez de levá-la à tela', async () => {
+    order.mockResolvedValue({ data: [{ ...COURSE_ROW, carga_total_horas: null }], error: null })
+
+    await expect(getCourses()).rejects.toThrow()
+  })
+
+  it('devolve o curso pelo id', async () => {
+    maybeSingle.mockResolvedValue({ data: COURSE_ROW, error: null })
+
+    expect(await getCourse(COURSE_ID)).toMatchObject({ id: COURSE_ID, targetHours: 120 })
+    expect(eq).toHaveBeenCalledWith('id', COURSE_ID)
+  })
+
+  it('devolve null quando o curso não existe', async () => {
+    maybeSingle.mockResolvedValue({ data: null, error: null })
+
+    expect(await getCourse('7c9e6679-7425-40de-944b-e07fc1f90ae7')).toBeNull()
+  })
+
+  it('devolve null para id que não é uuid, sem consultar o banco', async () => {
+    expect(await getCourse('engenharia-de-computacao')).toBeNull()
+    expect(from).not.toHaveBeenCalled()
+  })
+})
+
+describe('itens do curso', () => {
+  it('traduz as rows e pede a ordem do formulário', async () => {
+    order.mockResolvedValue({ data: [ITEM_ROW], error: null })
+
+    expect(await getRuleItems(COURSE_ID)).toEqual([
+      {
+        itemNumber: 6,
+        name: 'Curso de línguas',
+        rule: '1h a cada 4h de curso, até 60h',
+        maxHours: 60,
+      },
+    ])
+    expect(eq).toHaveBeenCalledWith('curso_id', COURSE_ID)
+    expect(order).toHaveBeenCalledWith('numero')
+  })
+
+  it('devolve lista vazia para id que não é uuid, sem consultar o banco', async () => {
     expect(await getRuleItems('nao-existe')).toEqual([])
+    expect(from).not.toHaveBeenCalled()
+  })
+
+  it('repassa o erro do banco sem traduzir', async () => {
+    const failure = new Error('falha de rede')
+
+    order.mockResolvedValue({ data: null, error: failure })
+
+    await expect(getRuleItems(COURSE_ID)).rejects.toBe(failure)
+  })
+
+  it('recusa o item com número fora do formulário', async () => {
+    order.mockResolvedValue({ data: [{ ...ITEM_ROW, numero: 0 }], error: null })
+
+    await expect(getRuleItems(COURSE_ID)).rejects.toThrow()
   })
 })

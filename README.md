@@ -22,13 +22,14 @@ no Node 20 é recusado pelo `.npmrc`, e no Node 22 bagunça o `node_modules` do 
 ```bash
 nvm use
 pnpm install
-cp .env.example .env.local
+cp .env.example .env.development.local
 pnpm dev
 ```
 
-Preencha o `.env.local` antes de rodar, como mostra a seção [Supabase](#supabase). Hoje as telas
-ainda leem dados de mock, então o app abre mesmo com as variáveis vazias. O backend entra por
-domínio, em issues separadas.
+Preencha o `.env.development.local` antes de rodar, como mostra a seção [Supabase](#supabase). A conta e o login
+já falam com o Supabase Auth: para abrir as telas de Acesso, suba o banco local com `pnpm db:start`
+(precisa do Docker aberto) e preencha o `.env.development.local` com a URL e a chave que `pnpm db:status` mostra. O `.env.production.local` guarda o projeto remoto e só vale para `pnpm build` e `pnpm start`.
+Os outros domínios ainda leem dados de mock. O backend entra por domínio, em issues separadas.
 
 ## Supabase
 
@@ -46,7 +47,7 @@ armazenamento têm cada um a sua issue.
 4. Crie o seu arquivo de ambiente e cole os dois valores:
 
    ```bash
-   cp .env.example .env.local
+   cp .env.example .env.development.local
    ```
 
    | Variável                               | Valor           |
@@ -54,7 +55,7 @@ armazenamento têm cada um a sua issue.
    | `NEXT_PUBLIC_SUPABASE_URL`             | Project URL     |
    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable key |
 
-5. Confira que o git ignora o arquivo: `git status` não deve listar o `.env.local`.
+5. Confira que o git ignora o arquivo: `git status` não deve listar o `.env.development.local`.
 
 O `.env.example` guarda só os nomes, sem valor, e é o único arquivo de ambiente que vai para o
 repositório. Um teste (`tests/env.test.ts`) falha se alguém preencher um valor nele ou versionar um
@@ -95,6 +96,13 @@ aberto; o app com mock roda sem ele.
 
 O Studio (painel visual do banco) abre em `http://127.0.0.1:54323` com o banco no ar. Os e-mails do
 Auth (confirmação e nova senha) não saem de verdade: caem no Mailpit, em `http://127.0.0.1:54324`.
+O link de cada e-mail abre `/confirme-email?token=...` ou `/nova-senha?token=...`: copie-o do Mailpit.
+O link vale 1 hora e só funciona uma vez.
+
+Abra o app sempre em `http://localhost:3000`, nunca em `127.0.0.1`: o `site_url` do Auth local é
+`localhost`, e o `next dev` bloqueia a origem `127.0.0.1` (a página não hidrata e o link do e-mail
+fica em "Confirmando seu e-mail" para sempre). Se mudar o `site_url` em `supabase/config.toml`,
+reinicie com `pnpm db:stop` e `pnpm db:start`.
 
 ### Como criar uma migration nova
 
@@ -185,7 +193,7 @@ pnpm exec supabase config push    # config.toml
 
 Antes de subir:
 
-- **`site_url` e `additional_redirect_urls`** do `config.toml` apontam para `127.0.0.1`. Em produção
+- **`site_url` e `additional_redirect_urls`** do `config.toml` apontam para `localhost`. Em produção
   precisam da URL real, com `/confirme-email` e `/nova-senha`. Não confirmado: o jeito de manter dois
   ambientes no mesmo arquivo (bloco `[remotes.<nome>]`) deve ser conferido na documentação da CLI.
 - **SMTP próprio.** O SMTP padrão do Supabase só serve para teste e limita os envios por hora, o que

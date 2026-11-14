@@ -76,14 +76,16 @@ servidor.
 
 ## Skills
 
-| Situação                                     | Skill          |
-| -------------------------------------------- | -------------- |
-| Tarefa em mais de um arquivo ou com decisão  | `saaci-plano`  |
-| Criar ou alterar símbolo exportado em `src/` | `saaci-tsdoc`  |
-| Sugerir mensagem de commit                   | `saaci-commit` |
+| Situação                                     | Skill                  |
+| -------------------------------------------- | ---------------------- |
+| Tarefa em mais de um arquivo ou com decisão  | `saaci-plano`          |
+| Criar ou alterar símbolo exportado em `src/` | `saaci-tsdoc`          |
+| Sugerir mensagem de commit                   | `saaci-commit`         |
+| Fechar fluxo importante e complexo (opt-in)  | `saaci-roteiro-manual` |
 
 `saaci-plano` e `saaci-tsdoc` são automáticas: disparam pelo tipo de pedido, sem precisar ser
-chamadas.
+chamadas. `saaci-roteiro-manual` nunca roda sozinha: ao fechar um fluxo que cruza várias telas com
+estado externo, a IA sugere em uma linha e só executa se o dev aceitar.
 
 ## Comandos
 

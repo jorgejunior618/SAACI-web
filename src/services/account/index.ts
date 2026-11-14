@@ -1,4 +1,4 @@
-export { getSession } from './account.api'
+export { getPasswordLink, getSession } from './account.api'
 export {
   EmailDomainError,
   EmailAlreadyRegisteredError,
@@ -12,6 +12,7 @@ export {
   confirmEmail,
   createAccount,
   deleteAccount,
+  invalidateAfterPasswordUpdate,
   requestPasswordReset,
   resendConfirmation,
   signIn,
@@ -19,5 +20,5 @@ export {
   updatePassword,
 } from './account.mutations'
 export { accountQueries } from './account.queries'
-export { SessionSchema } from './account.types'
-export type { Session } from './account.types'
+export { PasswordLinkSchema, SessionSchema, StudentEmailSchema } from './account.types'
+export type { PasswordLink, Session, StudentEmail } from './account.types'
