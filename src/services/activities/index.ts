@@ -2,6 +2,7 @@ export { getActivity, getActivities, getProofUrl, readProof } from './activities
 export {
   StaleActivityError,
   ActivityNotFoundError,
+  InvalidActivityDatesError,
   UnreadableProofError,
 } from './activities.errors'
 export { activitiesKeys } from './activities.keys'
@@ -15,6 +16,7 @@ export {
 export { activitiesQueries } from './activities.queries'
 export {
   ActivitySchema,
+  END_BEFORE_START_MESSAGE,
   PROOF_MAX_BYTES,
   PROOF_MIME_TYPES,
   ProofSchema,

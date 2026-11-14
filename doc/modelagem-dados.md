@@ -42,10 +42,15 @@ O cálculo depende do semestre de início do perfil: só contam atividades feita
 (RF38). Mudar o semestre muda o total, por isso a tela avisa antes de salvar (RF11) e a invalidação
 do perfil derruba o progresso (`react-query.md`).
 
+A prévia do formulário (RF32) roda no navegador com a mesma conta, e um arquivo de casos prova que
+ela dá o mesmo resultado da função SQL (ADR 0003). O valor gravado é sempre o do banco.
+
 ## Atividades
 
-- **Data da atividade** é quando ela **terminou** (RF38), não quando foi lançada (`created_at`). A
-  primeira decide se conta; a segunda, quando o aluno a registrou.
+- **Datas da atividade (ADR 0003).** Início e fim, com o fim maior ou igual ao início, ambos
+  diferentes de quando ela foi lançada (`created_at`). O início decide se conta (RF38: início maior
+  ou igual ao semestre de ingresso); o fim ordena a lista; o lançamento ordena quem ocupa o máximo
+  do item (RF16).
 - **Corrigir, remover e registrar de novo (ADR 0001).** O aluno corrige nome, item, quantidade e
   data; o comprovante não se troca (para usar outro arquivo, remove e registra de novo). Toda escrita
   inclui o `updated_at` lido no `WHERE`: zero linhas afetadas é conflito, não sucesso.
@@ -97,5 +102,3 @@ subir depois) deixaria uma atividade sem comprovante, o estado que RNF24 proíbe
 ## Em aberto
 
 - Retenção do backup diário.
-- Onde o cálculo roda para a prévia do formulário (RF32): na RPC a cada digitação, ou no cliente com
-  um teste que prove a igualdade com o SQL (RNF20).

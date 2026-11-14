@@ -16,7 +16,13 @@ function category(itemNumber: number, countedHours: number, maxHours: number): P
 }
 
 function ruleItem(itemNumber: number): RuleItem {
-  return { itemNumber, name: `Item ${itemNumber}`, rule: '', maxHours: 40 }
+  return {
+    itemNumber,
+    name: `Item ${itemNumber}`,
+    rule: '',
+    ratio: { hours: 1, per: 1, unit: 'hora' },
+    maxHours: 40,
+  }
 }
 
 describe('formatItemList', () => {

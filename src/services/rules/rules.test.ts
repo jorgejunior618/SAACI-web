@@ -16,6 +16,9 @@ const ITEM_ROW = {
   numero: 6,
   nome: 'Curso de línguas',
   regra: '1h a cada 4h de curso, até 60h',
+  horas: 1,
+  a_cada: 4,
+  unidade: 'hora',
   maximo_horas: 60,
 }
 
@@ -116,6 +119,7 @@ describe('itens do curso', () => {
         itemNumber: 6,
         name: 'Curso de línguas',
         rule: '1h a cada 4h de curso, até 60h',
+        ratio: { hours: 1, per: 4, unit: 'hora' },
         maxHours: 60,
       },
     ])
@@ -138,6 +142,18 @@ describe('itens do curso', () => {
 
   it('recusa o item com número fora do formulário', async () => {
     order.mockResolvedValue({ data: [{ ...ITEM_ROW, numero: 0 }], error: null })
+
+    await expect(getRuleItems(COURSE_ID)).rejects.toThrow()
+  })
+
+  it('recusa o item com razão que não dá para calcular', async () => {
+    order.mockResolvedValue({ data: [{ ...ITEM_ROW, a_cada: 0 }], error: null })
+
+    await expect(getRuleItems(COURSE_ID)).rejects.toThrow()
+  })
+
+  it('recusa o item com unidade que o cálculo não conhece', async () => {
+    order.mockResolvedValue({ data: [{ ...ITEM_ROW, unidade: 'semestre' }], error: null })
 
     await expect(getRuleItems(COURSE_ID)).rejects.toThrow()
   })

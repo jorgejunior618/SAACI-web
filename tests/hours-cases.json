@@ -1,0 +1,284 @@
+{
+  "$comment": "Casos do cálculo único de horas. Rodam contra src/utils/compute-hours.ts e, quando o Supabase entrar, contra a função SQL. Caso novo entra aqui, não só no teste TS.",
+  "cases": [
+    {
+      "name": "razão do item com truncamento em uma casa (RF14)",
+      "input": {
+        "startSemester": "2023-07-01",
+        "targetHours": 120,
+        "ruleItems": [
+          {
+            "itemNumber": 6,
+            "name": "Curso de línguas",
+            "ratio": { "hours": 1, "per": 4, "unit": "hora" },
+            "maxHours": 60
+          }
+        ],
+        "activities": [
+          {
+            "id": "a1",
+            "itemNumber": 6,
+            "quantity": 60,
+            "startDate": "2025-01-10",
+            "registeredAt": "2025-06-30T12:00:00.000Z"
+          },
+          {
+            "id": "a2",
+            "itemNumber": 6,
+            "quantity": 7,
+            "startDate": "2025-02-10",
+            "registeredAt": "2025-07-30T12:00:00.000Z"
+          }
+        ]
+      },
+      "expected": {
+        "activities": [
+          { "id": "a1", "countedHours": 15, "status": "conta", "reason": null },
+          { "id": "a2", "countedHours": 1.7, "status": "conta", "reason": null }
+        ],
+        "progress": {
+          "totalHours": 16,
+          "targetHours": 120,
+          "missingHours": 104,
+          "itemsSum": 16.7,
+          "categories": [
+            {
+              "itemNumber": 6,
+              "name": "Curso de línguas",
+              "countedHours": 16.7,
+              "maxHours": 60,
+              "hoursOverLimit": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "ponto flutuante não perde um décimo (fator 0,94 × 5h = 4,7h)",
+      "input": {
+        "startSemester": "2023-07-01",
+        "targetHours": 120,
+        "ruleItems": [
+          {
+            "itemNumber": 18,
+            "name": "Pôster em evento internacional",
+            "ratio": { "hours": 5, "per": 1, "unit": "publicacao" },
+            "maxHours": 40
+          }
+        ],
+        "activities": [
+          {
+            "id": "a1",
+            "itemNumber": 18,
+            "quantity": 0.94,
+            "startDate": "2025-01-10",
+            "registeredAt": "2025-06-30T12:00:00.000Z"
+          }
+        ]
+      },
+      "expected": {
+        "activities": [{ "id": "a1", "countedHours": 4.7, "status": "conta", "reason": null }],
+        "progress": {
+          "totalHours": 4,
+          "targetHours": 120,
+          "missingHours": 116,
+          "itemsSum": 4.7,
+          "categories": [
+            {
+              "itemNumber": 18,
+              "name": "Pôster em evento internacional",
+              "countedHours": 4.7,
+              "maxHours": 40,
+              "hoursOverLimit": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "ingresso pela data de início, com o dia do ingresso contando (RF38)",
+      "input": {
+        "startSemester": "2023-07-01",
+        "targetHours": 120,
+        "ruleItems": [
+          {
+            "itemNumber": 13,
+            "name": "Ouvinte em palestras da área do curso",
+            "ratio": { "hours": 2, "per": 1, "unit": "palestra" },
+            "maxHours": 30
+          }
+        ],
+        "activities": [
+          {
+            "id": "a1",
+            "itemNumber": 13,
+            "quantity": 1,
+            "startDate": "2023-07-01",
+            "registeredAt": "2023-07-02T12:00:00.000Z"
+          },
+          {
+            "id": "a2",
+            "itemNumber": 13,
+            "quantity": 1,
+            "startDate": "2023-06-30",
+            "registeredAt": "2023-07-03T12:00:00.000Z"
+          }
+        ]
+      },
+      "expected": {
+        "activities": [
+          { "id": "a1", "countedHours": 2, "status": "conta", "reason": null },
+          { "id": "a2", "countedHours": 0, "status": "nao_conta", "reason": "antes_do_ingresso" }
+        ],
+        "progress": {
+          "totalHours": 2,
+          "targetHours": 120,
+          "missingHours": 118,
+          "itemsSum": 2,
+          "categories": [
+            {
+              "itemNumber": 13,
+              "name": "Ouvinte em palestras da área do curso",
+              "countedHours": 2,
+              "maxHours": 30,
+              "hoursOverLimit": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "máximo do item dividido pela ordem de registro (RF16)",
+      "input": {
+        "startSemester": "2023-07-01",
+        "targetHours": 120,
+        "ruleItems": [
+          {
+            "itemNumber": 13,
+            "name": "Ouvinte em palestras da área do curso",
+            "ratio": { "hours": 2, "per": 1, "unit": "palestra" },
+            "maxHours": 30
+          }
+        ],
+        "activities": [
+          {
+            "id": "a3",
+            "itemNumber": 13,
+            "quantity": 6,
+            "startDate": "2024-01-10",
+            "registeredAt": "2025-03-01T12:00:00.000Z"
+          },
+          {
+            "id": "a1",
+            "itemNumber": 13,
+            "quantity": 5,
+            "startDate": "2025-01-10",
+            "registeredAt": "2025-01-01T12:00:00.000Z"
+          },
+          {
+            "id": "a2",
+            "itemNumber": 13,
+            "quantity": 5,
+            "startDate": "2025-02-10",
+            "registeredAt": "2025-02-01T12:00:00.000Z"
+          },
+          {
+            "id": "a4",
+            "itemNumber": 13,
+            "quantity": 1,
+            "startDate": "2025-03-10",
+            "registeredAt": "2025-04-01T12:00:00.000Z"
+          }
+        ]
+      },
+      "expected": {
+        "activities": [
+          { "id": "a3", "countedHours": 10, "status": "parcial", "reason": "item_cheio" },
+          { "id": "a1", "countedHours": 10, "status": "conta", "reason": null },
+          { "id": "a2", "countedHours": 10, "status": "conta", "reason": null },
+          { "id": "a4", "countedHours": 0, "status": "nao_conta", "reason": "item_cheio" }
+        ],
+        "progress": {
+          "totalHours": 30,
+          "targetHours": 120,
+          "missingHours": 90,
+          "itemsSum": 30,
+          "categories": [
+            {
+              "itemNumber": 13,
+              "name": "Ouvinte em palestras da área do curso",
+              "countedHours": 30,
+              "maxHours": 30,
+              "hoursOverLimit": 4
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "total limitado à meta, com a soma dos itens acima dela",
+      "input": {
+        "startSemester": "2023-07-01",
+        "targetHours": 50,
+        "ruleItems": [
+          {
+            "itemNumber": 6,
+            "name": "Curso de línguas",
+            "ratio": { "hours": 1, "per": 4, "unit": "hora" },
+            "maxHours": 60
+          },
+          {
+            "itemNumber": 13,
+            "name": "Ouvinte em palestras da área do curso",
+            "ratio": { "hours": 2, "per": 1, "unit": "palestra" },
+            "maxHours": 30
+          }
+        ],
+        "activities": [
+          {
+            "id": "a1",
+            "itemNumber": 13,
+            "quantity": 10,
+            "startDate": "2025-01-10",
+            "registeredAt": "2025-01-11T12:00:00.000Z"
+          },
+          {
+            "id": "a2",
+            "itemNumber": 6,
+            "quantity": 160,
+            "startDate": "2025-02-10",
+            "registeredAt": "2025-02-11T12:00:00.000Z"
+          }
+        ]
+      },
+      "expected": {
+        "activities": [
+          { "id": "a1", "countedHours": 20, "status": "conta", "reason": null },
+          { "id": "a2", "countedHours": 40, "status": "conta", "reason": null }
+        ],
+        "progress": {
+          "totalHours": 50,
+          "targetHours": 50,
+          "missingHours": 0,
+          "itemsSum": 60,
+          "categories": [
+            {
+              "itemNumber": 6,
+              "name": "Curso de línguas",
+              "countedHours": 40,
+              "maxHours": 60,
+              "hoursOverLimit": 0
+            },
+            {
+              "itemNumber": 13,
+              "name": "Ouvinte em palestras da área do curso",
+              "countedHours": 20,
+              "maxHours": 30,
+              "hoursOverLimit": 0
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
