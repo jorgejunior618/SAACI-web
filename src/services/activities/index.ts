@@ -1,8 +1,9 @@
-export { getActivity, getActivities, getProofUrl, readProof } from './activities.api'
+export { getActivity, getActivities, getProofFile, getProofUrl, readProof } from './activities.api'
 export {
   StaleActivityError,
   ActivityNotFoundError,
   InvalidActivityDatesError,
+  ProofDownloadError,
   UnreadableProofError,
 } from './activities.errors'
 export { activitiesKeys } from './activities.keys'

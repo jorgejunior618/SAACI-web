@@ -1,6 +1,7 @@
 import {
   ActivityNotFoundError,
   InvalidActivityDatesError,
+  ProofDownloadError,
   StaleActivityError,
   UnreadableProofError,
 } from './activities.errors'
@@ -56,9 +57,13 @@ function seedActivities(): StoredActivity[] {
 
 let activities: StoredActivity[] = seedActivities()
 
+// O arquivo que o aluno enviou, como o Storage guardaria. As seeds não têm: o mock gera um PDF.
+let files = new Map<string, File>()
+
 /** Volta o mock às 9 atividades de exemplo. Testes chamam no `beforeEach`. */
 export function resetActivitiesMock(): void {
   activities = seedActivities()
+  files = new Map()
 }
 
 function toType(file: File): Proof['type'] {
@@ -95,6 +100,7 @@ export function insertActivity(input: NewActivity): StoredActivity {
   }
 
   activities.push(activity)
+  files.set(activity.id, input.proof)
   return structuredClone(activity)
 }
 
@@ -124,6 +130,7 @@ export function patchActivity(
 export function deleteActivity(id: string): void {
   if (!activities.some((item) => item.id === id)) throw new ActivityNotFoundError()
   activities = activities.filter((item) => item.id !== id)
+  files.delete(id)
 }
 
 // A "IA" do mock olha só o nome do arquivo: `ilegivel` falha, `sem-item` não sugere item, o resto
@@ -149,4 +156,46 @@ export function proofUrl(id: string): string {
 
   if (!found) throw new ActivityNotFoundError()
   return `/mock/proofs/${found.proof.fileName}`
+}
+
+// PDF de uma página com o nome da atividade, para o arquivo de exemplo abrir no leitor. Os
+// deslocamentos da tabela `xref` são calculados, como o formato pede. O texto fica só em ASCII: a
+// fonte padrão do PDF não tem acento, e assim cada caractere ocupa um byte e os deslocamentos batem.
+function samplePdf(title: string): Blob {
+  const text = title
+    .normalize('NFD')
+    .replace(/[^\x20-\x7e]/g, '')
+    .replace(/[\\()]/g, '')
+  const stream = `BT /F1 14 Tf 72 720 Td (Comprovante de exemplo: ${text}) Tj ET`
+  const objects = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>',
+    `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`,
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+  ]
+  let body = '%PDF-1.4\n'
+  const offsets = objects.map((object, index) => {
+    const offset = body.length
+    body += `${index + 1} 0 obj\n${object}\nendobj\n`
+    return offset
+  })
+  const xref = body.length
+  body += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`
+  body += offsets.map((offset) => `${String(offset).padStart(10, '0')} 00000 n \n`).join('')
+  body += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`
+
+  return new Blob([body], { type: 'application/pdf' })
+}
+
+/**
+ * Arquivo do comprovante, como o Storage devolveria. O enviado pelo aluno volta igual; o das seeds é
+ * um PDF de exemplo. Nome com `falha-download` falha, para a tela exercitar o erro.
+ */
+export function proofFile(id: string): Blob {
+  const found = activities.find((item) => item.id === id)
+
+  if (!found) throw new ActivityNotFoundError()
+  if (found.proof.fileName.includes('falha-download')) throw new ProofDownloadError()
+  return files.get(id) ?? samplePdf(found.name)
 }
