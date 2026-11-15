@@ -33,8 +33,20 @@
       },
       "expected": {
         "activities": [
-          { "id": "a1", "countedHours": 15, "status": "conta", "reason": null },
-          { "id": "a2", "countedHours": 1.7, "status": "conta", "reason": null }
+          {
+            "id": "a1",
+            "activityHours": 15,
+            "countedHours": 15,
+            "status": "conta",
+            "reason": null
+          },
+          {
+            "id": "a2",
+            "activityHours": 1.7,
+            "countedHours": 1.7,
+            "status": "conta",
+            "reason": null
+          }
         ],
         "progress": {
           "totalHours": 16,
@@ -77,7 +89,15 @@
         ]
       },
       "expected": {
-        "activities": [{ "id": "a1", "countedHours": 4.7, "status": "conta", "reason": null }],
+        "activities": [
+          {
+            "id": "a1",
+            "activityHours": 4.7,
+            "countedHours": 4.7,
+            "status": "conta",
+            "reason": null
+          }
+        ],
         "progress": {
           "totalHours": 4,
           "targetHours": 120,
@@ -127,8 +147,14 @@
       },
       "expected": {
         "activities": [
-          { "id": "a1", "countedHours": 2, "status": "conta", "reason": null },
-          { "id": "a2", "countedHours": 0, "status": "nao_conta", "reason": "antes_do_ingresso" }
+          { "id": "a1", "activityHours": 2, "countedHours": 2, "status": "conta", "reason": null },
+          {
+            "id": "a2",
+            "activityHours": 2,
+            "countedHours": 0,
+            "status": "nao_conta",
+            "reason": "antes_do_ingresso"
+          }
         ],
         "progress": {
           "totalHours": 2,
@@ -193,10 +219,34 @@
       },
       "expected": {
         "activities": [
-          { "id": "a3", "countedHours": 10, "status": "parcial", "reason": "item_cheio" },
-          { "id": "a1", "countedHours": 10, "status": "conta", "reason": null },
-          { "id": "a2", "countedHours": 10, "status": "conta", "reason": null },
-          { "id": "a4", "countedHours": 0, "status": "nao_conta", "reason": "item_cheio" }
+          {
+            "id": "a3",
+            "activityHours": 12,
+            "countedHours": 10,
+            "status": "parcial",
+            "reason": "item_cheio"
+          },
+          {
+            "id": "a1",
+            "activityHours": 10,
+            "countedHours": 10,
+            "status": "conta",
+            "reason": null
+          },
+          {
+            "id": "a2",
+            "activityHours": 10,
+            "countedHours": 10,
+            "status": "conta",
+            "reason": null
+          },
+          {
+            "id": "a4",
+            "activityHours": 2,
+            "countedHours": 0,
+            "status": "nao_conta",
+            "reason": "item_cheio"
+          }
         ],
         "progress": {
           "totalHours": 30,
@@ -253,8 +303,14 @@
       },
       "expected": {
         "activities": [
-          { "id": "a1", "countedHours": 20, "status": "conta", "reason": null },
-          { "id": "a2", "countedHours": 40, "status": "conta", "reason": null }
+          {
+            "id": "a1",
+            "activityHours": 20,
+            "countedHours": 20,
+            "status": "conta",
+            "reason": null
+          },
+          { "id": "a2", "activityHours": 40, "countedHours": 40, "status": "conta", "reason": null }
         ],
         "progress": {
           "totalHours": 50,

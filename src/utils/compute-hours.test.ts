@@ -39,7 +39,13 @@ function activity(over: Partial<HoursActivityInput>): HoursActivityInput {
 describe('computeActivities', () => {
   it('converte a quantidade pela razão do item', () => {
     expect(computeActivities([activity({ quantity: 60 })], RULES, INGRESSO)).toEqual([
-      { id: expect.any(String), countedHours: 15, status: 'conta', reason: null },
+      {
+        id: expect.any(String),
+        activityHours: 15,
+        countedHours: 15,
+        status: 'conta',
+        reason: null,
+      },
     ])
   })
 
@@ -114,6 +120,23 @@ describe('computeActivities', () => {
       [second.id, 10, 'conta', null],
       [first.id, 10, 'conta', null],
     ])
+  })
+
+  it('devolve as horas da atividade antes do máximo e do ingresso', () => {
+    // item 13: 2h por palestra, até 30h. 14 palestras = 28h; a segunda pede 6h e só cabem 2h.
+    const [full, partial, old] = computeActivities(
+      [
+        activity({ itemNumber: 13, quantity: 14, registeredAt: '2024-01-01T00:00:00.000Z' }),
+        activity({ itemNumber: 13, quantity: 3, registeredAt: '2024-02-01T00:00:00.000Z' }),
+        activity({ itemNumber: 13, quantity: 1, startDate: '2022-01-01' }),
+      ],
+      RULES,
+      INGRESSO,
+    )
+
+    expect(full).toMatchObject({ activityHours: 28, countedHours: 28 })
+    expect(partial).toMatchObject({ activityHours: 6, countedHours: 2, status: 'parcial' })
+    expect(old).toMatchObject({ activityHours: 2, countedHours: 0, status: 'nao_conta' })
   })
 
   it('a atividade anterior ao ingresso não ocupa o máximo', () => {

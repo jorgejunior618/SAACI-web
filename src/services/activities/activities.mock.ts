@@ -13,10 +13,10 @@ import type {
 } from './activities.types'
 
 /**
- * Atividade como o banco guarda: só o que o aluno informou. `countedHours`, `status` e `reason` são
+ * Atividade como o banco guarda: só o que o aluno informou. `activityHours`, `countedHours`, `status` e `reason` são
  * derivados na leitura pelo cálculo único, como uma View faria.
  */
-export type StoredActivity = Omit<Activity, 'countedHours' | 'status' | 'reason'>
+export type StoredActivity = Omit<Activity, 'activityHours' | 'countedHours' | 'status' | 'reason'>
 
 type Seed = [id: number, name: string, item: number, quantity: number, start: string, end: string]
 

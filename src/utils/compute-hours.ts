@@ -14,8 +14,14 @@ export type HoursActivityInput = Pick<
 /** O que o cálculo precisa de um item do formulário: a razão e o máximo. */
 export type HoursRuleInput = Pick<RuleItem, 'itemNumber' | 'name' | 'ratio' | 'maxHours'>
 
-/** Quanto uma atividade conta, e por que, depois da razão, do ingresso e do máximo do item. */
-export type ActivityHours = Pick<Activity, 'id' | 'countedHours' | 'status' | 'reason'>
+/**
+ * Quanto uma atividade conta, e por que, depois da razão, do ingresso e do máximo do item.
+ * `activityHours` é a conta pela razão antes do ingresso e do máximo.
+ */
+export type ActivityHours = Pick<
+  Activity,
+  'id' | 'activityHours' | 'countedHours' | 'status' | 'reason'
+>
 
 /** Entrada de {@link computeProgress}. */
 export type ProgressInput = {
@@ -55,11 +61,13 @@ function computeItem(
   )
 
   const results = ordered.map((activity): ActivityHours => {
+    const raw = rawTenths(activity.quantity, rule.ratio)
+    const base = { id: activity.id, activityHours: toHours(raw) }
+
     if (startSemester === null || activity.startDate < startSemester) {
-      return { id: activity.id, countedHours: 0, status: 'nao_conta', reason: 'antes_do_ingresso' }
+      return { ...base, countedHours: 0, status: 'nao_conta', reason: 'antes_do_ingresso' }
     }
 
-    const raw = rawTenths(activity.quantity, rule.ratio)
     const counted = Math.min(raw, remaining)
 
     remaining -= counted
@@ -67,12 +75,12 @@ function computeItem(
     overTenths += raw - counted
 
     if (counted === raw) {
-      return { id: activity.id, countedHours: toHours(counted), status: 'conta', reason: null }
+      return { ...base, countedHours: toHours(counted), status: 'conta', reason: null }
     }
 
     const status: ActivityStatus = counted > 0 ? 'parcial' : 'nao_conta'
 
-    return { id: activity.id, countedHours: toHours(counted), status, reason: 'item_cheio' }
+    return { ...base, countedHours: toHours(counted), status, reason: 'item_cheio' }
   })
 
   return { activities: results, countedTenths, overTenths }
@@ -103,7 +111,8 @@ function findRule(ruleItems: HoursRuleInput[], itemNumber: number): HoursRuleInp
  * @remarks
  * É o cálculo único de horas. Hoje é usado pelo mock e, depois, pela prévia do
  * formulário. A tela nunca refaz a conta. As regras:
- * - Cada atividade conta `quantity × hours / per`, truncado em uma casa decimal.
+ * - Cada atividade conta `quantity × hours / per`, truncado em uma casa decimal. Esse valor sai em
+ *   `activityHours`, antes do ingresso e do máximo, para a tela mostrar "1,0h de 2,0h".
  * - Conta só se `startDate >= startSemester`. A que não conta pelo ingresso não ocupa o máximo.
  * - Dentro do item, quem foi registrado primeiro garante as horas. A que passa do máximo fica
  *   `parcial`, e as seguintes ficam `nao_conta`, ambas com o motivo `item_cheio`.
@@ -124,7 +133,7 @@ function findRule(ruleItems: HoursRuleInput[], itemNumber: number): HoursRuleInp
  *   await getRuleItems('engenharia-de-computacao'),
  *   '2023-07-01',
  * )
- * // hours → { id: 'a', countedHours: 15, status: 'conta', reason: null }
+ * // hours → { id: 'a', activityHours: 15, countedHours: 15, status: 'conta', reason: null }
  * ```
  */
 export function computeActivities(
