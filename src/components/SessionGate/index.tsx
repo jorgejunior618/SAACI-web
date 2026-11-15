@@ -19,7 +19,8 @@ export type { SessionGateMode } from './utils'
 export type SessionGateProps = {
   /**
    * Para quem o grupo de rota existe. `private`: só aluno com sessão e curso escolhido. `public`:
-   * só quem está sem sessão. `onboarding`: sessão confirmada, curso ainda não escolhido.
+   * só quem está sem sessão. `onboarding`: sessão confirmada, curso ainda não escolhido. `account`:
+   * qualquer pessoa com sessão, com ou sem curso (telas da conta, como Excluir conta).
    */
   mode: SessionGateMode
   /** Telas do grupo. */

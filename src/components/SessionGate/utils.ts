@@ -2,10 +2,10 @@ import type { Session } from '@/services/account'
 import type { Profile } from '@/services/profile'
 
 /**
- * Para quem um grupo de rota existe: só quem tem sessão e curso, só quem não tem sessão, ou quem
- * ainda escolhe o curso.
+ * Para quem um grupo de rota existe: só quem tem sessão e curso, só quem não tem sessão, quem
+ * ainda escolhe o curso, ou qualquer pessoa com sessão, tenha curso ou não (`account`).
  */
-export type SessionGateMode = 'private' | 'public' | 'onboarding'
+export type SessionGateMode = 'private' | 'public' | 'onboarding' | 'account'
 
 /**
  * Diz para onde levar a pessoa, dado o grupo de rota, a sessão e o perfil.
@@ -22,6 +22,7 @@ export function getSessionRedirect(
   profile: Profile | null,
 ): string | null {
   if (!session) return mode === 'public' ? null : '/entrar'
+  if (mode === 'account') return null
 
   const hasCourse = profile?.courseId != null
 

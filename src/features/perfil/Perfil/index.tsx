@@ -1,26 +1,38 @@
 'use client'
 
-import { User } from 'lucide-react'
+import { useSuspenseQueries } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 
-import { AppFrame, StateScreen, TopBar } from '@design-system'
+import { accountQueries } from '@/services/account'
+import { profileQueries } from '@/services/profile'
 
-import { MainNav } from '@/components/MainNav'
+import { ProfileContent } from './_components/ProfileContent'
+import { Empty } from './Empty'
 
 /**
- * Mostra a tela provisória deste fluxo. Quem pegar a issue troca o corpo e mantém o nome e o caminho
- * do arquivo, porque a rota já importa daqui.
+ * Tela Perfil: os dados do aluno, o curso, o aviso de privacidade, o Sair e o Apagar conta.
+ *
+ * @remarks
+ * Lê o perfil e a sessão juntos e decide entre o `Empty`, para quem ainda não escolheu o curso, e o
+ * `ProfileContent`. O `SessionGate` do grupo `(aluno)` já leva quem não tem curso para Seu curso, então
+ * o `Empty` é a rede de segurança de uma corrida entre a navegação e o gate. A página envolve este
+ * componente em `Suspense`, com `Loading` como fallback.
+ *
+ * @example
+ * ```tsx
+ * <Suspense fallback={<Loading />}>
+ *   <Perfil />
+ * </Suspense>
+ * ```
  */
 export function Perfil(): ReactNode {
-  return (
-    <AppFrame topBar={<TopBar variant="root" title="Perfil" />} bottomNav={<MainNav />}>
-      <StateScreen
-        variant="empty"
-        icon={User}
-        eyebrow="Em construção"
-        title="Perfil"
-        description="Esta tela ainda não foi montada."
-      />
-    </AppFrame>
-  )
+  const [{ data: profile }, { data: session }] = useSuspenseQueries({
+    queries: [profileQueries.detail(), accountQueries.session()],
+  })
+
+  // O grupo `(aluno)` só abre com sessão. Sem esta checagem, `null` viraria um e-mail vazio na tela.
+  if (session === null) throw new Error('O Perfil abriu sem sessão.')
+  if (profile.courseId === null) return <Empty />
+
+  return <ProfileContent profile={profile} courseId={profile.courseId} email={session.email} />
 }

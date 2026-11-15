@@ -25,6 +25,9 @@ describe('getSessionRedirect', () => {
     ['onboarding', null, null, '/entrar'],
     ['onboarding', session, withoutCourse, null],
     ['onboarding', session, withCourse, '/inicio'],
+    ['account', null, null, '/entrar'],
+    ['account', session, withoutCourse, null],
+    ['account', session, withCourse, null],
   ] as const)('%s, sessão %o, perfil %o leva a %s', (mode, currentSession, profile, expected) => {
     expect(getSessionRedirect(mode, currentSession, profile)).toBe(expected)
   })

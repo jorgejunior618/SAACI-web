@@ -76,6 +76,8 @@ Grupo de rota separa telas por estado de sessão (por exemplo, sem sessão e com
 um `SessionGate` no modo certo. Quem chega no grupo errado é levado para o lugar certo. Grupos novos
 (confirmação de e-mail, curso) entram junto com as telas que os pedem.
 
+`(conta)` reúne as telas da conta que valem com ou sem curso, com `SessionGate mode="account"` (hoje, Excluir conta). `app/conta-apagada/` fica fora dos grupos, por exceção nomeada em `arquitetura.md` (ADR 0007).
+
 ## Arquivos de convenção do Next
 
 | Arquivo         | Onde mora                                               |
