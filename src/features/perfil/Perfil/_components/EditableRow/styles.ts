@@ -26,6 +26,8 @@ export const ReadRow = styled('button', {
     textAlign: 'start',
     cursor: 'pointer',
     color: 'ink',
+    // Para dentro: o cartão corta o que passa da borda (`overflow: hidden`), e o anel sumiria.
+    _focusVisible: { outline: '2px solid token(colors.focus)', outlineOffset: '-2px' },
   },
 })
 

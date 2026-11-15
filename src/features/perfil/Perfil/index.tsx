@@ -76,6 +76,7 @@ export function Perfil(): ReactNode {
               hint="Vai no formulário da coordenação. Pode deixar em branco."
               inputMode="numeric"
               successMessage="Matrícula salva. Ela já entra no seu formulário."
+              clearedMessage="Matrícula removida. O formulário vai sem ela."
               onSave={(enrollmentId) => updateProfile({ enrollmentId })}
             />
             <EditableRow

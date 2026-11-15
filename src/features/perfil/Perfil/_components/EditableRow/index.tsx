@@ -29,6 +29,11 @@ export type EditableRowProps = {
   warning?: string
   /** Frase mostrada na linha depois de salvar, dizendo o que mudou. */
   successMessage: string
+  /**
+   * Frase mostrada no lugar de `successMessage` quando o valor salvo é `null`, isto é, quando a
+   * pessoa apagou o dado. Sem ela, `successMessage` vale também para o campo apagado.
+   */
+  clearedMessage?: string
   /** Teclado do celular para o campo. */
   inputMode?: HTMLAttributes<HTMLInputElement>['inputMode']
   /** Exemplo dentro do campo vazio. */
@@ -69,13 +74,15 @@ export function EditableRow({
   hint,
   warning,
   successMessage,
+  clearedMessage,
   inputMode,
   placeholder,
   onSave,
 }: EditableRowProps): ReactNode {
   const queryClient = useQueryClient()
   const [isEditing, setIsEditing] = useState(false)
-  const [isSaved, setIsSaved] = useState(false)
+  // A frase do último salvamento. `null` enquanto nada foi salvo desde que a linha abriu.
+  const [savedMessage, setSavedMessage] = useState<string | null>(null)
   const {
     register,
     handleSubmit,
@@ -88,10 +95,10 @@ export function EditableRow({
 
   const mutation = useMutation({
     mutationFn: ({ value }: { value: string | null }) => onSave(value),
-    onSuccess: () => {
+    onSuccess: (_result, { value }) => {
       invalidateAfterProfileWrite(queryClient)
       setIsEditing(false)
-      setIsSaved(true)
+      setSavedMessage(value === null && clearedMessage ? clearedMessage : successMessage)
     },
   })
 
@@ -99,7 +106,7 @@ export function EditableRow({
     // O valor salvo pode ter mudado desde a última vez: o formulário só lê o padrão uma vez.
     reset({ value: initialValue })
     mutation.reset()
-    setIsSaved(false)
+    setSavedMessage(null)
     setIsEditing(true)
   }
 
@@ -113,9 +120,9 @@ export function EditableRow({
             <Icon icon={ChevronRight} size="sm" />
           </S.Chevron>
         </S.ReadRow>
-        {isSaved ? (
+        {savedMessage ? (
           <S.Feedback>
-            <Notice tone="success">{successMessage}</Notice>
+            <Notice tone="success">{savedMessage}</Notice>
           </S.Feedback>
         ) : null}
       </S.Root>

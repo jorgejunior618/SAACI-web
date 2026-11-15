@@ -34,6 +34,8 @@ const row = {
   border: 'none',
   textAlign: 'start',
   cursor: 'pointer',
+  // Para dentro: a lista corta o que passa da borda (`overflow: hidden`), e o anel sumiria.
+  _focusVisible: { outline: '2px solid token(colors.focus)', outlineOffset: '-2px' },
   // Divisória de cima em toda linha, menos na primeira.
   '&:not(:first-child)': {
     borderBlockStartWidth: '1px',

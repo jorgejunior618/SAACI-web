@@ -45,6 +45,8 @@ const path = {
   background: 'transparent',
   border: 'none',
   cursor: 'pointer',
+  // Para dentro: o cartão corta o que passa da borda (`overflow: hidden`), e o anel sumiria.
+  _focusVisible: { outline: '2px solid token(colors.focus)', outlineOffset: '-2px' },
   '&:not(:first-child)': {
     borderBlockStartWidth: '1px',
     borderBlockStartStyle: 'solid',
