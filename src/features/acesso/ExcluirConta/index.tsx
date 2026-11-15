@@ -70,6 +70,10 @@ export function ExcluirConta(): ReactNode {
           Isso apaga sua conta, suas atividades e seus comprovantes. Não dá para desfazer.
         </S.Consequence>
 
+        {/* TODO: o download em lote dos comprovantes não existe no service (só `getProofUrl` por
+            atividade). Troque o marcador por um link quando houver. */}
+        <Notice>Antes de apagar, baixe seus comprovantes: [DOWNLOAD DOS COMPROVANTES].</Notice>
+
         <TextField
           label="Confirme com sua senha"
           type="password"

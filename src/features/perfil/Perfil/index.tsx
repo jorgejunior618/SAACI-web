@@ -5,14 +5,15 @@ import type { ReactNode } from 'react'
 
 import { AppFrame, TopBar } from '@design-system'
 
-import { AccountLinks } from '@/components/AccountLinks'
 import { MainNav } from '@/components/MainNav'
 import { accountQueries } from '@/services/account'
 import { profileQueries, updateProfile } from '@/services/profile'
 import { rulesQueries } from '@/services/rules'
 import { formatSemester, StartSemesterFormSchema } from '@/utils/start-semester'
 
+import { AboutCard } from './_components/AboutCard'
 import { CourseCard } from './_components/CourseCard'
+import { DeleteAccount } from './_components/DeleteAccount'
 import { EditableRow } from './_components/EditableRow'
 import { ProfileHeader } from './_components/ProfileHeader'
 import { EnrollmentFormSchema } from './schema'
@@ -21,13 +22,13 @@ import * as S from './styles'
 const NOT_INFORMED = 'Não informada'
 
 /**
- * Tela Perfil: os dados do aluno, o curso e as saídas da conta.
+ * Tela Perfil: os dados do aluno, o curso, o aviso de privacidade, o Sair e o Apagar conta.
  *
  * @remarks
  * Matrícula e semestre de início se editam na própria linha. Mudar o semestre avisa antes de salvar
  * (RF11) e, como altera o total de horas, derruba o progresso e as atividades pela rotina do
  * domínio. O curso só se mostra: trocar leva a Trocar curso, que explica a trava (RF10). Aparência
- * e Sobre o SAACI não entram aqui. Não há `Empty`: com sessão, o perfil sempre existe, e quem não
+ * não entra aqui: a issue deixa a decisão do modo escuro para a equipe. Não há `Empty`: com sessão, o perfil sempre existe, e quem não
  * tem curso é levado a Seu curso pelo `SessionGate`. A página envolve este componente em `Suspense`,
  * com `Loading` como fallback.
  *
@@ -99,7 +100,8 @@ export function Perfil(): ReactNode {
           <CourseCard course={course} />
         </S.Section>
 
-        <AccountLinks />
+        <AboutCard />
+        <DeleteAccount />
       </S.Page>
     </AppFrame>
   )
