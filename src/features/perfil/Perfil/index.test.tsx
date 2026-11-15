@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { accountQueries } from '@/services/account'
 import { activitiesKeys } from '@/services/activities'
-import { getProfile, updateProfile } from '@/services/profile'
+import { getProfile, profileQueries, updateProfile } from '@/services/profile'
 import { progressKeys } from '@/services/progress'
 import { rulesQueries } from '@/services/rules'
 import type { Course } from '@/services/rules'
@@ -78,6 +78,34 @@ describe('Perfil', () => {
     expect(
       screen.getByText(`${COURSE.degree} · meta de ${formatHours(120, { fractionDigits: 0 })}`),
     ).toBeInTheDocument()
+  })
+
+  it('sem curso escolhido, diz o que falta e leva a Seu curso em vez de quebrar', async () => {
+    // Estado de partida sem curso: o mock aceita `courseId` nulo só na criação, então a tela é
+    // montada com o perfil já no cache.
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+
+    queryClient.setQueryData(accountQueries.session().queryKey, SESSION)
+    queryClient.setQueryData(profileQueries.detail().queryKey, {
+      name: 'Ana Beatriz Moura',
+      enrollmentId: null,
+      startSemester: null,
+      courseId: null,
+    })
+    render(
+      <QueryClientProvider client={queryClient}>
+        <Suspense fallback={<p>Carregando</p>}>
+          <Perfil />
+        </Suspense>
+      </QueryClientProvider>,
+    )
+
+    expect(await screen.findByText('Falta escolher o seu curso')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Escolher meu curso' })).toHaveAttribute(
+      'href',
+      '/seu-curso',
+    )
+    expect(screen.queryByText('Seus dados')).not.toBeInTheDocument()
   })
 
   it('leva a Trocar curso, ao aviso de privacidade e a Excluir conta', async () => {

@@ -5,7 +5,7 @@ import type { ReactNode } from 'react'
 
 import { AppFrame, StateScreen, TopBar } from '@design-system'
 
-import { AccountLinks } from '@/components/AccountLinks'
+import { AccountLinks } from './_components/AccountLinks'
 
 /**
  * Seu curso quando nenhum curso tem regras cadastradas ainda.

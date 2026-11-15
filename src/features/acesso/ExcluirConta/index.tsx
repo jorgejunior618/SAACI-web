@@ -26,11 +26,11 @@ const PASSWORD_ERROR = 'A senha não confere. Confira o Caps Lock e tente de nov
  * levam a Perfil, para quem já tem curso, ou a Seu curso, para quem ainda não escolheu. Senha errada
  * aparece no campo. Qualquer outra falha diz que a conta continua como estava. O que a pessoa
  * digitou nunca é limpo depois de um erro (RNF24). A página envolve este componente em `Suspense`,
- * porque lê o perfil com `useSuspenseQuery` para decidir a volta.
+ * com `Loading` como fallback, porque lê o perfil com `useSuspenseQuery` para decidir a volta.
  *
  * @example
  * ```tsx
- * <Suspense fallback={<LoadingState label="Buscando seus dados" />}>
+ * <Suspense fallback={<Loading />}>
  *   <ExcluirConta />
  * </Suspense>
  * ```
