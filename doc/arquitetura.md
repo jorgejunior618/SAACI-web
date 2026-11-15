@@ -117,10 +117,11 @@ disparar uma busca. A exceção está explicada em `react-query.md`.
 
 Uma exceção que ninguém consegue enumerar já virou regra. Por isso cada uma está aqui, por nome.
 
-| Exceção                                       | Regra que ela dobra                       | Por que existe                                          |
-| --------------------------------------------- | ----------------------------------------- | ------------------------------------------------------- |
-| `SessionGate` decide a sessão só no navegador | Página é Server Component e faz prefetch  | Enquanto a sessão for do mock, o servidor não a enxerga |
-| `setQueryData` da sessão em vez de invalidar  | Invalidação sempre pela rotina do domínio | A resposta de `signIn`/`signOut` já é o novo estado     |
+| Exceção                                             | Regra que ela dobra                           | Por que existe                                                                      |
+| --------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `SessionGate` decide a sessão só no navegador       | Página é Server Component e faz prefetch      | Enquanto a sessão for do mock, o servidor não a enxerga                             |
+| `setQueryData` da sessão em vez de invalidar        | Invalidação sempre pela rotina do domínio     | A resposta de `signIn`/`signOut` já é o novo estado                                 |
+| `/conta-apagada` fora dos grupos, sem `SessionGate` | Um `SessionGate` por grupo de rota (ADR 0007) | A sessão acabou de ser apagada, e qualquer gate redirecionaria antes da confirmação |
 
 ## Onde está a verdade corrente
 
