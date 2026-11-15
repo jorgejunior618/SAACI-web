@@ -1,13 +1,11 @@
 'use client'
 
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import NextLink from 'next/link'
-import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
 
 import { Link, Notice } from '@design-system'
 
-import { clearSessionCache, signOut } from '@/services/account'
+import { useSignOut } from '@/hooks/use-sign-out'
 
 import * as S from './styles'
 
@@ -25,16 +23,7 @@ import * as S from './styles'
  * ```
  */
 export function AccountLinks(): ReactNode {
-  const router = useRouter()
-  const queryClient = useQueryClient()
-
-  const signOutMutation = useMutation({
-    mutationFn: signOut,
-    onSuccess: () => {
-      clearSessionCache(queryClient)
-      router.replace('/entrar')
-    },
-  })
+  const signOutMutation = useSignOut()
 
   return (
     <S.Root>

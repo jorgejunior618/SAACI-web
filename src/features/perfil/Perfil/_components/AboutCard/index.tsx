@@ -1,14 +1,12 @@
 'use client'
 
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ChevronRight } from 'lucide-react'
 import NextLink from 'next/link'
-import { useRouter } from 'next/navigation'
 import type { ReactNode } from 'react'
 
 import { Icon, Notice } from '@design-system'
 
-import { clearSessionCache, signOut } from '@/services/account'
+import { useSignOut } from '@/hooks/use-sign-out'
 
 import * as S from './styles'
 
@@ -16,9 +14,8 @@ import * as S from './styles'
  * Cartão "Sobre o SAACI" do Perfil: o aviso de privacidade e o Sair.
  *
  * @remarks
- * Sair encerra a sessão, esvazia o cache (RNF04) e leva para Entrar. Se falhar, uma frase diz o que
- * fazer e a pessoa continua na tela. A mesma mutation existe no `AccountLinks`, que o Seu curso usa
- * com outro desenho; são oito linhas e cada tela pede um visual, então não viraram um hook.
+ * Sair usa `useSignOut`: encerra a sessão, esvazia o cache (RNF04) e leva para Entrar. Se falhar, uma
+ * frase diz o que fazer e a pessoa continua na tela. O Seu curso usa o mesmo hook com outro desenho.
  *
  * @example
  * ```tsx
@@ -26,16 +23,7 @@ import * as S from './styles'
  * ```
  */
 export function AboutCard(): ReactNode {
-  const router = useRouter()
-  const queryClient = useQueryClient()
-
-  const signOutMutation = useMutation({
-    mutationFn: signOut,
-    onSuccess: () => {
-      clearSessionCache(queryClient)
-      router.replace('/entrar')
-    },
-  })
+  const signOutMutation = useSignOut()
 
   return (
     <S.Root>
