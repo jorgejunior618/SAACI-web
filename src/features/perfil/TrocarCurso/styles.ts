@@ -31,23 +31,31 @@ export const Paths = styled('div', {
   },
 })
 
-export const Path = styled('a', {
-  base: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: '3',
-    minHeight: 'touch',
-    padding: '4',
-    color: 'ink',
-    textDecoration: 'none',
-    '&:not(:first-child)': {
-      borderBlockStartWidth: '1px',
-      borderBlockStartStyle: 'solid',
-      borderBlockStartColor: 'line',
-    },
+const path = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: '3',
+  minHeight: 'touch',
+  width: '100%',
+  padding: '4',
+  color: 'ink',
+  textDecoration: 'none',
+  textAlign: 'start',
+  background: 'transparent',
+  border: 'none',
+  cursor: 'pointer',
+  '&:not(:first-child)': {
+    borderBlockStartWidth: '1px',
+    borderBlockStartStyle: 'solid',
+    borderBlockStartColor: 'line',
   },
-})
+} as const
+
+export const Path = styled('a', { base: path })
+
+// Remover as atividades abre a confirmação em vez de navegar direto.
+export const PathButton = styled('button', { base: path })
 
 export const PathText = styled('span', {
   base: { display: 'flex', flexDirection: 'column', gap: '1', minWidth: '0' },

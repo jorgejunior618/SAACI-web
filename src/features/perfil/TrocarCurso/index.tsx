@@ -3,9 +3,11 @@
 import { useSuspenseQueries, useSuspenseQuery } from '@tanstack/react-query'
 import { ChevronRight, Lock } from 'lucide-react'
 import NextLink from 'next/link'
+import { useRef } from 'react'
 import type { ReactNode } from 'react'
 
-import { AppFrame, Icon, Notice, TextField, TopBar } from '@design-system'
+import { AppFrame, BottomSheet, Button, Icon, Notice, TextField, TopBar } from '@design-system'
+import type { BottomSheetHandle } from '@design-system'
 
 import { MainNav } from '@/components/MainNav'
 import { activitiesQueries } from '@/services/activities'
@@ -21,7 +23,9 @@ import * as S from './styles'
  * @remarks
  * Com atividades registradas o curso não muda (RF10). A tela conta as atividades em vez de esperar o
  * `CourseLockedError`, que segue como trava do service e do banco. Os caminhos são remover as
- * atividades, em Atividades, ou apagar a conta e começar de novo. Sem atividades, mostra o `Empty`.
+ * atividades, em Atividades, ou apagar a conta e começar de novo. Remover abre um `BottomSheet` que
+ * avisa que não há volta e só então leva a Atividades; nada é apagado nesta tela. Sem atividades,
+ * mostra o `Empty`.
  * A página envolve este componente em `Suspense`, com `Loading` como fallback.
  *
  * @example
@@ -32,6 +36,7 @@ import * as S from './styles'
  * ```
  */
 export function TrocarCurso(): ReactNode {
+  const removeSheetRef = useRef<BottomSheetHandle>(null)
   const [{ data: profile }, { data: activities }] = useSuspenseQueries({
     queries: [profileQueries.detail(), activitiesQueries.list()],
   })
@@ -69,7 +74,7 @@ export function TrocarCurso(): ReactNode {
         <S.Section>
           <S.SectionTitle>Para trocar, escolha um caminho</S.SectionTitle>
           <S.Paths>
-            <S.Path as={NextLink} href="/atividades">
+            <S.PathButton type="button" onClick={() => removeSheetRef.current?.open()}>
               <S.PathText>
                 <S.PathTitle>Remover as atividades</S.PathTitle>
                 <S.PathDetail>{removeDetail}</S.PathDetail>
@@ -77,7 +82,7 @@ export function TrocarCurso(): ReactNode {
               <S.Chevron>
                 <Icon icon={ChevronRight} size="sm" />
               </S.Chevron>
-            </S.Path>
+            </S.PathButton>
             <S.Path as={NextLink} href="/excluir-conta">
               <S.PathText>
                 <S.PathTitle>Apagar a conta e começar de novo</S.PathTitle>
@@ -97,6 +102,22 @@ export function TrocarCurso(): ReactNode {
           Confira com a coordenação.
         </S.Footnote>
       </S.Page>
+
+      <BottomSheet
+        ref={removeSheetRef}
+        title="Ir remover as atividades?"
+        description="Em Atividades, você remove uma por uma. Cada atividade e o comprovante dela saem do SAACI e não voltam. Baixe os comprovantes antes."
+        actions={
+          <>
+            <Button as={NextLink} href="/atividades" block>
+              Ir para Atividades
+            </Button>
+            <Button variant="secondary" block onClick={() => removeSheetRef.current?.close()}>
+              Manter meu curso
+            </Button>
+          </>
+        }
+      />
     </AppFrame>
   )
 }
