@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { accountQueries } from '@/services/account'
 import { activitiesKeys } from '@/services/activities'
 import { getProfile, profileQueries, updateProfile } from '@/services/profile'
+import { resetProfileMock } from '@/services/profile/profile.mock'
 import { progressKeys } from '@/services/progress'
 import { rulesQueries } from '@/services/rules'
 import type { Course } from '@/services/rules'
@@ -56,14 +57,9 @@ async function openRow(user: ReturnType<typeof userEvent.setup>, label: RegExp):
 
 describe('Perfil', () => {
   beforeEach(async () => {
-    // O mock é em memória e vive o arquivo inteiro. Escrever o estado de partida a cada teste o refaz
-    // sem importar o mock (a regra de import vale para `features/`). A primeira escolha de curso é
-    // aceita mesmo com atividades lançadas, e repetir o mesmo curso não conta como troca (RF10).
-    await updateProfile({
-      courseId: COURSE.id,
-      startSemester: '2023-07-01',
-      enrollmentId: '2023104501',
-    })
+    resetProfileMock()
+    // A primeira escolha de curso é aceita mesmo com atividades lançadas (RF10).
+    await updateProfile({ courseId: COURSE.id, startSemester: '2023-07-01' })
     vi.mocked(updateProfile).mockClear()
   })
 
