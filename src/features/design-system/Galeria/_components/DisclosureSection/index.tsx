@@ -6,7 +6,7 @@ import { Section } from '../Section'
 import { Specimen } from '../Specimen'
 import * as S from './styles'
 
-/** Página "Disclosure" da galeria: aberta e fechada. */
+/** Página "Disclosure" da galeria: aberta, fechada e com rótulo e texto à direita. */
 export function DisclosureSection(): ReactNode {
   return (
     <Section
@@ -32,6 +32,13 @@ export function DisclosureSection(): ReactNode {
                 name="Participação em eventos na área do curso"
                 rule="4h por dia de evento, até 40h"
               />
+            </Disclosure>
+          </S.Wrap>
+        </Specimen>
+        <Specimen label="eyebrow e aside (por item)" isPlain>
+          <S.Wrap>
+            <Disclosure eyebrow="Item 7" title="Curso na área de engenharia" aside="18,0h de 60h">
+              <Disclosure.Row itemNumber={7} name="Curso de Git e GitHub" />
             </Disclosure>
           </S.Wrap>
         </Specimen>

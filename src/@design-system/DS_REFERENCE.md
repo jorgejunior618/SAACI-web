@@ -154,8 +154,8 @@ nasce ou muda.
 
 ### Disclosure
 
-- Uso: seção de consulta que abre e fecha, feita com `<details>`/`<summary>`: funciona sem JavaScript e com leitor de tela. Cabeçalho com título (peso 500), contador em `ink.muted` e seta à direita que gira (`transition` de `durations.fast`; com `prefers-reduced-motion` a regra global zera a transição e a seta só pula, ainda legível). Um nível só: sem `Disclosure` dentro de `Disclosure`. Não esconde passo obrigatório. No painel vazio vem aberta.
-- Props: `title`, `count?`, `defaultOpen?` (só vale na primeira renderização), `children`, mais as props de `details`. `Disclosure.Row` (`itemNumber`, `name`, `rule?`) é a linha de item: número em coluna de 20px alinhada à direita, tabular, `ink.muted`; nome em `body`; regra em `support` abaixo; divisória com recuo a partir do nome. O corpo é um `ul`, então qualquer `li` (como o `ActivityRow`) também entra.
+- Uso: seção de consulta que abre e fecha, feita com `<details>`/`<summary>`: funciona sem JavaScript e com leitor de tela. Cabeçalho com título (peso 500), contador em `ink.muted` e seta à direita que gira (`transition` de `durations.fast`; com `prefers-reduced-motion` a regra global zera a transição e a seta só pula, ainda legível). Um nível só: sem `Disclosure` dentro de `Disclosure`. Não esconde passo obrigatório. No painel vazio vem aberta. Na tela de Atividades é o grupo de cada item, com `eyebrow` e `aside`.
+- Props: `title` (uma linha, com reticências), `eyebrow?` (rótulo acima do título em `caption` `ink.muted`, como "Item 6"), `count?` **ou** `aside?` (texto curto junto da seta, em `body` `ink.muted` tabular, como "15,0h de 60h"; os dois juntos o tipo recusa), `defaultOpen?` (só vale na primeira renderização), `children`, mais as props de `details`. `Disclosure.Row` (`itemNumber`, `name`, `rule?`) é a linha de item: número em coluna de 20px alinhada à direita, tabular, `ink.muted`; nome em `body`; regra em `support` abaixo; divisória com recuo a partir do nome. O corpo é um `ul`, então qualquer `li` (como o `ActivityRow`) também entra.
 - Sem Skeleton: não recebe dado, só `children`.
 - Galeria: `/design-system/disclosure`.
 

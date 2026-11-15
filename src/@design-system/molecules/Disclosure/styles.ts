@@ -9,7 +9,7 @@ export const Root = styled('details', {
     borderRadius: 'card',
     // A seta gira quando a seção abre. Com `prefers-reduced-motion` a regra global zera a
     // transição e a seta só pula para o estado final, que continua legível.
-    '&[open] > summary > [data-arrow]': { transform: 'rotate(180deg)' },
+    '&[open] > summary [data-arrow]': { transform: 'rotate(180deg)' },
   },
 })
 
@@ -27,18 +27,47 @@ export const Summary = styled('summary', {
   },
 })
 
+// `minWidth: 0` deixa o título encolher e ganhar reticências em vez de empurrar o texto da direita.
+export const Heading = styled('span', {
+  base: { display: 'flex', flexDirection: 'column', minWidth: '0' },
+})
+
+export const Eyebrow = styled('span', {
+  base: { textStyle: 'caption', color: 'ink.muted' },
+})
+
 export const Title = styled('span', {
-  base: { textStyle: 'bodyStrong' },
+  base: {
+    textStyle: 'bodyStrong',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
 })
 
 export const Count = styled('span', {
-  base: { textStyle: 'body', color: 'ink.muted', fontVariantNumeric: 'tabular-nums' },
+  base: {
+    textStyle: 'body',
+    color: 'ink.muted',
+    fontVariantNumeric: 'tabular-nums',
+    whiteSpace: 'nowrap',
+  },
+})
+
+// Empurra o texto da direita e a seta para a borda, com ou sem `aside`.
+export const End = styled('span', {
+  base: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '3',
+    flexShrink: '0',
+    marginInlineStart: 'auto',
+  },
 })
 
 export const Arrow = styled('span', {
   base: {
     display: 'inline-flex',
-    marginInlineStart: 'auto',
     color: 'ink.subtle',
     transitionProperty: 'transform',
     transitionDuration: 'fast',
