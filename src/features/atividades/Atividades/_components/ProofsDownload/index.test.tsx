@@ -52,12 +52,12 @@ const ACTIVITIES = [
   activity({ itemNumber: 13, name: 'Boas-vindas', status: 'nao_conta' }),
 ]
 
-function renderDownload() {
+function renderDownload(selectedIds?: ReadonlySet<string>) {
   const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } })
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <ProofsDownload activities={ACTIVITIES} ruleItems={RULE_ITEMS} />
+      <ProofsDownload activities={ACTIVITIES} ruleItems={RULE_ITEMS} selectedIds={selectedIds} />
     </QueryClientProvider>,
   )
 }
@@ -138,5 +138,36 @@ describe('ProofsDownload', () => {
     expect(await screen.findByRole('button', { name: 'Baixar os que contam' })).toBeInTheDocument()
     expect(screen.queryByText('O download parou no meio')).not.toBeInTheDocument()
     expect(createObjectURL).not.toHaveBeenCalled()
+  })
+
+  describe('escolher quais', () => {
+    it('baixa só os marcados e diz quantos no botão', async () => {
+      getProofFileMock.mockResolvedValue(new Blob(['ok']))
+      const [english] = ACTIVITIES
+
+      if (!english) throw new Error('Faltou a atividade de exemplo.')
+      renderDownload(new Set([english.id]))
+
+      expect(screen.getByText(/1 arquivo, cerca de 1,0 MB/)).toBeInTheDocument()
+      fireEvent.click(screen.getByRole('button', { name: 'Baixar 1 selecionado' }))
+
+      await waitFor(() => expect(createObjectURL).toHaveBeenCalledOnce())
+      const zip = createObjectURL.mock.calls[0]?.[0]
+
+      if (!zip) throw new Error('O arquivo não foi salvo.')
+      expect(Object.keys(unzipSync(new Uint8Array(await zip.arrayBuffer())))).toEqual([
+        'Item 06 - Curso de línguas/Curso de inglês.pdf',
+      ])
+      expect(getProofFileMock).toHaveBeenCalledExactlyOnceWith(english.id, expect.anything())
+    })
+
+    it('com nada marcado, explica o que fazer em vez de baixar', () => {
+      renderDownload(new Set())
+
+      fireEvent.click(screen.getByRole('button', { name: 'Baixar 0 selecionados' }))
+
+      expect(screen.getByRole('alert')).toHaveTextContent('Nenhum comprovante marcado')
+      expect(getProofFileMock).not.toHaveBeenCalled()
+    })
   })
 })

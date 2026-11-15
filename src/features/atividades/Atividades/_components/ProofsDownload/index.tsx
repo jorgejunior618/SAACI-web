@@ -12,7 +12,13 @@ import { getProofFile } from '@/services/activities'
 import type { Activity } from '@/services/activities'
 import type { RuleItem } from '@/services/rules'
 
-import { formatFileCount, formatLeftOut, formatMegabytes, getProofEntries } from '../../utils'
+import {
+  formatFileCount,
+  formatLeftOut,
+  formatMegabytes,
+  formatSelectedLabel,
+  getProofEntries,
+} from '../../utils'
 import type { ProofEntry } from '../../utils'
 import * as S from './styles'
 
@@ -28,6 +34,11 @@ export type ProofsDownloadProps = {
   activities: Activity[]
   /** Itens do curso, para o nome da pasta de cada item. */
   ruleItems: RuleItem[]
+  /**
+   * Comprovantes marcados no modo "Escolher quais". `null` ou ausente: fora do modo, entram todos
+   * os que contam. Um `Set` vazio é o aluno com tudo desmarcado.
+   */
+  selectedIds?: ReadonlySet<string> | null
 }
 
 // Baixa um comprovante por vez, para o progresso andar arquivo a arquivo, e monta o zip no fim. O
@@ -82,6 +93,8 @@ function saveFile(file: Blob, name: string): void {
  * arquivo é montado no navegador (ADR 0007). Usa `useMutation` pelo ciclo de pendente e erro, mas
  * não invalida nada: baixar não grava. O `onSuccess` fica nas opções do `useMutation`, então o
  * arquivo é salvo mesmo se o aluno mudar de tela no meio. Sem comprovante que conte, não mostra nada.
+ * Com `selectedIds`, entram só os marcados e o botão diz quantos. Com nada marcado, o botão continua
+ * ativo e o toque explica o que fazer, em vez de não responder.
  *
  * @example
  * ```tsx
@@ -90,13 +103,21 @@ function saveFile(file: Blob, name: string): void {
  * </Card>
  * ```
  */
-export function ProofsDownload({ activities, ruleItems }: ProofsDownloadProps): ReactNode {
-  const entries = getProofEntries(activities, ruleItems)
+export function ProofsDownload({
+  activities,
+  ruleItems,
+  selectedIds = null,
+}: ProofsDownloadProps): ReactNode {
+  const allEntries = getProofEntries(activities, ruleItems)
+  const entries = selectedIds
+    ? allEntries.filter((entry) => selectedIds.has(entry.activity.id))
+    : allEntries
   const totalBytes = entries.reduce((sum, entry) => sum + entry.activity.proof.sizeBytes, 0)
   const leftOut = formatLeftOut(activities)
 
   const controller = useRef<AbortController | null>(null)
   const [progress, setProgress] = useState<DownloadProgress>({ files: 0, bytes: 0 })
+  const [hasTriedEmpty, setHasTriedEmpty] = useState(false)
 
   const mutation = useMutation({
     mutationFn: () => {
@@ -111,7 +132,18 @@ export function ProofsDownload({ activities, ruleItems }: ProofsDownloadProps): 
     },
   })
 
-  if (entries.length === 0) return null
+  if (allEntries.length === 0) return null
+
+  const isNothingSelected = entries.length === 0
+
+  function download(): void {
+    if (isNothingSelected) {
+      setHasTriedEmpty(true)
+      return
+    }
+    setHasTriedEmpty(false)
+    mutation.mutate()
+  }
 
   if (mutation.isPending) {
     return (
@@ -146,7 +178,7 @@ export function ProofsDownload({ activities, ruleItems }: ProofsDownloadProps): 
           Nada foi salvo no celular. Confira sua internet e tente de novo. Se continuar, abra uma
           atividade e baixe o comprovante dela sozinho.
         </Notice>
-        <Button block onClick={() => mutation.mutate()}>
+        <Button block onClick={download}>
           Tentar de novo
         </Button>
       </S.Root>
@@ -155,13 +187,20 @@ export function ProofsDownload({ activities, ruleItems }: ProofsDownloadProps): 
 
   return (
     <S.Root>
-      <Button block icon={Download} onClick={() => mutation.mutate()}>
-        Baixar os que contam
+      <Button block icon={Download} onClick={download}>
+        {selectedIds ? formatSelectedLabel(entries.length) : 'Baixar os que contam'}
       </Button>
-      <S.Help>
-        {formatFileCount(entries.length)}, cerca de {formatMegabytes(totalBytes)}. Vem num arquivo
-        compactado com uma pasta por item.
-      </S.Help>
+      {isNothingSelected && hasTriedEmpty ? (
+        <Notice tone="danger">
+          Nenhum comprovante marcado. Marque ao menos um na lista de cada item para baixar.
+        </Notice>
+      ) : null}
+      {isNothingSelected ? null : (
+        <S.Help>
+          {formatFileCount(entries.length)}, cerca de {formatMegabytes(totalBytes)}. Vem num arquivo
+          compactado com uma pasta por item.
+        </S.Help>
+      )}
       {leftOut ? (
         <Notice tone="danger" role="status">
           {leftOut}

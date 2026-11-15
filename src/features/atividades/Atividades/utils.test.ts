@@ -10,6 +10,8 @@ import {
   formatMegabytes,
   formatProofsSummary,
   formatReason,
+  formatSelectedLabel,
+  getCountingIds,
   getProofEntries,
   groupActivitiesByItem,
   parseItemParam,
@@ -204,5 +206,22 @@ describe('formatLeftOut', () => {
 
   it('não diz nada quando todos contam', () => {
     expect(formatLeftOut([activity({})])).toBeNull()
+  })
+})
+
+describe('getCountingIds', () => {
+  it('marca só quem conta, inteiro ou em parte', () => {
+    const counts = activity({})
+    const partial = activity({ status: 'parcial' })
+    const out = activity({ status: 'nao_conta' })
+
+    expect(getCountingIds([counts, out, partial])).toEqual([counts.id, partial.id])
+  })
+})
+
+describe('formatSelectedLabel', () => {
+  it('usa singular e plural', () => {
+    expect(formatSelectedLabel(1)).toBe('Baixar 1 selecionado')
+    expect(formatSelectedLabel(3)).toBe('Baixar 3 selecionados')
   })
 })

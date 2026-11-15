@@ -218,3 +218,23 @@ export function formatLeftOut(activities: Activity[]): string | null {
 
   return `${names.length} ${verb} de fora: ${list}.`
 }
+
+/**
+ * Lista os ids das atividades cujo comprovante conta, para a seleção começar com todas marcadas.
+ *
+ * @param activities Todas as atividades do aluno.
+ * @returns Os ids, na ordem recebida.
+ */
+export function getCountingIds(activities: Activity[]): string[] {
+  return activities.filter(isCounting).map((activity) => activity.id)
+}
+
+/**
+ * Texto do botão de download no modo de seleção ("Baixar 1 selecionado", "Baixar 3 selecionados").
+ *
+ * @param count Quantos comprovantes estão marcados.
+ * @returns O texto no singular ou no plural.
+ */
+export function formatSelectedLabel(count: number): string {
+  return `Baixar ${count} ${count === 1 ? 'selecionado' : 'selecionados'}`
+}

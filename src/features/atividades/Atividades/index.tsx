@@ -3,9 +3,11 @@
 import { useSuspenseQueries, useSuspenseQuery } from '@tanstack/react-query'
 import { ChevronRight } from 'lucide-react'
 import NextLink from 'next/link'
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 
 import { ActivityRow, AppFrame, Card, Disclosure, Icon, Link, TopBar } from '@design-system'
+import type { ActivityRowSelection } from '@design-system'
 
 import { MainNav } from '@/components/MainNav'
 import { activitiesQueries } from '@/services/activities'
@@ -18,7 +20,13 @@ import { formatHours } from '@/utils/format-hours'
 
 import { ProofsDownload } from './_components/ProofsDownload'
 import { Empty } from './Empty'
-import { formatProofsSummary, formatReason, groupActivitiesByItem } from './utils'
+import {
+  formatProofsSummary,
+  formatReason,
+  getCountingIds,
+  groupActivitiesByItem,
+  isCounting,
+} from './utils'
 import * as S from './styles'
 
 /** Props de {@link Atividades}. */
@@ -27,9 +35,20 @@ export type AtividadesProps = {
   openItem: number | null
 }
 
+type ActivityItemProps = {
+  activity: Activity
+  /** Checkbox do modo "Escolher quais". Só quem conta recebe. */
+  selection?: ActivityRowSelection
+}
+
 // A linha mostra o que o service decidiu: `status` vira a variante, sem refazer conta.
-function ActivityItem({ activity }: { activity: Activity }): ReactNode {
-  const common = { title: activity.name, href: `/atividades/${activity.id}`, linkAs: NextLink }
+function ActivityItem({ activity, selection }: ActivityItemProps): ReactNode {
+  const common = {
+    title: activity.name,
+    href: `/atividades/${activity.id}`,
+    linkAs: NextLink,
+    selection,
+  }
 
   switch (activity.status) {
     case 'conta':
@@ -66,6 +85,9 @@ function ActivityItem({ activity }: { activity: Activity }): ReactNode {
  * (RNF20). O nome e o máximo do item vêm das regras do curso. Sem atividade, mostra o `Empty`. A
  * página envolve este componente em `Suspense`, com `Loading` como fallback.
  *
+ * "Escolher quais" liga o checkbox nas atividades que contam, todas já marcadas, e o download passa
+ * a levar só as marcadas. A seleção vive só nesta tela: sair e voltar começa de novo.
+ *
  * @example
  * ```tsx
  * <Suspense fallback={<Loading />}>
@@ -74,6 +96,8 @@ function ActivityItem({ activity }: { activity: Activity }): ReactNode {
  * ```
  */
 export function Atividades({ openItem }: AtividadesProps): ReactNode {
+  // `null`: fora do modo de seleção. Os hooks vêm antes de qualquer retorno antecipado.
+  const [selectedIds, setSelectedIds] = useState<ReadonlySet<string> | null>(null)
   const [{ data: activities }, { data: progress }, { data: profile }] = useSuspenseQueries({
     queries: [activitiesQueries.list(), progressQueries.summary(), profileQueries.detail()],
   })
@@ -87,6 +111,27 @@ export function Atividades({ openItem }: AtividadesProps): ReactNode {
   if (activities.length === 0) return <Empty />
 
   const groups = groupActivitiesByItem(activities, ruleItems, progress.categories)
+  const hasCounting = activities.some(isCounting)
+
+  function toggleSelecting(): void {
+    setSelectedIds((current) => (current ? null : new Set(getCountingIds(activities))))
+  }
+
+  function selectionFor(activity: Activity): ActivityRowSelection | undefined {
+    if (!selectedIds || !isCounting(activity)) return undefined
+
+    return {
+      checked: selectedIds.has(activity.id),
+      onChange: (checked) =>
+        setSelectedIds((current) => {
+          const next = new Set(current)
+
+          if (checked) next.add(activity.id)
+          else next.delete(activity.id)
+          return next
+        }),
+    }
+  }
 
   return (
     <AppFrame topBar={<TopBar variant="root" title="Atividades" />} bottomNav={<MainNav />}>
@@ -102,9 +147,14 @@ export function Atividades({ openItem }: AtividadesProps): ReactNode {
             <S.SummaryText>{formatProofsSummary(activities)}</S.SummaryText>
           </S.Summary>
 
-          <ProofsDownload activities={activities} ruleItems={ruleItems} />
+          <ProofsDownload activities={activities} ruleItems={ruleItems} selectedIds={selectedIds} />
 
           <S.SummaryFooter>
+            {hasCounting ? (
+              <Link as="button" type="button" isStandalone onClick={toggleSelecting}>
+                {selectedIds ? 'Cancelar seleção' : 'Escolher quais'}
+              </Link>
+            ) : null}
             <Link as={NextLink} href="/atividades/pedido" isStandalone>
               <S.LinkContent>
                 Ver meu pedido
@@ -127,7 +177,11 @@ export function Atividades({ openItem }: AtividadesProps): ReactNode {
                 defaultOpen={group.itemNumber === openItem}
               >
                 {group.activities.map((activity) => (
-                  <ActivityItem key={activity.id} activity={activity} />
+                  <ActivityItem
+                    key={activity.id}
+                    activity={activity}
+                    selection={selectionFor(activity)}
+                  />
                 ))}
               </Disclosure>
             ))}

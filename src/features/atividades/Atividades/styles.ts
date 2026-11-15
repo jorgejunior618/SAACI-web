@@ -30,11 +30,13 @@ export const SummaryText = styled('p', {
   base: { textStyle: 'support', color: 'ink.muted' },
 })
 
-// Rodapé do cartão: linha em `line` e os links. "Escolher quais" entra à esquerda na etapa da seleção.
+// Rodapé do cartão: linha em `line`, "Escolher quais" à esquerda e "Ver meu pedido" à direita.
 export const SummaryFooter = styled('div', {
   base: {
     display: 'flex',
-    justifyContent: 'flex-end',
+    gap: '2',
+    // "Ver meu pedido" fica à direita mesmo quando "Escolher quais" não aparece.
+    '& > :last-child': { marginInlineStart: 'auto' },
     marginBlockStart: '4',
     borderBlockStartWidth: '1px',
     borderBlockStartStyle: 'solid',
