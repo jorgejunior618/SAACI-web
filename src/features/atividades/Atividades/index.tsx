@@ -16,6 +16,7 @@ import { rulesQueries } from '@/services/rules'
 import { formatDate } from '@/utils/format-date'
 import { formatHours } from '@/utils/format-hours'
 
+import { ProofsDownload } from './_components/ProofsDownload'
 import { Empty } from './Empty'
 import { formatProofsSummary, formatReason, groupActivitiesByItem } from './utils'
 import * as S from './styles'
@@ -100,6 +101,8 @@ export function Atividades({ openItem }: AtividadesProps): ReactNode {
             </S.Total>
             <S.SummaryText>{formatProofsSummary(activities)}</S.SummaryText>
           </S.Summary>
+
+          <ProofsDownload activities={activities} ruleItems={ruleItems} />
 
           <S.SummaryFooter>
             <Link as={NextLink} href="/atividades/pedido" isStandalone>
