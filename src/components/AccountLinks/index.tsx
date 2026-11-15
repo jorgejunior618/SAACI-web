@@ -12,7 +12,7 @@ import { clearSessionCache, signOut } from '@/services/account'
 import * as S from './styles'
 
 /**
- * Saídas da conta que ficam no pé da tela Seu curso: Sair e Excluir conta.
+ * Saídas da conta que ficam no pé das telas Seu curso e Perfil: Sair e Excluir conta.
  *
  * @remarks
  * Sair encerra a sessão, esvazia o cache (RNF04) e leva para Entrar. Excluir conta só navega para a

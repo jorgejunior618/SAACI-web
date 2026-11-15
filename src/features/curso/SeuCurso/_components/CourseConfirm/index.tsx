@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form'
 
 import { Button, Link, Notice, TextField } from '@design-system'
 
+import { AccountLinks } from '@/components/AccountLinks'
 import { invalidateAfterProfileWrite, updateProfile } from '@/services/profile'
 import { rulesQueries } from '@/services/rules'
 import type { Course } from '@/services/rules'
@@ -14,7 +15,6 @@ import { formatHours } from '@/utils/format-hours'
 
 import { CourseConfirmSchema } from '../../schema'
 import type { CourseConfirmInput, CourseConfirmOutput } from '../../schema'
-import { AccountLinks } from '../AccountLinks'
 import * as S from './styles'
 
 export type CourseConfirmProps = {

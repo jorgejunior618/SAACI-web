@@ -6,9 +6,9 @@ import type { ReactNode } from 'react'
 
 import { AppFrame, LoadingState, TopBar } from '@design-system'
 
+import { AccountLinks } from '@/components/AccountLinks'
 import { rulesQueries } from '@/services/rules'
 
-import { AccountLinks } from './_components/AccountLinks'
 import { CourseConfirm } from './_components/CourseConfirm'
 import { CourseSearch } from './_components/CourseSearch'
 import { Empty } from './Empty'
