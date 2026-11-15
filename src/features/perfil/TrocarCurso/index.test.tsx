@@ -70,7 +70,8 @@ describe('TrocarCurso', () => {
   it('com atividades, mostra o curso travado e quantas atividades prendem a troca', async () => {
     renderTrocarCurso(9)
 
-    expect(await screen.findByDisplayValue(COURSE.name)).toHaveAttribute('readonly')
+    expect(await screen.findByText(COURSE.name)).toBeInTheDocument()
+    expect(screen.getByText('Seu curso')).toBeInTheDocument()
     expect(screen.getByText('Com atividades lançadas, o curso fica travado')).toBeInTheDocument()
     expect(screen.getByText(/Você tem 9 atividades registradas/)).toBeInTheDocument()
     expect(screen.getByText(/remova as 9 em Atividades/)).toBeInTheDocument()

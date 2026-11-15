@@ -10,6 +10,34 @@ export const Page = styled('div', {
   },
 })
 
+// Campo só de leitura com o cadeado à direita. É local porque o `TextField` do design system só
+// aceita ícone à esquerda e este desenho pede à direita.
+export const LockedField = styled('div', {
+  base: { display: 'flex', flexDirection: 'column', gap: '2' },
+})
+
+export const LockedLabel = styled('p', {
+  base: { margin: '0', textStyle: 'label', color: 'ink' },
+})
+
+export const LockedBox = styled('div', {
+  base: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '3',
+    minHeight: 'control',
+    paddingInline: '4',
+    textStyle: 'body',
+    color: 'ink',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: 'line.strong',
+    borderRadius: 'control',
+    '& > svg': { flexShrink: '0', color: 'ink.muted' },
+  },
+})
+
 export const Section = styled('section', {
   base: { display: 'flex', flexDirection: 'column', gap: '3' },
 })

@@ -6,7 +6,7 @@ import NextLink from 'next/link'
 import { useRef } from 'react'
 import type { ReactNode } from 'react'
 
-import { AppFrame, BottomSheet, Button, Icon, Notice, TextField, TopBar } from '@design-system'
+import { AppFrame, BottomSheet, Button, Icon, Notice, TopBar } from '@design-system'
 import type { BottomSheetHandle } from '@design-system'
 
 import { MainNav } from '@/components/MainNav'
@@ -25,8 +25,9 @@ import * as S from './styles'
  * `CourseLockedError`, que segue como trava do service e do banco. Os caminhos são remover as
  * atividades, em Atividades, ou apagar a conta e começar de novo. Remover abre um `BottomSheet` que
  * avisa que não há volta e só então leva a Atividades; nada é apagado nesta tela. Sem atividades,
- * mostra o `Empty`.
- * A página envolve este componente em `Suspense`, com `Loading` como fallback.
+ * mostra o `Empty`. O curso aparece num campo só de leitura com o cadeado à direita, como no
+ * protótipo; o `TextField` do design system só aceita ícone à esquerda, então o campo é local. A
+ * página envolve este componente em `Suspense`, com `Loading` como fallback.
  *
  * @example
  * ```tsx
@@ -64,7 +65,13 @@ export function TrocarCurso(): ReactNode {
       bottomNav={<MainNav />}
     >
       <S.Page>
-        <TextField label="Seu curso" icon={Lock} value={course.name} readOnly />
+        <S.LockedField>
+          <S.LockedLabel>Seu curso</S.LockedLabel>
+          <S.LockedBox>
+            <span>{course.name}</span>
+            <Icon icon={Lock} size="md" />
+          </S.LockedBox>
+        </S.LockedField>
 
         <Notice format="block" tone="warning" title="Com atividades lançadas, o curso fica travado">
           Você tem {registered}, e cada curso tem itens e regras diferentes. Para não misturar as
