@@ -35,13 +35,16 @@ export const SummaryFooter = styled('div', {
   base: {
     display: 'flex',
     gap: '2',
-    // "Ver meu pedido" fica à direita mesmo quando "Escolher quais" não aparece.
-    '& > :last-child': { marginInlineStart: 'auto' },
     marginBlockStart: '4',
     borderBlockStartWidth: '1px',
     borderBlockStartStyle: 'solid',
     borderBlockStartColor: 'line',
   },
+})
+
+// "Ver meu pedido" fica à direita mesmo quando "Escolher quais" não aparece.
+export const FooterEnd = styled('div', {
+  base: { display: 'flex', marginInlineStart: 'auto' },
 })
 
 export const LinkContent = styled('span', {
@@ -52,8 +55,16 @@ export const Section = styled('section', {
   base: { display: 'flex', flexDirection: 'column', gap: '3' },
 })
 
+export const SectionHeader = styled('div', {
+  base: { display: 'flex', flexDirection: 'column', gap: '1' },
+})
+
 export const SectionTitle = styled('h2', {
   base: { textStyle: 'title', color: 'ink' },
+})
+
+export const SectionHint = styled('p', {
+  base: { textStyle: 'support', color: 'ink.muted' },
 })
 
 export const GroupList = styled('div', {

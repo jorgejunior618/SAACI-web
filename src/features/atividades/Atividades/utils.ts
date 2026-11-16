@@ -238,3 +238,39 @@ export function getCountingIds(activities: Activity[]): string[] {
 export function formatSelectedLabel(count: number): string {
   return `Baixar ${count} ${count === 1 ? 'selecionado' : 'selecionados'}`
 }
+
+/**
+ * Indica se todas as atividades que contam de um item estão marcadas.
+ *
+ * @param selectedIds Atividades marcadas.
+ * @param itemIds Ids das atividades que contam no item.
+ * @returns `true` quando há atividade e todas estão marcadas.
+ */
+export function isItemFullySelected(selectedIds: ReadonlySet<string>, itemIds: string[]): boolean {
+  return itemIds.length > 0 && itemIds.every((id) => selectedIds.has(id))
+}
+
+/**
+ * Marca ou desmarca de uma vez as atividades que contam de um item.
+ *
+ * @remarks
+ * Com todas marcadas, desmarca todas. Com qualquer uma desmarcada, marca todas. As marcas de outros
+ * itens não mudam.
+ *
+ * @param selectedIds Atividades marcadas agora.
+ * @param itemIds Ids das atividades que contam no item.
+ * @returns Uma seleção nova. A recebida não é alterada.
+ */
+export function toggleItemSelection(
+  selectedIds: ReadonlySet<string>,
+  itemIds: string[],
+): Set<string> {
+  const next = new Set(selectedIds)
+  const shouldSelect = !isItemFullySelected(selectedIds, itemIds)
+
+  for (const id of itemIds) {
+    if (shouldSelect) next.add(id)
+    else next.delete(id)
+  }
+  return next
+}

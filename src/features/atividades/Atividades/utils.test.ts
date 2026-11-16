@@ -14,7 +14,9 @@ import {
   getCountingIds,
   getProofEntries,
   groupActivitiesByItem,
+  isItemFullySelected,
   parseItemParam,
+  toggleItemSelection,
 } from './utils'
 
 let seq = 0
@@ -223,5 +225,29 @@ describe('formatSelectedLabel', () => {
   it('usa singular e plural', () => {
     expect(formatSelectedLabel(1)).toBe('Baixar 1 selecionado')
     expect(formatSelectedLabel(3)).toBe('Baixar 3 selecionados')
+  })
+})
+
+describe('toggleItemSelection', () => {
+  it('com alguma desmarcada, marca todas do item', () => {
+    const next = toggleItemSelection(new Set(['a', 'x']), ['a', 'b'])
+
+    expect([...next].sort()).toEqual(['a', 'b', 'x'])
+  })
+
+  it('com todas marcadas, desmarca as do item e mantém as de outros itens', () => {
+    const current = new Set(['a', 'b', 'x'])
+    const next = toggleItemSelection(current, ['a', 'b'])
+
+    expect([...next]).toEqual(['x'])
+    expect([...current]).toEqual(['a', 'b', 'x'])
+  })
+})
+
+describe('isItemFullySelected', () => {
+  it('só é verdade com todas as do item marcadas', () => {
+    expect(isItemFullySelected(new Set(['a', 'b']), ['a', 'b'])).toBe(true)
+    expect(isItemFullySelected(new Set(['a']), ['a', 'b'])).toBe(false)
+    expect(isItemFullySelected(new Set(['a']), [])).toBe(false)
   })
 })
