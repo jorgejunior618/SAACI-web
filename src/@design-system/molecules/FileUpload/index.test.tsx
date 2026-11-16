@@ -47,7 +47,7 @@ describe('FileUpload', () => {
     setup()
 
     expect(screen.getByText('PDF, JPG ou PNG, até 10 MB.')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Tirar foto' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Tirar foto do comprovante' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Escolher arquivo' })).toBeInTheDocument()
     expect(screen.getByText(/Um serviço de IA lê o seu comprovante/)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Saiba o que guardamos' })).toHaveAttribute(
@@ -122,7 +122,9 @@ describe('FileUpload', () => {
       'certificado-semana-engenharia-2025.pdf',
     )
     expect(screen.getByText('1,2 MB')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Tirar foto' })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Tirar foto do comprovante' }),
+    ).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Trocar' }))
 

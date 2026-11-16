@@ -27,8 +27,9 @@ export const Dropzone = styled('div', {
   },
 })
 
+// Empilhados: a foto é o caminho principal no celular, o arquivo vem logo abaixo.
 export const Actions = styled('div', {
-  base: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2' },
+  base: { display: 'flex', flexDirection: 'column', gap: '3' },
 })
 
 export const Support = styled('p', {

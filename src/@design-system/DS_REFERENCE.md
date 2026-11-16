@@ -103,11 +103,12 @@ nasce ou muda.
 
 ### FileUpload
 
-- Uso: anexa o comprovante por foto ou arquivo. Rótulo, `hint` com formatos, limite e dica de frente e verso, e uma área tracejada com `Tirar foto` e `Escolher arquivo` (`secondary`, lado a lado). A linha sobre a leitura por IA, com o link de privacidade, é obrigatória e o texto é da tela (`notice` e `privacyLinkLabel` são props obrigatórias, então o tipo impede de esquecê-la). Depois de anexar, um `Card` mostra o ícone, o nome truncado (o nome inteiro fica no `title`), o tamanho e `Trocar`; a dica e a linha da IA saem.
+- Uso: anexa o comprovante por foto ou arquivo. Rótulo, `hint` com formatos, limite e dica de frente e verso, e uma área tracejada com `Tirar foto do comprovante` (`primary`, ícone de câmera) e, embaixo, `Escolher arquivo` (`secondary`, ícone de arquivo), empilhados e em linha inteira. A linha sobre a leitura por IA, com o link de privacidade, é obrigatória e o texto é da tela (`notice` e `privacyLinkLabel` são props obrigatórias, então o tipo impede de esquecê-la). Depois de anexar, um `Card` mostra o ícone, o nome truncado (o nome inteiro fica no `title`), o tamanho e `Trocar`; a dica e a linha da IA saem.
 - Props: `label`, `hint`, `accept: string[]` (tipos MIME), `maxSizeMb`, `file?`, `error?`, `onSelect(file)`, `onReplace()`, `notice`, `privacyLinkLabel`, `privacyHref`, `privacyLinkAs?`.
 - Conferência: tipo, tamanho e arquivo vazio são recusados no próprio componente, com uma frase de motivo e próximo passo em `danger` (`role="alert"`) e sem chamar `onSelect`. É ajuda na hora, não segurança. O `error` da tela vence o do componente; no envio que caiu, `file` continua e a frase diz que o arquivo segue anexado.
 - Fora do componente: enviar e ler o arquivo (`services/`). O componente só devolve o `File`.
-- Câmera: `Tirar foto` usa `capture="environment"`. No desktop o navegador ignora e abre o seletor comum; os dois botões aparecem sempre. Não há arrastar e soltar.
+- Câmera: `Tirar foto do comprovante` usa `capture="environment"`. No desktop o navegador ignora e abre o seletor comum; os dois botões aparecem sempre. Não há arrastar e soltar.
+- Medida: o protótipo de Registrar pede o botão de foto com 64px, ícone grande e texto de 17px, fora da escala do `Button`; o componente usa o `Button` padrão de 48px. A área pede 20px em cima e embaixo, que não existe na escala de 4px; usa 16px.
 - Galeria: `/design-system/file-upload`.
 
 ### Notice
