@@ -1,20 +1,33 @@
 'use client'
 
 import { valibotResolver } from '@hookform/resolvers/valibot'
-import { useMutation, useSuspenseQueries, useSuspenseQuery } from '@tanstack/react-query'
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQueries,
+  useSuspenseQuery,
+} from '@tanstack/react-query'
 import NextLink from 'next/link'
-import { useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
+import type { FieldErrors } from 'react-hook-form'
 
-import { AppFrame, Link, RulePanel, TopBar } from '@design-system'
+import { AppFrame, Button, Link, Notice, RulePanel, StateScreen, TopBar } from '@design-system'
 
-import { activitiesQueries, readProof } from '@/services/activities'
+import {
+  activitiesQueries,
+  createActivity,
+  invalidateAfterActivityWrite,
+  readProof,
+} from '@/services/activities'
 import { profileQueries } from '@/services/profile'
 import { progressQueries } from '@/services/progress'
 import { rulesQueries } from '@/services/rules'
 
 import { ActivityFields } from './_components/ActivityFields'
+import { ErrorSummary } from './_components/ErrorSummary'
+import type { ErrorSummaryItem } from './_components/ErrorSummary'
 import { ItemStep } from './_components/ItemStep'
 import { ProofStep } from './_components/ProofStep'
 import { SubmitBar } from './_components/SubmitBar'
@@ -24,6 +37,17 @@ import type { ActivityFormInput, ActivityFormOutput } from './schema'
 import { buildPreview, EMPTY_FORM, parseBrDate, parseQuantity, suggestionToForm } from './utils'
 import * as S from './styles'
 
+// Ordem dos campos na tela, que é a ordem do resumo de erros.
+const FIELD_ORDER = ['name', 'quantity', 'startDate', 'endDate'] as const
+
+function toSummary(errors: FieldErrors<ActivityFormInput>): ErrorSummaryItem[] {
+  return FIELD_ORDER.flatMap((field) => {
+    const message = errors[field]?.message
+
+    return message ? [{ fieldId: field, message }] : []
+  })
+}
+
 /**
  * Tela Registrar atividade: o aluno anexa o comprovante, confere o item que a leitura sugeriu, vê
  * quanto a atividade vai contar e registra.
@@ -32,8 +56,10 @@ import * as S from './styles'
  * A leitura (`readProof`) só sugere e preenche o formulário: nada é gravado antes de tocar em
  * Registrar. Leitura que falha não é erro, a tela abre a lista de itens para o aluno preencher à mão.
  * Trocar o arquivo apaga a leitura, o item e os campos. A prévia do `RulePanel` usa o cálculo único
- * sobre todas as atividades (RNF20) e não grava nada. Sem itens no curso, mostra o `Empty`. Não usa
- * a barra inferior. A página envolve este componente em `Suspense`, com `Loading` como fallback.
+ * sobre todas as atividades (RNF20) e não grava nada. O envio que falha mantém os campos e o
+ * comprovante (RNF24); o que dá certo chama `invalidateAfterActivityWrite`. Sem itens no curso,
+ * mostra o `Empty`. Não usa a barra inferior. A página envolve este componente em `Suspense`, com
+ * `Loading` como fallback.
  *
  * @example
  * ```tsx
@@ -44,9 +70,12 @@ import * as S from './styles'
  */
 export function Registrar(): ReactNode {
   const formId = useId()
+  const queryClient = useQueryClient()
+  const summaryRef = useRef<HTMLDivElement>(null)
   const [file, setFile] = useState<File | null>(null)
   const [itemNumber, setItemNumber] = useState<number | null>(null)
   const [isChangingItem, setIsChangingItem] = useState(false)
+  const [summaryFocusRequest, setSummaryFocusRequest] = useState(0)
   const form = useForm<ActivityFormInput, unknown, ActivityFormOutput>({
     resolver: valibotResolver(ActivityFormSchema),
     defaultValues: EMPTY_FORM,
@@ -61,9 +90,18 @@ export function Registrar(): ReactNode {
     onSuccess: (suggestion) => form.reset(suggestionToForm(suggestion)),
     onError: () => form.reset(EMPTY_FORM),
   })
+  const registering = useMutation({
+    mutationFn: createActivity,
+    onSuccess: () => invalidateAfterActivityWrite(queryClient),
+  })
   const [{ data: profile }, { data: activities }, { data: progress }] = useSuspenseQueries({
     queries: [profileQueries.detail(), activitiesQueries.list(), progressQueries.summary()],
   })
+
+  // O foco vai ao resumo depois que ele aparece na tela, não no mesmo instante do envio.
+  useEffect(() => {
+    if (summaryFocusRequest > 0) summaryRef.current?.focus()
+  }, [summaryFocusRequest])
 
   // O SessionGate leva quem não tem curso para Seu curso, então aqui o curso sempre existe. Sem esta
   // checagem, `null` viraria uma busca com id vazio e uma lista de itens vazia, sem aviso.
@@ -74,24 +112,54 @@ export function Registrar(): ReactNode {
 
   if (ruleItems.length === 0) return <Empty />
 
-  function handleSelect(selected: File): void {
-    setFile(selected)
-    setItemNumber(null)
-    setIsChangingItem(false)
-    reading.mutate(selected)
-  }
-
-  function handleReplace(): void {
+  function startOver(): void {
     setFile(null)
     setItemNumber(null)
     setIsChangingItem(false)
     reading.reset()
+    registering.reset()
     form.reset(EMPTY_FORM)
+  }
+
+  function handleSelect(selected: File): void {
+    setFile(selected)
+    setItemNumber(null)
+    setIsChangingItem(false)
+    registering.reset()
+    reading.mutate(selected)
   }
 
   function handleItemChange(next: number | null): void {
     setItemNumber(next)
     setIsChangingItem(false)
+  }
+
+  function handleValid(values: ActivityFormOutput): void {
+    // O botão fica desabilitado sem comprovante ou item, então isto não acontece pela tela.
+    if (file === null || itemNumber === null) return
+    registering.mutate({ ...values, itemNumber, proof: file })
+  }
+
+  if (registering.isSuccess) {
+    return (
+      <AppFrame>
+        <StateScreen
+          variant="success"
+          title="Atividade registrada"
+          description={`${registering.data.name} entrou no item ${registering.data.itemNumber}.`}
+          actions={
+            <>
+              <Button block onClick={startOver}>
+                Registrar outra
+              </Button>
+              <Button variant="secondary" as={NextLink} href="/inicio" block>
+                Ver meu progresso
+              </Button>
+            </>
+          }
+        />
+      </AppFrame>
+    )
   }
 
   const hasReadFinished = file !== null && (reading.isSuccess || reading.isError)
@@ -107,6 +175,7 @@ export function Registrar(): ReactNode {
           startDate: parseBrDate(startDateText),
         })
       : null
+  const summary = form.formState.isSubmitted ? toSummary(form.formState.errors) : []
 
   return (
     <AppFrame
@@ -119,17 +188,30 @@ export function Registrar(): ReactNode {
           willCount={preview?.willCount ?? null}
           isWarning={preview?.hours?.status === 'nao_conta'}
           isDisabled={preview === null}
+          isBusy={registering.isPending}
         />
       }
     >
       <FormProvider {...form}>
-        {/* Por enquanto o envio só valida os campos; gravar entra com o createActivity. */}
-        <S.Page id={formId} noValidate onSubmit={form.handleSubmit(() => undefined)}>
+        <S.Page
+          id={formId}
+          noValidate
+          onSubmit={form.handleSubmit(handleValid, () => setSummaryFocusRequest((n) => n + 1))}
+        >
+          {summary.length > 0 ? <ErrorSummary items={summary} ref={summaryRef} /> : null}
+
+          {registering.isError ? (
+            <Notice format="block" tone="danger" title="A atividade não foi registrada">
+              O que você preencheu e o comprovante continuam aqui. Confira a internet e toque em
+              Registrar de novo.
+            </Notice>
+          ) : null}
+
           <ProofStep
             file={file}
             isReading={reading.isPending}
             onSelect={handleSelect}
-            onReplace={handleReplace}
+            onReplace={startOver}
           />
 
           {hasReadFinished && (preview === null || isChangingItem) ? (

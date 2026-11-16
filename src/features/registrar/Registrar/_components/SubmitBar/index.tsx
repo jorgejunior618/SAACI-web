@@ -15,6 +15,8 @@ type SubmitBarProps = {
   isWarning: boolean
   /** Falta o comprovante ou o item: registrar é impossível, e o botão fica desabilitado. */
   isDisabled: boolean
+  /** O registro está sendo gravado. O botão mostra "Registrando" e não envia de novo. */
+  isBusy: boolean
 }
 
 /**
@@ -24,7 +26,13 @@ type SubmitBarProps = {
  * Vai no `bottomNav` do `AppFrame`, colado na base ao rolar. O botão envia o formulário por `form`,
  * porque fica fora dele.
  */
-export function SubmitBar({ formId, willCount, isWarning, isDisabled }: SubmitBarProps): ReactNode {
+export function SubmitBar({
+  formId,
+  willCount,
+  isWarning,
+  isDisabled,
+  isBusy,
+}: SubmitBarProps): ReactNode {
   return (
     <S.Root>
       {willCount === null ? null : (
@@ -35,7 +43,14 @@ export function SubmitBar({ formId, willCount, isWarning, isDisabled }: SubmitBa
           </S.SummaryValue>
         </S.Summary>
       )}
-      <Button type="submit" form={formId} block disabled={isDisabled}>
+      <Button
+        type="submit"
+        form={formId}
+        block
+        disabled={isDisabled}
+        busy={isBusy}
+        busyLabel="Registrando"
+      >
         Registrar
       </Button>
     </S.Root>
