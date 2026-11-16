@@ -101,6 +101,27 @@ describe('ActivityRow', () => {
     expect(onChange).toHaveBeenCalledWith(false)
   })
 
+  it('desabilitada, aparece no modo de seleção mas não marca nem navega', () => {
+    const onChange = vi.fn()
+
+    inList(
+      <ActivityRow
+        status="doesNotCount"
+        title="Palestra de boas-vindas"
+        reason="antes do seu ingresso"
+        selection={{ checked: false, onChange, isDisabled: true }}
+      />,
+    )
+
+    expect(
+      screen.getByRole('checkbox', { name: 'Selecionar Palestra de boas-vindas' }),
+    ).toBeDisabled()
+    expect(screen.queryByRole('link')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByText('Palestra de boas-vindas'))
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
   it('o tipo recusa href junto com selection', () => {
     inList(
       // @ts-expect-error: a linha do modo de seleção não navega.

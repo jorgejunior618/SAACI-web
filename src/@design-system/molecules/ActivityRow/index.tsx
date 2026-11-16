@@ -12,6 +12,11 @@ export type ActivityRowSelection = {
   checked: boolean
   /** Chamado ao marcar ou desmarcar. */
   onChange: (checked: boolean) => void
+  /**
+   * A atividade aparece no modo de seleção, mas não pode ser marcada (o comprovante que não conta).
+   * Checkbox cinza cheio, todo o texto em `ink.muted` e toque sem efeito. Padrão: `false`.
+   */
+  isDisabled?: boolean
 }
 
 /** Linha que navega: o toque em qualquer ponto leva a `href`, e a seta à direita indica isso. */
@@ -119,7 +124,8 @@ function Metadata(props: ActivityRowProps): ReactNode {
  * `danger` com o motivo em cinza. O `status` chega pronto; o componente não decide o que conta.
  * Fora do modo de seleção, o link cobre título, metadados e seta. Com `selection`, a linha inteira é
  * o rótulo do checkbox: tocar em qualquer ponto marca ou desmarca, e não há link nem seta. O tipo
- * recusa `href` junto com `selection`. O checkbox leva o título no `aria-label`.
+ * recusa `href` junto com `selection`. O checkbox leva o título no `aria-label`. Com
+ * `selection.isDisabled`, a linha aparece desabilitada: não marca e não navega.
  * Ordenar por data de término é da tela, e remover fica no detalhe, nunca por gesto de arrastar.
  *
  * @example
@@ -154,6 +160,7 @@ export function ActivityRow(props: ActivityRowProps): ReactNode {
               type="checkbox"
               aria-label={`Selecionar ${title}`}
               checked={selection.checked}
+              disabled={selection.isDisabled}
               onChange={(event) => {
                 selection.onChange(event.target.checked)
               }}

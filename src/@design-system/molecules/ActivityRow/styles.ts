@@ -35,6 +35,8 @@ export const Input = styled('input', {
     background: 'surface',
     cursor: 'pointer',
     _focusVisible: { outline: '2px solid token(colors.focus)', outlineOffset: '2px' },
+    // Mesmo desenho do `Button` desabilitado: fundo `line` cheio, que lê como "não dá" nos dois temas.
+    _disabled: { borderColor: 'line', background: 'line', cursor: 'not-allowed' },
     '&:checked': { borderColor: 'brand', background: 'brand' },
     '&:checked::after': {
       content: '""',
@@ -63,6 +65,13 @@ export const SelectMain = styled('label', {
     paddingInlineStart: '4',
     paddingInlineEnd: '3',
     cursor: 'pointer',
+    // Desabilitada: todo o texto vai para `ink.muted`, inclusive o "Não conta" em `danger`, que numa
+    // linha sem ação chamaria atenção como se pedisse algo. O texto continua dizendo o porquê.
+    '&:has(input:disabled)': {
+      cursor: 'not-allowed',
+      color: 'ink.muted',
+      '& span': { color: 'ink.muted' },
+    },
   },
 })
 

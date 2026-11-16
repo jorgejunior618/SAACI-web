@@ -20,7 +20,7 @@ export function ActivityRowSection(): ReactNode {
   return (
     <Section
       title="ActivityRow"
-      description="Linha de atividade: título em uma linha, metadados em cinza e o estado dito pela cor da duração. Sem badge. Fora da seleção, a linha inteira é o link, com a seta. Com selection, a linha inteira marca e desmarca, sem link e sem seta."
+      description="Linha de atividade: título em uma linha, metadados em cinza e o estado dito pela cor da duração. Sem badge. Fora da seleção, a linha inteira é o link, com a seta. Com selection, a linha inteira marca e desmarca, sem link e sem seta; com isDisabled, aparece mas não marca."
     >
       <S.Specimens>
         <Specimen label="counts · partial · doesNotCount" isPlain>
@@ -84,6 +84,7 @@ export function ActivityRowSection(): ReactNode {
                 onChange: (value) => {
                   toggle(2, value)
                 },
+                isDisabled: true,
               }}
             />
           </S.List>
