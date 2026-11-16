@@ -40,6 +40,7 @@ function fakeActivity(index: number): Activity {
     endDate: '2025-01-20',
     registeredAt: '2025-01-21T10:00:00.000Z',
     updatedAt: '2025-01-21T10:00:00.000Z',
+    activityHours: 10,
     countedHours: 10,
     status: 'conta',
     reason: null,
