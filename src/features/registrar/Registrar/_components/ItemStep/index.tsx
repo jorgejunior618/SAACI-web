@@ -20,6 +20,8 @@ type ItemStepProps = {
   value: number | null
   /** Recebe o item escolhido, ou `null` quando o aluno volta para a sugestão. */
   onChange: (itemNumber: number | null) => void
+  /** Abre direto na lista, sem o cartão da sugestão. Vale para "Trocar item". Padrão: `false`. */
+  startWithList?: boolean
 }
 
 /**
@@ -36,8 +38,9 @@ export function ItemStep({
   hasReadFailed,
   value,
   onChange,
+  startWithList = false,
 }: ItemStepProps): ReactNode {
-  const [isChoosingOther, setIsChoosingOther] = useState(false)
+  const [isChoosingOther, setIsChoosingOther] = useState(startWithList)
   const [query, setQuery] = useState('')
 
   const suggested = items.find((item) => item.itemNumber === suggestedItemNumber)
