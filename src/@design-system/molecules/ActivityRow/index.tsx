@@ -12,18 +12,37 @@ export type ActivityRowSelection = {
   checked: boolean
   /** Chamado ao marcar ou desmarcar. */
   onChange: (checked: boolean) => void
+  /**
+   * A atividade aparece no modo de seleção, mas não pode ser marcada (o comprovante que não conta).
+   * Checkbox cinza cheio, todo o texto em `ink.muted` e toque sem efeito. Padrão: `false`.
+   */
+  isDisabled?: boolean
+}
+
+/** Linha que navega: o toque em qualquer ponto leva a `href`, e a seta à direita indica isso. */
+type ActivityRowNavigationProps = {
+  /** Destino do toque, em geral o detalhe da atividade. */
+  href: string
+  /** Elemento que desenha o link, como em `Link.as` (o `Link` do `next/link`). Padrão: `a`. */
+  linkAs?: ElementType
+  selection?: never
+}
+
+/**
+ * Linha do modo de seleção: o toque em qualquer ponto marca ou desmarca. Não navega e não tem seta,
+ * para o aluno não sair da tela no meio da seleção.
+ */
+type ActivityRowSelectionProps = {
+  /** Liga o checkbox de 18px e faz a linha inteira marcar e desmarcar. */
+  selection: ActivityRowSelection
+  href?: never
+  linkAs?: never
 }
 
 type ActivityRowBaseProps = {
   /** Nome da atividade. Em uma linha só, com reticências. Também nomeia o checkbox. */
   title: string
-  /** Destino do toque, em geral o detalhe da atividade. */
-  href: string
-  /** Elemento que desenha o link, como em `Link.as` (o `Link` do `next/link`). Padrão: `a`. */
-  linkAs?: ElementType
-  /** Liga o checkbox de 18px, fora do link. Sem ela, a linha não tem checkbox. */
-  selection?: ActivityRowSelection
-}
+} & (ActivityRowNavigationProps | ActivityRowSelectionProps)
 
 type ActivityRowCountsProps = ActivityRowBaseProps & {
   /** Conta por inteiro: duração em cinza. */
@@ -103,7 +122,10 @@ function Metadata(props: ActivityRowProps): ReactNode {
  * É um `li`: use dentro de um `ul` (a lista com borda é da tela). Não há badge. `counts` escreve
  * tudo em cinza, `partial` pinta "1,0h de 2,0h" de `warning` e `doesNotCount` pinta "Não conta" de
  * `danger` com o motivo em cinza. O `status` chega pronto; o componente não decide o que conta.
- * O link cobre título, metadados e seta; o checkbox fica fora dele e leva o título no `aria-label`.
+ * Fora do modo de seleção, o link cobre título, metadados e seta. Com `selection`, a linha inteira é
+ * o rótulo do checkbox: tocar em qualquer ponto marca ou desmarca, e não há link nem seta. O tipo
+ * recusa `href` junto com `selection`. O checkbox leva o título no `aria-label`. Com
+ * `selection.isDisabled`, a linha aparece desabilitada: não marca e não navega.
  * Ordenar por data de término é da tela, e remover fica no detalhe, nunca por gesto de arrastar.
  *
  * @example
@@ -112,32 +134,48 @@ function Metadata(props: ActivityRowProps): ReactNode {
  *   <ActivityRow status="counts" title="Palestra sobre computação quântica" countedHours={2} endDate="12/03/2025" href="/atividades/1" />
  *   <ActivityRow status="doesNotCount" title="Palestra de boas-vindas" reason="antes do seu ingresso" href="/atividades/2" />
  * </ul>
+ *
+ * <ul>
+ *   <ActivityRow status="counts" title="Curso de Git" countedHours={8} endDate="03/05/2025" selection={{ checked, onChange: setChecked }} />
+ * </ul>
  * ```
  */
 export function ActivityRow(props: ActivityRowProps): ReactNode {
-  const { title, href, linkAs, selection } = props
+  const { title, selection } = props
+  const texts = (
+    <S.Texts>
+      <S.Title>{title}</S.Title>
+      <S.Meta>
+        <Metadata {...props} />
+      </S.Meta>
+    </S.Texts>
+  )
+
+  if (selection) {
+    return (
+      <S.Root selectable>
+        <S.SelectMain>
+          <S.Check>
+            <S.Input
+              type="checkbox"
+              aria-label={`Selecionar ${title}`}
+              checked={selection.checked}
+              disabled={selection.isDisabled}
+              onChange={(event) => {
+                selection.onChange(event.target.checked)
+              }}
+            />
+          </S.Check>
+          {texts}
+        </S.SelectMain>
+      </S.Root>
+    )
+  }
 
   return (
-    <S.Root selectable={selection !== undefined}>
-      {selection ? (
-        <S.Check>
-          <S.Input
-            type="checkbox"
-            aria-label={`Selecionar ${title}`}
-            checked={selection.checked}
-            onChange={(event) => {
-              selection.onChange(event.target.checked)
-            }}
-          />
-        </S.Check>
-      ) : null}
-      <S.Main as={linkAs} href={href}>
-        <S.Texts>
-          <S.Title>{title}</S.Title>
-          <S.Meta>
-            <Metadata {...props} />
-          </S.Meta>
-        </S.Texts>
+    <S.Root>
+      <S.Main as={props.linkAs} href={props.href}>
+        {texts}
         <S.Arrow>
           <Icon icon={ChevronRight} size="sm" />
         </S.Arrow>
@@ -145,3 +183,5 @@ export function ActivityRow(props: ActivityRowProps): ReactNode {
     </S.Root>
   )
 }
+
+export { ACTIVITY_ROW_SELECTION_INDENT } from './recipe'

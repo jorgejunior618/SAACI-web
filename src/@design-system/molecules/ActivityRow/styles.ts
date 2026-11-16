@@ -4,9 +4,9 @@ import { activityRow } from './recipe'
 
 export const Root = styled('li', activityRow)
 
-// A área de toque do checkbox tem 48px, mas o desenho ocupa só os 18px do controle: as margens
-// negativas devolvem o espaço extra à linha para o título não se mover.
-export const Check = styled('label', {
+// O desenho do checkbox ocupa 18px numa caixa de 48px; as margens negativas devolvem o espaço extra
+// à linha para o título não se mover. A área de toque agora é a linha inteira (`SelectMain`).
+export const Check = styled('span', {
   base: {
     display: 'flex',
     alignItems: 'center',
@@ -35,6 +35,8 @@ export const Input = styled('input', {
     background: 'surface',
     cursor: 'pointer',
     _focusVisible: { outline: '2px solid token(colors.focus)', outlineOffset: '2px' },
+    // Mesmo desenho do `Button` desabilitado: fundo `line` cheio, que lê como "não dá" nos dois temas.
+    _disabled: { borderColor: 'line', background: 'line', cursor: 'not-allowed' },
     '&:checked': { borderColor: 'brand', background: 'brand' },
     '&:checked::after': {
       content: '""',
@@ -50,7 +52,30 @@ export const Input = styled('input', {
   },
 })
 
-// O link cobre título, metadados e seta. O checkbox fica fora dele.
+// No modo de seleção a linha inteira é o rótulo do checkbox: tocar em qualquer ponto marca. O vão de
+// 12px mantém o título no recuo de 46px da divisória.
+export const SelectMain = styled('label', {
+  base: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '3',
+    flex: '1',
+    minWidth: '0',
+    paddingBlock: '3',
+    paddingInlineStart: '4',
+    paddingInlineEnd: '3',
+    cursor: 'pointer',
+    // Desabilitada: todo o texto vai para `ink.muted`, inclusive o "Não conta" em `danger`, que numa
+    // linha sem ação chamaria atenção como se pedisse algo. O texto continua dizendo o porquê.
+    '&:has(input:disabled)': {
+      cursor: 'not-allowed',
+      color: 'ink.muted',
+      '& span': { color: 'ink.muted' },
+    },
+  },
+})
+
+// Fora do modo de seleção, o link cobre título, metadados e seta.
 export const Main = styled('a', {
   base: {
     display: 'flex',

@@ -40,7 +40,7 @@ function endNotBeforeStart(dates: { startDate?: string; endDate?: string }): boo
  * Atividade registrada pelo aluno, com o quanto ela conta no total.
  *
  * @remarks
- * `countedHours`, `status` e `reason` são resultado do cálculo único: a tela
+ * `activityHours`, `countedHours`, `status` e `reason` são resultado do cálculo único: a tela
  * mostra, nunca recalcula. O nome do item vem de `rules` (`getRuleItems`), não é copiado para cá.
  * `startDate` decide se a atividade conta, `endDate` ordena a lista, `registeredAt` decide
  * quem ocupa o máximo do item e `updatedAt` serve para detectar edição concorrente.
@@ -58,6 +58,11 @@ export const ActivitySchema = v.pipe(
     endDate: IsoDateSchema,
     registeredAt: v.pipe(v.string(), v.isoTimestamp()),
     updatedAt: v.pipe(v.string(), v.isoTimestamp()),
+    /**
+     * Horas da atividade pela razão do item, antes do ingresso e do máximo. Na atividade `parcial`
+     * é o "de 2,0h" de "1,0h de 2,0h".
+     */
+    activityHours: v.pipe(v.number(), v.minValue(0)),
     countedHours: v.pipe(v.number(), v.minValue(0)),
     status: ActivityStatusSchema,
     reason: v.nullable(v.picklist(['antes_do_ingresso', 'item_cheio'])),

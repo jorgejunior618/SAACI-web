@@ -5,7 +5,7 @@ import { simulateLatency } from '@/utils/simulate-latency'
 
 import { getProfile } from '../profile/profile.api'
 import { getRuleItems } from '../rules/rules.api'
-import { listActivities, proofUrl, suggestFromFile } from './activities.mock'
+import { listActivities, proofFile, proofUrl, suggestFromFile } from './activities.mock'
 import type { StoredActivity } from './activities.mock'
 import { ActivitySchema, ProofSuggestionSchema } from './activities.types'
 import type { Activity, ProofSuggestion } from './activities.types'
@@ -85,4 +85,25 @@ export async function getProofUrl(id: string): Promise<string> {
   await simulateLatency()
 
   return proofUrl(id)
+}
+
+/**
+ * Baixa o arquivo do comprovante de uma atividade, para juntar num arquivo compactado.
+ *
+ * @remarks
+ * Alvo: `storage.download` do bucket `comprovantes`, que só entrega o arquivo da pasta do próprio
+ * aluno (ADR 0004). Falha do Storage vira `ProofDownloadError`. Para abrir um comprovante só, use
+ * `getProofUrl`.
+ *
+ * @param id Identificador da atividade.
+ * @param signal Cancela o download. Cancelado, a promessa rejeita com o motivo do `abort`.
+ * @returns O arquivo, no tipo em que foi enviado (PDF, JPG ou PNG).
+ * @throws {ActivityNotFoundError} A atividade não existe.
+ * @throws {ProofDownloadError} O arquivo não chegou. Nada foi salvo; dá para tentar de novo.
+ */
+export async function getProofFile(id: string, signal?: AbortSignal): Promise<Blob> {
+  await simulateLatency(400)
+  signal?.throwIfAborted()
+
+  return v.parse(v.instance(Blob), proofFile(id))
 }

@@ -20,7 +20,7 @@ export function ActivityRowSection(): ReactNode {
   return (
     <Section
       title="ActivityRow"
-      description="Linha de atividade: título em uma linha, metadados em cinza e o estado dito pela cor da duração. Sem badge. O checkbox é opcional e fica fora do link."
+      description="Linha de atividade: título em uma linha, metadados em cinza e o estado dito pela cor da duração. Sem badge. Fora da seleção, a linha inteira é o link, com a seta. Com selection, a linha inteira marca e desmarca, sem link e sem seta; com isDisabled, aparece mas não marca."
     >
       <S.Specimens>
         <Specimen label="counts · partial · doesNotCount" isPlain>
@@ -48,14 +48,13 @@ export function ActivityRowSection(): ReactNode {
             />
           </S.List>
         </Specimen>
-        <Specimen label="selection" isPlain>
+        <Specimen label="selection (a linha inteira marca)" isPlain>
           <S.List>
             <ActivityRow
               status="counts"
               title="Palestra sobre computação quântica"
               countedHours={2}
               endDate="12/03/2025"
-              href="#"
               selection={{
                 checked: checked[0] ?? false,
                 onChange: (value) => {
@@ -69,7 +68,6 @@ export function ActivityRowSection(): ReactNode {
               countedHours={1}
               activityHours={2}
               endDate="20/09/2025"
-              href="#"
               selection={{
                 checked: checked[1] ?? false,
                 onChange: (value) => {
@@ -81,12 +79,12 @@ export function ActivityRowSection(): ReactNode {
               status="doesNotCount"
               title="Palestra de boas-vindas"
               reason="antes do seu ingresso"
-              href="#"
               selection={{
                 checked: checked[2] ?? false,
                 onChange: (value) => {
                   toggle(2, value)
                 },
+                isDisabled: true,
               }}
             />
           </S.List>

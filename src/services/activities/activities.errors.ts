@@ -30,6 +30,17 @@ export class InvalidActivityDatesError extends Error {
   }
 }
 
+/**
+ * O arquivo do comprovante não chegou (rede caiu ou o Storage recusou). A tela diz que nada foi
+ * salvo e deixa tentar de novo.
+ */
+export class ProofDownloadError extends Error {
+  constructor() {
+    super('Não conseguimos baixar o comprovante.')
+    this.name = 'ComprovanteNaoBaixadoError'
+  }
+}
+
 /** O serviço de leitura não conseguiu ler o comprovante. A tela deixa preencher à mão. */
 export class UnreadableProofError extends Error {
   constructor() {

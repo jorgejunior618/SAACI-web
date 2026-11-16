@@ -39,6 +39,19 @@ describe('Disclosure', () => {
     expect(details).not.toHaveAttribute('open')
   })
 
+  it('com eyebrow e aside mostra o rótulo acima do título e o texto no lugar do contador', () => {
+    render(
+      <Disclosure eyebrow="Item 7" title="Curso na área de engenharia" aside="18,0h de 60h">
+        <li>Curso de Git e GitHub</li>
+      </Disclosure>,
+    )
+
+    const summary = screen.getByText('Curso na área de engenharia').closest('summary')
+
+    expect(summary).toHaveTextContent('Item 7')
+    expect(summary).toHaveTextContent('18,0h de 60h')
+  })
+
   it('com defaultOpen começa aberta', () => {
     const { container } = renderDisclosure(true)
 

@@ -3,9 +3,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { resetProfileMock } from '../profile/profile.mock'
 import { updateProfile } from '../profile/profile.mutations'
 import type { RuleItem } from '../rules/rules.types'
-import { getActivities, getActivity, readProof } from './activities.api'
+import { getActivities, getActivity, getProofFile, readProof } from './activities.api'
 import {
   InvalidActivityDatesError,
+  ProofDownloadError,
   StaleActivityError,
   UnreadableProofError,
 } from './activities.errors'
@@ -189,5 +190,59 @@ describe('atividades', () => {
     expect(await readProof(pdf())).toMatchObject({ itemNumber: 7, quantity: 40 })
     expect(await readProof(pdf('sem-item.pdf'))).toMatchObject({ itemNumber: null })
     await expect(readProof(pdf('ilegivel.pdf'))).rejects.toBeInstanceOf(UnreadableProofError)
+  })
+
+  describe('getProofFile', () => {
+    it('devolve um PDF de exemplo para as atividades das seeds', async () => {
+      const [first] = await getActivities()
+
+      if (!first) throw new Error('As seeds vieram vazias.')
+      const file = await getProofFile(first.id)
+
+      expect(file.type).toBe('application/pdf')
+      expect(await file.text()).toMatch(/^%PDF-1\.4/)
+    })
+
+    it('devolve uma cópia do arquivo que o aluno enviou', async () => {
+      const proof = pdf('meu-certificado.pdf')
+      const created = await createActivity({
+        name: 'Curso de React',
+        itemNumber: 7,
+        quantity: 40,
+        startDate: '2026-08-03',
+        endDate: '2026-09-12',
+        proof,
+      })
+
+      const file = await getProofFile(created.id)
+
+      expect(file).not.toBe(proof)
+      expect(file).toBeInstanceOf(File)
+      expect(file).toMatchObject({ name: 'meu-certificado.pdf', type: 'application/pdf' })
+      expect(await file.text()).toBe(await proof.text())
+    })
+
+    it('falha quando o arquivo não chega', async () => {
+      const created = await createActivity({
+        name: 'Curso de React',
+        itemNumber: 7,
+        quantity: 40,
+        startDate: '2026-08-03',
+        endDate: '2026-09-12',
+        proof: pdf('falha-download.pdf'),
+      })
+
+      await expect(getProofFile(created.id)).rejects.toBeInstanceOf(ProofDownloadError)
+    })
+
+    it('para quando o download é cancelado', async () => {
+      const [first] = await getActivities()
+      const controller = new AbortController()
+
+      if (!first) throw new Error('As seeds vieram vazias.')
+      controller.abort()
+
+      await expect(getProofFile(first.id, controller.signal)).rejects.toThrow()
+    })
   })
 })
