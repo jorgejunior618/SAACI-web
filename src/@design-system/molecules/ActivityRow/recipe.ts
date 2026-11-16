@@ -22,9 +22,15 @@ export const activityRow = cva({
     },
   },
   variants: {
-    // Com checkbox, o recuo acompanha o título (16 de respiro + 18 do controle + 12 de vão).
+    // Com checkbox, o recuo acompanha o título (16 de respiro + 18 do controle + 12 de vão). O
+    // espaçamento passa para o rótulo (`SelectMain`), para a borda da linha também marcar.
     selectable: {
-      true: { '&:not(:first-child)::before': { insetInlineStart: '46px' } },
+      true: {
+        paddingBlock: '0',
+        paddingInlineStart: '0',
+        paddingInlineEnd: '0',
+        '&:not(:first-child)::before': { insetInlineStart: '46px' },
+      },
     },
   },
 })

@@ -161,9 +161,9 @@ nasce ou muda.
 
 ### ActivityRow
 
-- Uso: linha de atividade registrada. Checkbox de 18px opcional (fora do link, área de toque de 48px, `aria-label` "Selecionar <título>"), título `bodyStrong` em 1 linha com reticências, metadados `support` `ink.muted` separados por `·` em `ink.subtle`, seta de 16px. O estado é dito pela **cor da duração**, sem badge: `counts` ("2,0h · 12/03/2025", tudo cinza), `partial` ("1,0h de 2,0h" em `warning`) e `doesNotCount` ("Não conta" em `danger` e o motivo em cinza).
-- Props, união por `status`: `counts` pede `countedHours` e `endDate`; `partial` pede `countedHours`, `activityHours` e `endDate`; `doesNotCount` pede `reason`. Comuns: `title`, `href`, `linkAs?`, `selection?: { checked, onChange }`. O `status` chega pronto (o DS não decide o que conta) e `endDate` chega formatada.
-- Estrutura: renderiza `li`; a lista com borda e a ordem por data de término são da tela. Divisória com recuo; com `selection` o recuo acompanha o título (46px). O link cobre título, metadados e seta. Remover fica no detalhe, nunca por gesto de arrastar.
+- Uso: linha de atividade registrada. Dois modos: navegação (a linha inteira é o link, com seta de 16px) ou seleção (checkbox de 18px, `aria-label` "Selecionar <título>", e a linha inteira é o rótulo dele: tocar em qualquer ponto marca ou desmarca, sem link e sem seta, para o aluno não sair da tela no meio da seleção). Título `bodyStrong` em 1 linha com reticências, metadados `support` `ink.muted` separados por `·` em `ink.subtle`. O estado é dito pela **cor da duração**, sem badge: `counts` ("2,0h · 12/03/2025", tudo cinza), `partial` ("1,0h de 2,0h" em `warning`) e `doesNotCount` ("Não conta" em `danger` e o motivo em cinza).
+- Props, união por `status`: `counts` pede `countedHours` e `endDate`; `partial` pede `countedHours`, `activityHours` e `endDate`; `doesNotCount` pede `reason`. Comum: `title`. Modo, outra união: `href` e `linkAs?` (navegação) **ou** `selection: { checked, onChange }` (seleção); os dois juntos o tipo recusa. O `status` chega pronto (o DS não decide o que conta) e `endDate` chega formatada.
+- Estrutura: renderiza `li`; a lista com borda e a ordem por data de término são da tela. Divisória com recuo; com `selection` o recuo acompanha o título (46px). Na navegação, o link cobre título, metadados e seta. Na seleção, o espaçamento da linha passa para o rótulo, e a borda também marca. Remover fica no detalhe, nunca por gesto de arrastar.
 - Skeleton: `ActivityRowSkeleton` (também `li`), `aria-hidden`.
 - Galeria: `/design-system/activity-row`.
 

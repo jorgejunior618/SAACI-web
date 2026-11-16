@@ -62,7 +62,7 @@ describe('ActivityRow', () => {
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
   })
 
-  it('com selection o checkbox leva o nome da atividade, fica fora do link e avisa a mudança', () => {
+  it('com selection a linha inteira marca e desmarca, sem link e sem seta', () => {
     const onChange = vi.fn()
 
     inList(
@@ -71,16 +71,48 @@ describe('ActivityRow', () => {
         title="Palestra X"
         countedHours={2}
         endDate="12/03/2025"
-        href="/x"
         selection={{ checked: false, onChange }}
       />,
     )
 
-    const checkbox = screen.getByRole('checkbox', { name: 'Selecionar Palestra X' })
+    expect(screen.getByRole('checkbox', { name: 'Selecionar Palestra X' })).not.toBeChecked()
+    expect(screen.queryByRole('link')).not.toBeInTheDocument()
 
-    expect(screen.getByRole('link')).not.toContainElement(checkbox)
-
-    fireEvent.click(checkbox)
+    fireEvent.click(screen.getByText('Palestra X'))
     expect(onChange).toHaveBeenCalledWith(true)
+
+    fireEvent.click(screen.getByText('12/03/2025'))
+    expect(onChange).toHaveBeenCalledTimes(2)
+  })
+
+  it('marcado, o toque desmarca', () => {
+    const onChange = vi.fn()
+
+    inList(
+      <ActivityRow
+        status="doesNotCount"
+        title="Palestra Y"
+        reason="antes do seu ingresso"
+        selection={{ checked: true, onChange }}
+      />,
+    )
+
+    fireEvent.click(screen.getByText('Palestra Y'))
+    expect(onChange).toHaveBeenCalledWith(false)
+  })
+
+  it('o tipo recusa href junto com selection', () => {
+    inList(
+      // @ts-expect-error: a linha do modo de seleção não navega.
+      <ActivityRow
+        status="doesNotCount"
+        title="Z"
+        reason="x"
+        href="/x"
+        selection={{ checked: false, onChange: vi.fn() }}
+      />,
+    )
+
+    expect(screen.getByRole('checkbox')).toBeInTheDocument()
   })
 })

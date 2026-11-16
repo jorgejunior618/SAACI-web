@@ -41,14 +41,12 @@ type ActivityItemProps = {
   selection?: ActivityRowSelection
 }
 
-// A linha mostra o que o service decidiu: `status` vira a variante, sem refazer conta.
+// A linha mostra o que o service decidiu: `status` vira a variante, sem refazer conta. No modo de
+// seleção a linha só marca; fora dele, leva ao Detalhe.
 function ActivityItem({ activity, selection }: ActivityItemProps): ReactNode {
-  const common = {
-    title: activity.name,
-    href: `/atividades/${activity.id}`,
-    linkAs: NextLink,
-    selection,
-  }
+  const common = selection
+    ? { title: activity.name, selection }
+    : { title: activity.name, href: `/atividades/${activity.id}`, linkAs: NextLink }
 
   switch (activity.status) {
     case 'conta':
