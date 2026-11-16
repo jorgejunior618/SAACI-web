@@ -13,7 +13,7 @@ import type { ReactNode } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import type { FieldErrors } from 'react-hook-form'
 
-import { AppFrame, Button, Link, Notice, RulePanel, StateScreen, TopBar } from '@design-system'
+import { AppFrame, Link, Notice, RulePanel, TopBar } from '@design-system'
 
 import {
   activitiesQueries,
@@ -30,6 +30,7 @@ import { ErrorSummary } from './_components/ErrorSummary'
 import type { ErrorSummaryItem } from './_components/ErrorSummary'
 import { ItemStep } from './_components/ItemStep'
 import { ProofStep } from './_components/ProofStep'
+import { Registered } from './_components/Registered'
 import { SubmitBar } from './_components/SubmitBar'
 import { Empty } from './Empty'
 import { ActivityFormSchema } from './schema'
@@ -92,7 +93,12 @@ export function Registrar(): ReactNode {
   })
   const registering = useMutation({
     mutationFn: createActivity,
-    onSuccess: () => invalidateAfterActivityWrite(queryClient),
+    // Espera o total novo antes de mostrar o sucesso, para a tela não exibir o total velho. Se a
+    // busca falhar, a atividade já está gravada: o sucesso aparece mesmo assim, nunca vira erro.
+    onSuccess: () => {
+      invalidateAfterActivityWrite(queryClient)
+      return queryClient.fetchQuery(progressQueries.summary()).catch(() => undefined)
+    },
   })
   const [{ data: profile }, { data: activities }, { data: progress }] = useSuspenseQueries({
     queries: [profileQueries.detail(), activitiesQueries.list(), progressQueries.summary()],
@@ -142,23 +148,7 @@ export function Registrar(): ReactNode {
 
   if (registering.isSuccess) {
     return (
-      <AppFrame>
-        <StateScreen
-          variant="success"
-          title="Atividade registrada"
-          description={`${registering.data.name} entrou no item ${registering.data.itemNumber}.`}
-          actions={
-            <>
-              <Button block onClick={startOver}>
-                Registrar outra
-              </Button>
-              <Button variant="secondary" as={NextLink} href="/inicio" block>
-                Ver meu progresso
-              </Button>
-            </>
-          }
-        />
-      </AppFrame>
+      <Registered activity={registering.data} progress={progress} onRegisterAnother={startOver} />
     )
   }
 

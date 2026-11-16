@@ -17,6 +17,32 @@ import { Registrar } from './index'
 
 vi.mock('next/navigation', () => ({ usePathname: () => '/registrar' }))
 vi.mock('@supabase/client', () => ({ createClient: vi.fn() }))
+// O progresso que o service devolve depois da gravação, já com as 10h da atividade nova. O atraso
+// faz o teste pegar a tela que mostrasse o sucesso antes do total novo chegar.
+vi.mock('@/services/progress/progress.api', () => ({
+  getProgress: vi.fn(
+    () =>
+      new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            totalHours: 10,
+            targetHours: 120,
+            missingHours: 110,
+            itemsSum: 10,
+            categories: [
+              {
+                itemNumber: 7,
+                name: 'Curso na área de engenharia de computação',
+                countedHours: 10,
+                maxHours: 60,
+                hoursOverLimit: 0,
+              },
+            ],
+          })
+        }, 100)
+      }),
+  ),
+}))
 vi.mock('@/services/activities', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/services/activities')>()),
   readProof: vi.fn(),
@@ -119,7 +145,7 @@ describe('Registrar', () => {
     expect(screen.getByText('certificado.pdf')).toBeInTheDocument()
   })
 
-  it('grava com o item e o comprovante e derruba atividades e progresso do cache', async () => {
+  it('grava, derruba atividades e progresso do cache e mostra as horas e o total novo', async () => {
     vi.mocked(createActivity).mockResolvedValue(SAVED)
     const queryClient = renderRegistrar()
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
@@ -128,6 +154,10 @@ describe('Registrar', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Registrar' }))
 
     expect(await screen.findByText('Atividade registrada')).toBeInTheDocument()
+    expect(screen.getByText('+10h')).toBeInTheDocument()
+    expect(screen.getByText('Curso de React com TypeScript entrou no item 7.')).toBeInTheDocument()
+    expect(screen.getByText('110h')).toBeInTheDocument()
+    expect(screen.getByText('10h feitas')).toBeInTheDocument()
     expect(vi.mocked(createActivity).mock.calls[0]?.[0]).toMatchObject({
       name: 'Curso de React com TypeScript',
       itemNumber: 7,
