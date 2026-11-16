@@ -189,7 +189,7 @@ function samplePdf(title: string): Blob {
 }
 
 /**
- * Arquivo do comprovante, como o Storage devolveria. O enviado pelo aluno volta igual; o das seeds é
+ * Arquivo do comprovante, como o Storage devolveria. O enviado pelo aluno volta como cópia; o das seeds é
  * um PDF de exemplo. Nome com `falha-download` falha, para a tela exercitar o erro.
  */
 export function proofFile(id: string): Blob {
@@ -197,5 +197,8 @@ export function proofFile(id: string): Blob {
 
   if (!found) throw new ActivityNotFoundError()
   if (found.proof.fileName.includes('falha-download')) throw new ProofDownloadError()
-  return files.get(id) ?? samplePdf(found.name)
+  const stored = files.get(id)
+
+  // Cópia, como uma resposta de rede: quem recebe não segura o arquivo guardado no mock.
+  return stored ? new File([stored], stored.name, { type: stored.type }) : samplePdf(found.name)
 }

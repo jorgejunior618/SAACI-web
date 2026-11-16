@@ -203,7 +203,7 @@ describe('atividades', () => {
       expect(await file.text()).toMatch(/^%PDF-1\.4/)
     })
 
-    it('devolve o mesmo arquivo que o aluno enviou', async () => {
+    it('devolve uma cópia do arquivo que o aluno enviou', async () => {
       const proof = pdf('meu-certificado.pdf')
       const created = await createActivity({
         name: 'Curso de React',
@@ -214,7 +214,12 @@ describe('atividades', () => {
         proof,
       })
 
-      expect(await getProofFile(created.id)).toBe(proof)
+      const file = await getProofFile(created.id)
+
+      expect(file).not.toBe(proof)
+      expect(file).toBeInstanceOf(File)
+      expect(file).toMatchObject({ name: 'meu-certificado.pdf', type: 'application/pdf' })
+      expect(await file.text()).toBe(await proof.text())
     })
 
     it('falha quando o arquivo não chega', async () => {
