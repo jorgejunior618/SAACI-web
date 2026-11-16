@@ -15,13 +15,13 @@ import type { Activity } from '@/services/activities'
 import { profileQueries } from '@/services/profile'
 import { progressQueries } from '@/services/progress'
 import { rulesQueries } from '@/services/rules'
-import { formatDate } from '@/utils/format-date'
 import { formatHours } from '@/utils/format-hours'
 
 import { ItemSelectAll } from './_components/ItemSelectAll'
 import { ProofsDownload } from './_components/ProofsDownload'
 import { Empty } from './Empty'
 import {
+  formatDate,
   formatProofsSummary,
   formatReason,
   getCountingIds,

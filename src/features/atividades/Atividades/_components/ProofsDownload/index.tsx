@@ -158,7 +158,7 @@ export function ProofsDownload({
             {progress.files} de {formatFileCount(entries.length)}
           </span>
           <span>
-            {formatMegabytes(progress.bytes, { withUnit: false })} de {formatMegabytes(totalBytes)}
+            {formatMegabytes(progress.bytes, { hasUnit: false })} de {formatMegabytes(totalBytes)}
           </span>
         </S.Counts>
         <S.Help>Pode continuar usando o app. O arquivo vai para os downloads do celular.</S.Help>

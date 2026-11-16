@@ -2,6 +2,27 @@ import type { Activity } from '@/services/activities'
 import type { ProgressCategory } from '@/services/progress'
 import type { RuleItem } from '@/services/rules'
 
+/**
+ * Escreve uma data ISO (`AAAA-MM-DD`) no formato brasileiro, `DD/MM/AAAA`.
+ *
+ * @remarks
+ * Só reorganiza o texto: não cria `Date`, então o fuso do aparelho nunca muda o dia. Fica aqui
+ * enquanto só esta tela usa; sobe para `src/utils/` quando a segunda tela (o Detalhe) precisar.
+ *
+ * @param isoDate Data no formato `AAAA-MM-DD`, como vem do service.
+ * @returns A data como o aluno lê, por exemplo `"03/05/2025"`.
+ *
+ * @example
+ * ```ts
+ * formatDate('2025-05-03') // "03/05/2025"
+ * ```
+ */
+export function formatDate(isoDate: string): string {
+  const [year, month, day] = isoDate.split('-')
+
+  return `${day}/${month}/${year}`
+}
+
 /** Um item do formulário com as atividades do aluno nele, como a seção "Por item" mostra. */
 export type ItemGroup = {
   itemNumber: number
@@ -175,13 +196,13 @@ const megabytes = new Intl.NumberFormat('pt-BR', {
  * Usa 1 MB = 1024 × 1024 bytes, a mesma conta do limite de 10 MB do comprovante.
  *
  * @param bytes Tamanho em bytes.
- * @param options `withUnit: false` tira o " MB", para escrever "2,9 de 6,4 MB".
+ * @param options `hasUnit: false` tira o " MB", para escrever "2,9 de 6,4 MB".
  * @returns O texto, por exemplo `"6,4 MB"`. Arquivo pequeno aparece como `"0,1 MB"`, nunca `"0,0 MB"`.
  */
-export function formatMegabytes(bytes: number, { withUnit = true } = {}): string {
+export function formatMegabytes(bytes: number, { hasUnit = true } = {}): string {
   const value = megabytes.format(bytes > 0 ? Math.max(bytes / (1024 * 1024), 0.1) : 0)
 
-  return withUnit ? `${value} MB` : value
+  return hasUnit ? `${value} MB` : value
 }
 
 /**
@@ -266,10 +287,10 @@ export function toggleItemSelection(
   itemIds: string[],
 ): Set<string> {
   const next = new Set(selectedIds)
-  const shouldSelect = !isItemFullySelected(selectedIds, itemIds)
+  const isSelecting = !isItemFullySelected(selectedIds, itemIds)
 
   for (const id of itemIds) {
-    if (shouldSelect) next.add(id)
+    if (isSelecting) next.add(id)
     else next.delete(id)
   }
   return next

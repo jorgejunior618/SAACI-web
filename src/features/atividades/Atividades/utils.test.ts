@@ -5,6 +5,7 @@ import type { ProgressCategory } from '@/services/progress'
 import type { RuleItem } from '@/services/rules'
 
 import {
+  formatDate,
   formatFileCount,
   formatLeftOut,
   formatMegabytes,
@@ -181,7 +182,7 @@ describe('formatMegabytes', () => {
     expect(formatMegabytes(6.4 * 1024 * 1024)).toBe('6,4 MB')
     expect(formatMegabytes(1_000)).toBe('0,1 MB')
     expect(formatMegabytes(0)).toBe('0,0 MB')
-    expect(formatMegabytes(2.9 * 1024 * 1024, { withUnit: false })).toBe('2,9')
+    expect(formatMegabytes(2.9 * 1024 * 1024, { hasUnit: false })).toBe('2,9')
   })
 })
 
@@ -249,5 +250,16 @@ describe('isItemFullySelected', () => {
     expect(isItemFullySelected(new Set(['a', 'b']), ['a', 'b'])).toBe(true)
     expect(isItemFullySelected(new Set(['a']), ['a', 'b'])).toBe(false)
     expect(isItemFullySelected(new Set(['a']), [])).toBe(false)
+  })
+})
+
+describe('formatDate', () => {
+  it('escreve a data ISO como dia, mês e ano', () => {
+    expect(formatDate('2025-05-03')).toBe('03/05/2025')
+  })
+
+  it('não muda o dia na virada do ano', () => {
+    expect(formatDate('2025-12-31')).toBe('31/12/2025')
+    expect(formatDate('2026-01-01')).toBe('01/01/2026')
   })
 })
