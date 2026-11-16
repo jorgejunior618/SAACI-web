@@ -90,7 +90,7 @@ function saveFile(file: Blob, name: string): void {
  * @remarks
  * Três estados, como no protótipo: parado (botão, tamanho e quem fica de fora), baixando (progresso
  * por arquivo e por MB, com "Cancelar download") e erro (nada foi salvo, "Tentar de novo"). O
- * arquivo é montado no navegador (ADR 0007). Usa `useMutation` pelo ciclo de pendente e erro, mas
+ * arquivo é montado no navegador (ADR 0008). Usa `useMutation` pelo ciclo de pendente e erro, mas
  * não invalida nada: baixar não grava. O `onSuccess` fica nas opções do `useMutation`, então o
  * arquivo é salvo mesmo se o aluno mudar de tela no meio. Sem comprovante que conte, não mostra nada.
  * Com `selectedIds`, entram só os marcados e o botão diz quantos. Com nada marcado, o botão continua

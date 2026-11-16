@@ -1,4 +1,4 @@
-# 0007. O arquivo compactado dos comprovantes é montado no navegador, com fflate
+# 0008. O arquivo compactado dos comprovantes é montado no navegador, com fflate
 
 - **Status:** Proposta
 - **Data:** 15/11/2026
