@@ -77,4 +77,20 @@ describe('TotalProgress', () => {
     expect(screen.getByText('0h feitas')).toBeInTheDocument()
     expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0')
   })
+
+  it('compacto põe o número ao lado do rótulo e mantém barra e meta', () => {
+    render(<TotalProgress doneHours={69} goalHours={120} size="compact" />)
+
+    expect(screen.getByText('51h')).toBeInTheDocument()
+    expect(screen.getByText('faltam para completar suas horas')).toBeInTheDocument()
+    expect(screen.getByText('69h feitas')).toBeInTheDocument()
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '69')
+  })
+
+  it('compacto e completo diz que as horas foram cumpridas, sem barra', () => {
+    render(<TotalProgress doneHours={120} goalHours={120} size="compact" />)
+
+    expect(screen.getByText('feitas, você completou suas horas')).toBeInTheDocument()
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument()
+  })
 })

@@ -16,6 +16,11 @@ export type TotalProgressProps = {
   guideHref?: string
   /** Elemento que desenha o botão do guia, como em `Button.as` (o `Link` do `next/link`). */
   linkAs?: ElementType
+  /**
+   * `compact` põe o número em 20px na mesma linha do rótulo, para telas que já têm outro número
+   * grande, como a atividade registrada. Padrão: `default`, com o número em 56px.
+   */
+  size?: 'default' | 'compact'
 }
 
 /**
@@ -27,11 +32,14 @@ export type TotalProgressProps = {
  * o rótulo diz que as horas foram cumpridas, uma frase avisa quando os itens somam mais que a meta
  * ("Seus itens somam 124h. O que passa de 120h não é aproveitado."), um botão primário leva ao guia
  * do formulário e a barra some. Com 0h o cartão aparece com a barra vazia. Use um por tela. O
- * componente não soma horas: recebe o valor pronto (RNF20).
+ * componente não soma horas: recebe o valor pronto (RNF20). Com `size="compact"` o número fica em
+ * 20px ao lado do rótulo ("47h faltam para completar suas horas"), e a tela pode ter outro número
+ * grande.
  *
  * @example
  * ```tsx
  * <TotalProgress doneHours={73} goalHours={120} />
+ * <TotalProgress doneHours={69} goalHours={120} size="compact" />
  * ```
  */
 export function TotalProgress({
@@ -39,17 +47,25 @@ export function TotalProgress({
   goalHours,
   guideHref,
   linkAs,
+  size = 'default',
 }: TotalProgressProps): ReactNode {
   const total = Math.floor(doneHours)
   const done = Math.min(total, goalHours)
   const isComplete = done >= goalHours
   const options = { fractionDigits: 0 } as const
+  const isCompact = size === 'compact'
 
   if (isComplete) {
     return (
       <Card as="section" aria-label="Seu total de horas">
-        <S.Total done>{formatHours(goalHours, options)}</S.Total>
-        <S.Label>Você completou suas horas</S.Label>
+        <S.Head compact={isCompact}>
+          <S.Total size={size} done>
+            {formatHours(goalHours, options)}
+          </S.Total>
+          <S.Label compact={isCompact}>
+            {isCompact ? 'feitas, você completou suas horas' : 'Você completou suas horas'}
+          </S.Label>
+        </S.Head>
         {total > goalHours ? (
           <S.Surplus>
             Seus itens somam {formatHours(total, options)}. O que passa de{' '}
@@ -69,9 +85,13 @@ export function TotalProgress({
 
   return (
     <Card as="section" aria-label="Seu total de horas">
-      <S.Total>{formatHours(goalHours - done, options)}</S.Total>
-      <S.Label>Faltam para completar suas horas</S.Label>
-      <S.BarWrap>
+      <S.Head compact={isCompact}>
+        <S.Total size={size}>{formatHours(goalHours - done, options)}</S.Total>
+        <S.Label compact={isCompact}>
+          {isCompact ? 'faltam para completar suas horas' : 'Faltam para completar suas horas'}
+        </S.Label>
+      </S.Head>
+      <S.BarWrap compact={isCompact}>
         <ProgressBar
           value={done}
           max={goalHours}

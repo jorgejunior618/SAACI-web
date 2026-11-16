@@ -69,6 +69,28 @@ describe('StateScreen', () => {
     expect(screen.getByRole('button', { name: 'Registrar outra' })).toBeInTheDocument()
   })
 
+  it('mostra o número em destaque entre a arte e o título', () => {
+    render(
+      <StateScreen
+        variant="success"
+        highlight="+10h"
+        title="Atividade registrada"
+        description="Curso de React entrou no item 7."
+      />,
+    )
+
+    const highlight = screen.getByText('+10h')
+    const title = screen.getByRole('heading', { name: 'Atividade registrada' })
+
+    expect(highlight.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('sem highlight não mostra número em destaque', () => {
+    render(<StateScreen variant="success" title="Pronto" description="Tudo certo." />)
+
+    expect(screen.queryByText(/^\+/)).not.toBeInTheDocument()
+  })
+
   it('sem actions não renderiza a área de ações', () => {
     render(<StateScreen variant="success" title="Pronto" description="Tudo certo." />)
 
