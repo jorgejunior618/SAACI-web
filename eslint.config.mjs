@@ -93,6 +93,24 @@ const eslintConfig = [
       ],
     },
   },
+  // Teste de tela monta o estado pela função de exemplo do mock do domínio (`doc/testes.md`), então
+  // pode importar o mock. A regra do Supabase continua valendo.
+  {
+    files: ['src/features/**/*.test.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@supabase/*'],
+              message: 'Tela não importa o Supabase: fale com @/services/<dominio>.',
+            },
+          ],
+        },
+      ],
+    },
+  },
   // Componente compartilhado com lógica também fala só com services/, nunca com o Supabase.
   {
     files: ['src/components/**/*.{ts,tsx}'],
