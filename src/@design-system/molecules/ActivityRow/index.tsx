@@ -183,3 +183,5 @@ export function ActivityRow(props: ActivityRowProps): ReactNode {
     </S.Root>
   )
 }
+
+export { ACTIVITY_ROW_SELECTION_INDENT } from './recipe'
