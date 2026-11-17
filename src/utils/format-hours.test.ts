@@ -13,6 +13,12 @@ describe('formatHours', () => {
     expect(formatHours(47, { fractionDigits: 0 })).toBe('47h')
   })
 
+  it("com 'auto' esconde a vírgula só quando o valor é inteiro", () => {
+    expect(formatHours(26, { fractionDigits: 'auto' })).toBe('26h')
+    expect(formatHours(26.5, { fractionDigits: 'auto' })).toBe('26,5h')
+    expect(formatHours(0, { fractionDigits: 'auto' })).toBe('0h')
+  })
+
   it('separa o milhar com ponto', () => {
     expect(formatHours(1234.5)).toBe('1.234,5h')
   })

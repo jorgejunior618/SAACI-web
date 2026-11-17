@@ -1,7 +1,11 @@
 /** Opções de {@link formatHours}. */
 export type FormatHoursOptions = {
-  /** Casas depois da vírgula. Padrão: 1 ("4,0h"). Use 0 para o total inteiro ("47h"). */
-  fractionDigits?: 0 | 1
+  /**
+   * Casas depois da vírgula. Padrão: 1 ("4,0h"). Use 0 para o total inteiro ("47h"). `'auto'`
+   * esconde a vírgula só quando o valor é inteiro ("26h", "26,5h"), para quem não pode esconder a
+   * parte decimal.
+   */
+  fractionDigits?: 0 | 1 | 'auto'
 }
 
 const formatters = {
@@ -25,11 +29,14 @@ const formatters = {
  * ```ts
  * formatHours(18) // "18,0h"
  * formatHours(47, { fractionDigits: 0 }) // "47h"
+ * formatHours(26.5, { fractionDigits: 'auto' }) // "26,5h"
  * ```
  */
 export function formatHours(
   value: number,
   { fractionDigits = 1 }: FormatHoursOptions = {},
 ): string {
-  return `${formatters[fractionDigits].format(value)}h`
+  const digits = fractionDigits === 'auto' ? (Number.isInteger(value) ? 0 : 1) : fractionDigits
+
+  return `${formatters[digits].format(value)}h`
 }

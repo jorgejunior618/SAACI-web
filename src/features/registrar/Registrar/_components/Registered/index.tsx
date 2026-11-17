@@ -20,11 +20,6 @@ type RegisteredProps = {
   onRegisterAnother: () => void
 }
 
-// "+10h" quando é inteiro, "+2,5h" quando não é: nunca esconde a parte decimal.
-function formatGain(hours: number): string {
-  return `+${formatHours(hours, { fractionDigits: Number.isInteger(hours) ? 0 : 1 })}`
-}
-
 /**
  * Mostra a atividade registrada: quanto ela somou, em que item entrou e o total novo.
  *
@@ -53,7 +48,11 @@ export function Registered({ activity, progress, onRegisterAnother }: Registered
       <S.Page>
         <StateScreen
           variant="success"
-          highlight={hasHours ? formatGain(activity.countedHours) : undefined}
+          highlight={
+            hasHours
+              ? `+${formatHours(activity.countedHours, { fractionDigits: 'auto' })}`
+              : undefined
+          }
           title="Atividade registrada"
           description={hasHours ? placement : `${placement} Ela fica guardada, mas não soma horas.`}
         />

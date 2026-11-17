@@ -44,11 +44,6 @@ const TEXT = {
   barLabel: 'Horas usadas neste item',
 } as const
 
-// "26h" quando é inteiro, "26,5h" quando não é: nunca esconde a parte decimal.
-function formatUsed(value: number): string {
-  return formatHours(value, { fractionDigits: Number.isInteger(value) ? 0 : 1 })
-}
-
 /**
  * Mostra a regra do item escolhido, quanto ainda cabe nele e quanto a atividade vai contar.
  *
@@ -104,7 +99,8 @@ export function RulePanel({
           {TEXT.fitAfter}
         </span>
         <S.FitTotal>
-          {formatUsed(usedHours)} de {formatUsed(maxHours)}
+          {formatHours(usedHours, { fractionDigits: 'auto' })} de{' '}
+          {formatHours(maxHours, { fractionDigits: 'auto' })}
         </S.FitTotal>
       </S.Fit>
       <S.BarWrap>
