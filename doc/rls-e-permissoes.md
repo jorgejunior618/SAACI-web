@@ -27,11 +27,12 @@ segurança. A fronteira real é esta.
 
 ## Padrão por tipo de tabela
 
-| Tipo de tabela             | Policy                                                                         |
-| -------------------------- | ------------------------------------------------------------------------------ |
-| Do aluno (atividades)      | dono = `(select auth.uid())` em todos os comandos, com `with check` na escrita |
-| Cadastro (cursos e regras) | `select` para `authenticated`; sem policy de escrita, só migration altera      |
-| Arquivo (Storage)          | pasta do dono: `(storage.foldername(name))[1] = (select auth.uid())::text`     |
+| Tipo de tabela             | Policy                                                                                                     |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Do aluno (atividades)      | dono = `(select auth.uid())` em todos os comandos, com `with check` na escrita                             |
+| Do aluno (perfil)          | `select` e `update` do dono; sem `insert` (gatilho cria) nem `delete` (cascade), `grant update` por coluna |
+| Cadastro (cursos e regras) | `select` para `authenticated`; sem policy de escrita, só migration altera                                  |
+| Arquivo (Storage)          | pasta do dono: `(storage.foldername(name))[1] = (select auth.uid())::text`                                 |
 
 **Referência cruzada.** Uma chave estrangeira garante que a linha existe, não que é do mesmo aluno:
 quem souber o UUID de uma atividade alheia a referenciaria. O `with check` confere o dono da linha
@@ -62,7 +63,8 @@ libera com `storage.allow_delete_query = 'true'`, como a API faz; o teste liga e
 - `UPDATE`/`DELETE` só alcança uma linha se ela também passar por uma policy de `select`. Sem ela, o
   comando afeta zero linhas **em silêncio**. Ao escrever policy de escrita, confira a leitura.
 - RPC é `security invoker`, então o RLS de quem chamou continua valendo. `security definer` só nas
-  registradas em `arquitetura.md` (a limpeza de contas não confirmadas e `apagar_minha_conta`). Outra
+  registradas em `arquitetura.md` (a limpeza de contas não confirmadas, `apagar_minha_conta` e o
+  gatilho `cria_perfil_do_aluno`). Outra
   RPC que precisar entra lá por nome, lê `auth.uid()` em vez de receber o dono por parâmetro e
   devolve o mínimo (a ausência de policy de `select` não protege o retorno).
 - Nenhuma chave `service_role` em código que o navegador alcança. Travado por lint e por um teste de

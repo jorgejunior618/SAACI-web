@@ -1,6 +1,7 @@
 # Modelagem de dados
 
-> Alvo (Supabase): nada deste documento está implementado. Hoje os dados vivem em mocks em memória.
+> Alvo (Supabase): implementados só `cursos`, `itens_curso` e `perfis`. O resto vive em mocks em
+> memória.
 
 Decisões que vêm dos requisitos. O schema vai viver em `supabase/migrations/` e nos tipos gerados em
 `src/@supabase/database.types.ts`; nomes de tabela e coluna nascem na primeira migration, não aqui.
@@ -71,14 +72,18 @@ subir depois) deixaria uma atividade sem comprovante, o estado que RNF24 proíbe
 
 ## Perfil
 
+- Tabela `perfis`, com o dono (`aluno_id`) como chave primária e `on delete cascade` para
+  `auth.users`. Um gatilho cria a linha no cadastro e a migration cria as das contas antigas
+  (ADR 0009).
 - Curso e semestre de início são obrigatórios antes do painel (RF09, RF11), e a linha nasce com eles
-  nulos no cadastro. A regra vive na tela e num `check` condicional, não numa constraint simples.
+  nulos no cadastro. A regra vive na tela, não numa constraint, porque a linha precisa existir antes.
 - Semestre é `date`, sempre dia 1 de janeiro (`.1`) ou de julho (`.2`), com `check` no mês. Em dois
   inteiros (`ano`, `periodo`) todo filtro de intervalo vira condição composta, ilegível e ruim de
   indexar. `[INÍCIO DO SEMESTRE]` a confirmar com a coordenação.
 - **Troca de curso só sem atividades (RF10)** é regra de integridade e vive no banco (gatilho ou RPC
   do perfil), não só na tela: trocar com atividades registradas as deixaria apontando para tipos de
-  uma matriz que o aluno não tem mais.
+  uma matriz que o aluno não tem mais. Hoje é um gatilho em `perfis` que lança `SA010` e chama
+  `aluno_tem_atividades`, um stub até a #20 criar a tabela de atividades.
 - O e-mail mora em `auth.users` e o perfil não o duplica. Duas cópias divergem, e a correção de
   e-mail (RF40) teria de escrever nas duas.
 - Matrícula é opcional (RF09). `[MATRÍCULA NO PERFIL]` segue a fechar (RNF06): coletar só o
