@@ -58,6 +58,7 @@ export function Registered({ activity, progress, onRegisterAnother }: Registered
         />
         <TotalProgress
           doneHours={progress.totalHours}
+          missingHours={progress.missingHours}
           goalHours={progress.targetHours}
           itemsSum={progress.itemsSum}
           size="compact"

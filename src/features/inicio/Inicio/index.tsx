@@ -64,6 +64,7 @@ export function Inicio(): ReactNode {
 
         <TotalProgress
           doneHours={progress.totalHours}
+          missingHours={progress.missingHours}
           goalHours={progress.targetHours}
           itemsSum={progress.itemsSum}
           guideHref="/atividades/pedido"

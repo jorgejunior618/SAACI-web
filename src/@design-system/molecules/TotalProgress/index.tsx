@@ -13,6 +13,11 @@ export type TotalProgressProps = {
    * limitado à meta. O componente mostra o número como chega, sem arredondar nem limitar.
    */
   doneHours: number
+  /**
+   * Horas que faltam para a meta, prontas do cálculo único: o `missingHours` de `getProgress`. É o
+   * número grande do cartão; o componente não subtrai nada.
+   */
+  missingHours: number
   /** Meta de horas do curso. Com `doneHours` igual a ela, o cartão vira o estado completo. */
   goalHours: number
   /**
@@ -36,7 +41,7 @@ export type TotalProgressProps = {
  *
  * @remarks
  * Não calcula: arredondar para baixo e limitar à meta é do cálculo único (`computeProgress`, RNF20),
- * e o componente mostra `doneHours` e `itemsSum` como chegam. O número tem 56px e a barra 6px.
+ * e o componente mostra `doneHours`, `missingHours` e `itemsSum` como chegam. O número tem 56px e a barra 6px.
  * Completo, o número vira a meta em `brand.text`, o rótulo diz que as horas foram cumpridas, uma
  * frase avisa quando os itens somam mais que a meta ("Seus itens somam 124,6h. O que passa de 120h
  * não é aproveitado."), um botão primário leva ao guia do formulário e a barra some. Com 0h o cartão
@@ -48,14 +53,16 @@ export type TotalProgressProps = {
  * ```tsx
  * <TotalProgress
  *   doneHours={progress.totalHours}
+ *   missingHours={progress.missingHours}
  *   goalHours={progress.targetHours}
  *   itemsSum={progress.itemsSum}
  * />
- * <TotalProgress doneHours={69} goalHours={120} size="compact" />
+ * <TotalProgress doneHours={69} missingHours={51} goalHours={120} size="compact" />
  * ```
  */
 export function TotalProgress({
   doneHours,
+  missingHours,
   goalHours,
   itemsSum,
   guideHref,
@@ -97,7 +104,7 @@ export function TotalProgress({
   return (
     <Card as="section" aria-label="Seu total de horas">
       <S.Head size={size}>
-        <S.Total size={size}>{formatHours(goalHours - doneHours, options)}</S.Total>
+        <S.Total size={size}>{formatHours(missingHours, options)}</S.Total>
         <S.Label size={size}>
           {isCompact ? 'faltam para completar suas horas' : 'Faltam para completar suas horas'}
         </S.Label>

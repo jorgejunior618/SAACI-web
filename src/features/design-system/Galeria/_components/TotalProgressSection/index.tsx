@@ -17,27 +17,33 @@ export function TotalProgressSection(): ReactNode {
       <S.Specimens>
         <Specimen label="doneHours=73 goalHours=120" isPlain>
           <S.Wrap>
-            <TotalProgress doneHours={73} goalHours={120} />
+            <TotalProgress doneHours={73} missingHours={47} goalHours={120} />
           </S.Wrap>
         </Specimen>
         <Specimen label="doneHours=0 · vazio" isPlain>
           <S.Wrap>
-            <TotalProgress doneHours={0} goalHours={120} />
+            <TotalProgress doneHours={0} missingHours={120} goalHours={120} />
           </S.Wrap>
         </Specimen>
         <Specimen label="doneHours=124 · done com excedente" isPlain>
           <S.Wrap>
-            <TotalProgress doneHours={120} goalHours={120} itemsSum={124.5} guideHref="#" />
+            <TotalProgress
+              doneHours={120}
+              missingHours={0}
+              goalHours={120}
+              itemsSum={124.5}
+              guideHref="#"
+            />
           </S.Wrap>
         </Specimen>
         <Specimen label="doneHours=120 · done" isPlain>
           <S.Wrap>
-            <TotalProgress doneHours={120} goalHours={120} guideHref="#" />
+            <TotalProgress doneHours={120} missingHours={0} goalHours={120} guideHref="#" />
           </S.Wrap>
         </Specimen>
         <Specimen label='size="compact" · doneHours=69' isPlain>
           <S.Wrap>
-            <TotalProgress doneHours={69} goalHours={120} size="compact" />
+            <TotalProgress doneHours={69} missingHours={51} goalHours={120} size="compact" />
           </S.Wrap>
         </Specimen>
         <Specimen label="Skeleton" isPlain>
