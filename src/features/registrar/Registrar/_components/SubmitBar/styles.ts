@@ -9,7 +9,7 @@ export const Root = styled('div', {
     gap: '2',
     paddingInline: '4',
     paddingBlockStart: '3',
-    paddingBlockEnd: 'calc(16px + env(safe-area-inset-bottom))',
+    paddingBlockEnd: 'calc(token(spacing.4) + env(safe-area-inset-bottom))',
     background: 'surface',
     borderTopWidth: '1px',
     borderTopStyle: 'solid',
