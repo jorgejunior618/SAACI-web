@@ -69,11 +69,11 @@ export function TotalProgress({
   if (isComplete) {
     return (
       <Card as="section" aria-label="Seu total de horas">
-        <S.Head compact={isCompact}>
+        <S.Head size={size}>
           <S.Total size={size} done>
             {formatHours(goalHours, options)}
           </S.Total>
-          <S.Label compact={isCompact}>
+          <S.Label size={size}>
             {isCompact ? 'feitas, você completou suas horas' : 'Você completou suas horas'}
           </S.Label>
         </S.Head>
@@ -96,13 +96,13 @@ export function TotalProgress({
 
   return (
     <Card as="section" aria-label="Seu total de horas">
-      <S.Head compact={isCompact}>
+      <S.Head size={size}>
         <S.Total size={size}>{formatHours(goalHours - doneHours, options)}</S.Total>
-        <S.Label compact={isCompact}>
+        <S.Label size={size}>
           {isCompact ? 'faltam para completar suas horas' : 'Faltam para completar suas horas'}
         </S.Label>
       </S.Head>
-      <S.BarWrap compact={isCompact}>
+      <S.BarWrap size={size}>
         <ProgressBar
           value={doneHours}
           max={goalHours}

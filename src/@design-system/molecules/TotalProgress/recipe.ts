@@ -32,27 +32,33 @@ export const totalNumber = cva({
 export const totalHead = cva({
   base: {},
   variants: {
-    compact: {
-      true: { display: 'flex', alignItems: 'baseline', gap: '2' },
+    size: {
+      default: {},
+      compact: { display: 'flex', alignItems: 'baseline', gap: '2' },
     },
   },
+  defaultVariants: { size: 'default' },
 })
 
 export const totalLabel = cva({
   base: { margin: '0', marginBlockStart: '1', textStyle: 'support', color: 'ink.muted' },
   variants: {
-    compact: {
-      true: { marginBlockStart: '0' },
+    size: {
+      default: {},
+      compact: { marginBlockStart: '0' },
     },
   },
+  defaultVariants: { size: 'default' },
 })
 
 // 16px entre o número e a barra; no compacto, 12px.
 export const totalBar = cva({
   base: { marginBlockStart: '4' },
   variants: {
-    compact: {
-      true: { marginBlockStart: '3' },
+    size: {
+      default: {},
+      compact: { marginBlockStart: '3' },
     },
   },
+  defaultVariants: { size: 'default' },
 })
