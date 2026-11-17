@@ -12,23 +12,13 @@ import { progressQueries } from '@/services/progress'
 import type { Progress } from '@/services/progress'
 import { rulesQueries } from '@/services/rules'
 import type { Course, RuleItem } from '@/services/rules'
-import { saveFile } from '@/utils/save-file'
 
 import { Pedido } from './index'
-import { buildFormPdf, PdfCharacterError } from './utils'
 
 vi.mock('next/navigation', () => ({ usePathname: () => '/atividades/pedido' }))
 vi.mock('@supabase/client', () => ({ createClient: vi.fn() }))
-// O PDF de verdade é testado em `utils.test.ts`. Aqui só interessa o que a tela faz com ele.
-vi.mock('./utils', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('./utils')>()),
-  buildFormPdf: vi.fn(),
-}))
-vi.mock('@/utils/save-file', () => ({ saveFile: vi.fn() }))
 
 beforeEach(() => {
-  vi.mocked(buildFormPdf).mockReset()
-  vi.mocked(saveFile).mockReset()
   // O jsdom não implementa a rolagem da janela.
   window.scrollTo = vi.fn()
 })
@@ -197,20 +187,20 @@ describe('Pedido', () => {
     expect(screen.queryByText('Tudo pronto')).not.toBeInTheDocument()
   })
 
-  describe('pré-visualizar e baixar', () => {
+  describe('pré-visualizar', () => {
     const READY: Scenario = {
       profile: COMPLETE_PROFILE,
       progress: COMPLETE_PROGRESS,
       activities: [ACTIVITY],
     }
 
-    async function openPreview(): Promise<void> {
-      await userEvent.click(screen.getByRole('button', { name: 'Pré-visualizar e baixar' }))
+    async function openPreview(name: string): Promise<void> {
+      await userEvent.click(screen.getByRole('button', { name }))
     }
 
     it('abre a prévia com todos os itens do curso e volta para a conferência', async () => {
       renderPedido(READY)
-      await openPreview()
+      await openPreview('Pré-visualizar e baixar')
 
       expect(screen.getByRole('heading', { name: 'Pré-visualizar' })).toBeInTheDocument()
       expect(
@@ -226,123 +216,38 @@ describe('Pedido', () => {
       expect(screen.getByRole('heading', { name: 'Tudo pronto' })).toBeInTheDocument()
     })
 
-    it('gera o PDF com os dados da tela, salva e mostra o baixado com o próximo passo', async () => {
-      vi.mocked(buildFormPdf).mockResolvedValue(new Blob(['%PDF'], { type: 'application/pdf' }))
+    it('leva à entrega em vez de baixar na própria prévia', async () => {
       renderPedido(READY)
-      await openPreview()
+      await openPreview('Pré-visualizar e baixar')
 
-      await userEvent.click(screen.getByRole('button', { name: 'Baixar formulário em PDF' }))
-
-      expect(await screen.findByText('Formulário baixado')).toBeInTheDocument()
-      expect(buildFormPdf).toHaveBeenCalledWith(
-        expect.objectContaining({
-          studentName: 'Ana Beatriz Moura',
-          enrollmentId: '2023104501',
-          totalHours: 120,
-          isBlank: false,
-        }),
-      )
-      expect(saveFile).toHaveBeenCalledWith(
-        expect.any(Blob),
-        'formulario-atividades-complementares-ana-moura.pdf',
-      )
-      expect(
-        screen.getByText('formulario-atividades-complementares-ana-moura.pdf'),
-      ).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Abrir' })).toBeInTheDocument()
-      expect(screen.getByRole('img', { name: 'Passo 1 feito' })).toBeInTheDocument()
-      expect(screen.getByRole('link', { name: 'Escrever o e-mail' })).toHaveAttribute(
+      expect(screen.getByRole('link', { name: 'Continuar para a entrega' })).toHaveAttribute(
         'href',
-        expect.stringMatching(/^mailto:protocolo\.fortaleza@ifce\.edu\.br\?subject=/),
+        '/atividades/pedido/como-entregar',
       )
+      expect(screen.queryByRole('button', { name: /Baixar/ })).not.toBeInTheDocument()
     })
 
-    it('baixa o formulário em branco com o nome do arquivo em branco', async () => {
-      vi.mocked(buildFormPdf).mockResolvedValue(new Blob(['%PDF']))
+    it('com tudo pronto, não mostra aviso', async () => {
       renderPedido(READY)
-      await openPreview()
+      await openPreview('Pré-visualizar e baixar')
 
-      await userEvent.click(screen.getByRole('button', { name: 'Baixar em branco' }))
-
-      expect(await screen.findByText('Formulário baixado')).toBeInTheDocument()
-      expect(buildFormPdf).toHaveBeenCalledWith(expect.objectContaining({ isBlank: true }))
-      expect(saveFile).toHaveBeenCalledWith(
-        expect.any(Blob),
-        'formulario-atividades-complementares-em-branco.pdf',
-      )
+      expect(screen.queryByText(/pode recusar/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/em branco no formulário/)).not.toBeInTheDocument()
     })
 
-    it('se o PDF falha, não baixa nada, diz o próximo passo e deixa tentar de novo', async () => {
-      vi.mocked(buildFormPdf).mockRejectedValueOnce(new Error('falhou'))
-      renderPedido(READY)
-      await openPreview()
-
-      await userEvent.click(screen.getByRole('button', { name: 'Baixar formulário em PDF' }))
-
-      expect(await screen.findByRole('alert')).toHaveTextContent('Não deu para gerar o PDF')
-      expect(screen.getByRole('alert')).toHaveTextContent(
-        'Nada foi baixado. Toque em Baixar de novo.',
-      )
-      expect(saveFile).not.toHaveBeenCalled()
-
-      vi.mocked(buildFormPdf).mockResolvedValue(new Blob(['%PDF']))
-      await userEvent.click(screen.getByRole('button', { name: 'Baixar formulário em PDF' }))
-      expect(await screen.findByText('Formulário baixado')).toBeInTheDocument()
-    })
-
-    it('manda conferir o nome no Perfil quando ele tem caractere que o PDF não aceita', async () => {
-      vi.mocked(buildFormPdf).mockRejectedValue(new PdfCharacterError())
-      renderPedido(READY)
-      await openPreview()
-
-      await userEvent.click(screen.getByRole('button', { name: 'Baixar formulário em PDF' }))
-
-      expect(await screen.findByRole('alert')).toHaveTextContent(
-        'O nome tem um caractere que o PDF não aceita',
-      )
-      expect(screen.getByRole('alert')).toHaveTextContent('Confira o nome no Perfil')
-    })
-
-    it('permite pré-visualizar mesmo incompleto, com nome e matrícula em branco', async () => {
+    it('avisa que faltam horas e o nome, sem bloquear a entrega', async () => {
       renderPedido({
         profile: { ...COMPLETE_PROFILE, name: null, enrollmentId: null },
         progress: INCOMPLETE_PROGRESS,
         activities: [ACTIVITY],
       })
-
-      await userEvent.click(screen.getByRole('button', { name: 'Pré-visualizar como está' }))
-
-      expect(screen.getByRole('heading', { name: 'Pré-visualizar' })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Baixar formulário em PDF' })).toBeInTheDocument()
-    })
-
-    it('não chama de "em branco" o PDF preenchido quando o nome ainda falta', async () => {
-      vi.mocked(buildFormPdf).mockResolvedValue(new Blob(['%PDF']))
-      renderPedido({
-        profile: { ...COMPLETE_PROFILE, name: null, enrollmentId: null },
-        progress: INCOMPLETE_PROGRESS,
-        activities: [ACTIVITY],
-      })
-      await userEvent.click(screen.getByRole('button', { name: 'Pré-visualizar como está' }))
-
-      await userEvent.click(screen.getByRole('button', { name: 'Baixar formulário em PDF' }))
-
-      expect(await screen.findByText('Formulário baixado')).toBeInTheDocument()
-      expect(saveFile).toHaveBeenCalledWith(
-        expect.any(Blob),
-        'formulario-atividades-complementares.pdf',
-      )
-    })
-
-    it('mantém o link dos comprovantes no passo do e-mail, onde o aluno precisa anexá-los', async () => {
-      vi.mocked(buildFormPdf).mockResolvedValue(new Blob(['%PDF']))
-      renderPedido(READY)
-      await openPreview()
-      await userEvent.click(screen.getByRole('button', { name: 'Baixar formulário em PDF' }))
+      await openPreview('Pré-visualizar como está')
 
       expect(
-        await screen.findByRole('link', { name: 'Baixar os comprovantes que contam' }),
-      ).toHaveAttribute('href', '/atividades')
+        screen.getByText(/Você tem 59h de 120h\. A coordenação pode recusar/),
+      ).toBeInTheDocument()
+      expect(screen.getByText(/O nome está em branco no formulário/)).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: 'Continuar para a entrega' })).toBeInTheDocument()
     })
   })
 })

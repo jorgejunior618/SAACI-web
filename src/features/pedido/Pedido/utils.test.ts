@@ -11,11 +11,11 @@ import {
   buildFileName,
   buildFormPdf,
   buildFormRows,
+  buildPreviewWarnings,
   countProofs,
   formatBlankRowsNote,
   formatFormHeader,
   formatGeneratedAt,
-  formatKilobytes,
   formatOverflowNote,
   formatPendingTitle,
   PdfCharacterError,
@@ -236,14 +236,6 @@ describe('formatFormHeader', () => {
   })
 })
 
-describe('formatKilobytes', () => {
-  it('arredonda para KB e nunca mostra 0 KB para arquivo com conteúdo', () => {
-    expect(formatKilobytes(184_320)).toBe('180 KB')
-    expect(formatKilobytes(10)).toBe('1 KB')
-    expect(formatKilobytes(0)).toBe('0 KB')
-  })
-})
-
 describe('buildFormPdf', () => {
   const input: FormPdfInput = {
     header: 'IFCE campus Fortaleza · Coordenação de Engenharia de Computação',
@@ -296,5 +288,43 @@ describe('buildFormPdf', () => {
     await expect(buildFormPdf({ ...input, studentName: '山田 太郎' })).rejects.toBeInstanceOf(
       PdfCharacterError,
     )
+  })
+})
+
+describe('buildPreviewWarnings', () => {
+  it('não avisa nada quando a meta está cumprida e o nome existe', () => {
+    expect(buildPreviewWarnings({ progress: progress(), profile: completeProfile })).toEqual([])
+  })
+
+  it('avisa que faltam horas e que a coordenação pode recusar, sem bloquear', () => {
+    expect(
+      buildPreviewWarnings({
+        progress: progress({ totalHours: 59, missingHours: 61, itemsSum: 59 }),
+        profile: completeProfile,
+      }),
+    ).toEqual([
+      'Você tem 59h de 120h. A coordenação pode recusar um pedido incompleto. Confirme com ela antes de entregar.',
+    ])
+  })
+
+  it('avisa do nome em branco, mas não da matrícula, que o Perfil trata como opcional', () => {
+    const warnings = buildPreviewWarnings({
+      progress: progress(),
+      profile: { ...completeProfile, name: '  ', enrollmentId: null },
+    })
+
+    expect(warnings).toEqual([
+      'O nome está em branco no formulário. Escreva o nome no Perfil antes de baixar.',
+    ])
+  })
+
+  it('põe as horas antes do nome', () => {
+    const warnings = buildPreviewWarnings({
+      progress: progress({ totalHours: 59, missingHours: 61 }),
+      profile: { ...completeProfile, name: null },
+    })
+
+    expect(warnings).toHaveLength(2)
+    expect(warnings[0]).toContain('Você tem 59h')
   })
 })

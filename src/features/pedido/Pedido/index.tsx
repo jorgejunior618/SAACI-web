@@ -14,27 +14,23 @@ import { progressQueries } from '@/services/progress'
 import { rulesQueries } from '@/services/rules'
 
 import { ChecklistCard } from './_components/ChecklistCard'
-import { DownloadedStep } from './_components/DownloadedStep'
 import { FormSummary } from './_components/FormSummary'
 import { PreviewStep } from './_components/PreviewStep'
 import { Empty } from './Empty'
 import {
   buildChecks,
   buildFormRows,
+  buildPreviewWarnings,
   formatBlankRowsNote,
   formatFormHeader,
   formatOverflowNote,
   formatPendingTitle,
 } from './utils'
-import type { DownloadedFile } from './utils'
 import * as S from './styles'
 
 // Em que ponto do fluxo o aluno está. A conferência é a entrada; a prévia guarda o momento em que
-// foi aberta, e o baixado guarda o PDF gerado.
-type Step =
-  | { name: 'review' }
-  | { name: 'preview'; generatedAt: Date }
-  | { name: 'downloaded'; file: DownloadedFile }
+// foi aberta. O download mora no roadmap, na tela Como entregar.
+type Step = { name: 'review' } | { name: 'preview'; generatedAt: Date }
 
 /**
  * Tela Seu pedido: o que falta para o formulário da coordenação e o que vai nele.
@@ -42,7 +38,7 @@ type Step =
  * @remarks
  * Só compõe `progress`, `profile`, `activities` e `rules`: não tem service próprio e não soma horas
  * (RNF20). O estado "pronto" ou "incompleto" sai dos dados, não de um `useState`. O `useState` guarda
- * só o passo do fluxo: conferir, pré-visualizar e baixado. Nome e matrícula levam ao Perfil, onde se
+ * só o passo do fluxo: conferir e pré-visualizar. O download fica na tela Como entregar. Nome e matrícula levam ao Perfil, onde se
  * edita, então a tela não grava nada. Sem atividade, mostra o `Empty`. A página envolve este
  * componente em `Suspense`, com `Loading` como fallback.
  *
@@ -94,22 +90,7 @@ export function Pedido(): ReactNode {
         rows={rows}
         totalHours={progress.totalHours}
         generatedAt={step.generatedAt}
-        onBack={() => goTo({ name: 'review' })}
-        onDownloaded={(file) => goTo({ name: 'downloaded', file })}
-      />
-    )
-  }
-
-  if (step.name === 'downloaded') {
-    return (
-      <DownloadedStep
-        file={step.file}
-        email={{
-          name: profile.name,
-          enrollmentId: profile.enrollmentId,
-          courseName: course.name,
-          totalHours: progress.totalHours,
-        }}
+        warnings={buildPreviewWarnings({ progress, profile })}
         onBack={() => goTo({ name: 'review' })}
       />
     )

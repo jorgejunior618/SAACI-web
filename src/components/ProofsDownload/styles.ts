@@ -4,7 +4,9 @@ export const Root = styled('div', {
   base: { display: 'flex', flexDirection: 'column', gap: '3', marginBlockStart: '4' },
 })
 
-export const Status = styled('p', {
+// `div` e não `p`: o `Spinner` esconde um `div` para o leitor de tela, que não pode ficar dentro de um
+// parágrafo.
+export const Status = styled('div', {
   base: { display: 'flex', alignItems: 'center', gap: '2', textStyle: 'body', color: 'ink' },
 })
 

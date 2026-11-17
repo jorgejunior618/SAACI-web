@@ -40,6 +40,8 @@ export type ProofsDownloadProps = {
    * os que contam. Um `Set` vazio é o aluno com tudo desmarcado.
    */
   selectedIds?: ReadonlySet<string> | null
+  /** Chamado depois que o arquivo compactado foi entregue ao navegador. Cancelar não chama. */
+  onDownloaded?: () => void
 }
 
 // Baixa um comprovante por vez, para o progresso andar arquivo a arquivo, e monta o zip no fim. O
@@ -96,6 +98,7 @@ export function ProofsDownload({
   activities,
   ruleItems,
   selectedIds = null,
+  onDownloaded,
 }: ProofsDownloadProps): ReactNode {
   const allEntries = getProofEntries(activities, ruleItems)
   const entries = selectedIds
@@ -117,7 +120,9 @@ export function ProofsDownload({
       return zipProofs(entries, abort.signal, setProgress)
     },
     onSuccess: (zip) => {
-      if (zip) saveFile(zip, ZIP_NAME)
+      if (!zip) return
+      saveFile(zip, ZIP_NAME)
+      onDownloaded?.()
     },
   })
 

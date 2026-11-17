@@ -193,6 +193,46 @@ export function formatOverflowNote(progress: Progress): string | null {
   return `Seus itens somam ${sum}. O que passa de ${target} não entra no pedido.`
 }
 
+/** Dados de {@link buildPreviewWarnings}. */
+export type PreviewWarningsInput = {
+  progress: Progress
+  profile: Profile
+}
+
+/**
+ * Lista o que falta no pedido, em frases para a prévia.
+ *
+ * @remarks
+ * São avisos, não bloqueios: a coordenação pode aceitar um pedido incompleto, e só ela diz. Não soma
+ * horas: usa `totalHours`, `targetHours` e `missingHours` do progresso (RNF20). A matrícula não
+ * entra, porque o Perfil a trata como opcional.
+ *
+ * @param input Progresso e perfil do aluno.
+ * @returns As frases, na ordem horas e nome. Vazio quando nada falta.
+ *
+ * @example
+ * ```ts
+ * buildPreviewWarnings({ progress, profile })
+ * // ["Você tem 59h de 120h. A coordenação pode recusar um pedido incompleto. Confirme com ela antes de entregar."]
+ * ```
+ */
+export function buildPreviewWarnings({ progress, profile }: PreviewWarningsInput): string[] {
+  const warnings: string[] = []
+
+  if (progress.missingHours > 0) {
+    const total = formatHours(progress.totalHours, { fractionDigits: 0 })
+    const target = formatHours(progress.targetHours, { fractionDigits: 0 })
+
+    warnings.push(
+      `Você tem ${total} de ${target}. A coordenação pode recusar um pedido incompleto. Confirme com ela antes de entregar.`,
+    )
+  }
+  if (!profile.name?.trim()) {
+    warnings.push('O nome está em branco no formulário. Escreva o nome no Perfil antes de baixar.')
+  }
+  return warnings
+}
+
 /**
  * Escreve o rodapé da tabela de itens sem hora ("21 itens sem horas ficam com traço").
  *
@@ -260,29 +300,6 @@ export function buildFileName(name: string | null, isBlank = false): string {
  */
 export function formatFormHeader(course: Pick<Course, 'campus' | 'name'>): string {
   return `IFCE campus ${course.campus} · Coordenação de ${course.name}`
-}
-
-const kilobytes = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 })
-
-/**
- * Escreve o tamanho de um arquivo pequeno em kilobytes ("180 KB").
- *
- * @remarks
- * Usa 1 KB = 1024 bytes. Arquivo com conteúdo nunca aparece como "0 KB".
- *
- * @param bytes Tamanho em bytes.
- * @returns O texto, por exemplo `"180 KB"`.
- */
-export function formatKilobytes(bytes: number): string {
-  return `${kilobytes.format(bytes > 0 ? Math.max(1, Math.round(bytes / 1024)) : 0)} KB`
-}
-
-/** O PDF já gerado e baixado, com o que a tela de baixado mostra e usa para abrir de novo. */
-export type DownloadedFile = {
-  blob: Blob
-  fileName: string
-  /** Momento em que o formulário foi gerado, o mesmo da prévia e do rodapé do PDF. */
-  generatedAt: Date
 }
 
 /** Dados de {@link buildFormPdf}. */
