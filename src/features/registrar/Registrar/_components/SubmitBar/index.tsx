@@ -13,8 +13,6 @@ type SubmitBarProps = {
   willCount: number | null
   /** A atividade não soma horas (item cheio ou antes do ingresso). Pinta o número de aviso. */
   isWarning: boolean
-  /** Falta o comprovante ou o item: registrar é impossível, e o botão fica desabilitado. */
-  isDisabled: boolean
   /** O registro está sendo gravado. O botão mostra "Registrando" e não envia de novo. */
   isBusy: boolean
 }
@@ -23,16 +21,11 @@ type SubmitBarProps = {
  * Mostra o rodapé fixo do registro: quanto a atividade vai contar e o botão Registrar.
  *
  * @remarks
- * Vai no `bottomNav` do `AppFrame`, colado na base ao rolar. O botão envia o formulário por `form`,
- * porque fica fora dele.
+ * Vai no `bottomNav` do `AppFrame`, colado na base ao rolar, só depois que o aluno tem comprovante e
+ * item: sem eles, registrar é impossível e a tela não mostra o rodapé. O botão envia o formulário
+ * por `form`, porque fica fora dele.
  */
-export function SubmitBar({
-  formId,
-  willCount,
-  isWarning,
-  isDisabled,
-  isBusy,
-}: SubmitBarProps): ReactNode {
+export function SubmitBar({ formId, willCount, isWarning, isBusy }: SubmitBarProps): ReactNode {
   return (
     <S.Root>
       {willCount === null ? null : (
@@ -43,14 +36,7 @@ export function SubmitBar({
           </S.SummaryValue>
         </S.Summary>
       )}
-      <Button
-        type="submit"
-        form={formId}
-        block
-        disabled={isDisabled}
-        busy={isBusy}
-        busyLabel="Registrando"
-      >
+      <Button type="submit" form={formId} block busy={isBusy} busyLabel="Registrando">
         Registrar
       </Button>
     </S.Root>

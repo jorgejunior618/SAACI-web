@@ -172,14 +172,17 @@ export function Registrar(): ReactNode {
       topBar={
         <TopBar variant="inner" title="Registrar atividade" backHref="/inicio" linkAs={NextLink} />
       }
+      // Sem comprovante e item, registrar é impossível: o rodapé só entra com a prévia, e até lá a
+      // foto do comprovante é a única ação primária da tela.
       bottomNav={
-        <SubmitBar
-          formId={formId}
-          willCount={preview?.willCount ?? null}
-          isWarning={preview?.hours?.status === 'nao_conta'}
-          isDisabled={preview === null}
-          isBusy={registering.isPending}
-        />
+        preview === null ? undefined : (
+          <SubmitBar
+            formId={formId}
+            willCount={preview.willCount}
+            isWarning={preview.hours?.status === 'nao_conta'}
+            isBusy={registering.isPending}
+          />
+        )
       }
     >
       <FormProvider {...form}>
