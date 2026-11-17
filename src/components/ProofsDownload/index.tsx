@@ -11,6 +11,7 @@ import { Button, Notice, ProgressBar, Spinner } from '@design-system'
 import { getProofFile } from '@/services/activities'
 import type { Activity } from '@/services/activities'
 import type { RuleItem } from '@/services/rules'
+import { saveFile } from '@/utils/save-file'
 
 import {
   formatFileCount,
@@ -18,8 +19,8 @@ import {
   formatMegabytes,
   formatSelectedLabel,
   getProofEntries,
-} from '../../utils'
-import type { ProofEntry } from '../../utils'
+} from './utils'
+import type { ProofEntry } from './utils'
 import * as S from './styles'
 
 /** Nome do arquivo que vai para os downloads do aparelho. */
@@ -39,6 +40,8 @@ export type ProofsDownloadProps = {
    * os que contam. Um `Set` vazio é o aluno com tudo desmarcado.
    */
   selectedIds?: ReadonlySet<string> | null
+  /** Chamado depois que o arquivo compactado foi entregue ao navegador. Cancelar não chama. */
+  onDownloaded?: () => void
 }
 
 // Baixa um comprovante por vez, para o progresso andar arquivo a arquivo, e monta o zip no fim. O
@@ -71,21 +74,9 @@ async function zipProofs(
   }
 }
 
-// Entrega o arquivo ao navegador como download. O endereço é liberado depois, para o navegador ter
-// tempo de começar a gravar.
-function saveFile(file: Blob, name: string): void {
-  const url = URL.createObjectURL(file)
-  const link = document.createElement('a')
-
-  link.href = url
-  link.download = name
-  link.click()
-  setTimeout(() => URL.revokeObjectURL(url), 60_000)
-}
-
 /**
- * Parte do cartão de Atividades que baixa os comprovantes que contam num arquivo compactado, com uma
- * pasta por item.
+ * Baixa os comprovantes que contam num arquivo compactado, com uma pasta por item. Serve ao cartão de
+ * Atividades e ao passo de baixar do roadmap de entrega (Como entregar).
  *
  * @remarks
  * Três estados, como no protótipo: parado (botão, tamanho e quem fica de fora), baixando (progresso
@@ -107,6 +98,7 @@ export function ProofsDownload({
   activities,
   ruleItems,
   selectedIds = null,
+  onDownloaded,
 }: ProofsDownloadProps): ReactNode {
   const allEntries = getProofEntries(activities, ruleItems)
   const entries = selectedIds
@@ -128,7 +120,9 @@ export function ProofsDownload({
       return zipProofs(entries, abort.signal, setProgress)
     },
     onSuccess: (zip) => {
-      if (zip) saveFile(zip, ZIP_NAME)
+      if (!zip) return
+      saveFile(zip, ZIP_NAME)
+      onDownloaded?.()
     },
   })
 

@@ -3,7 +3,7 @@ import NextLink from 'next/link'
 import { useId } from 'react'
 import type { ReactNode } from 'react'
 
-import { Button, Card, Icon } from '@design-system'
+import { Button, Card, Icon, Link } from '@design-system'
 
 import { formatHours } from '@/utils/format-hours'
 
@@ -18,9 +18,10 @@ type FirstStepsProps = {
  * Mostra o caminho do primeiro acesso em três passos: registrar, ver o cálculo e entregar o pedido.
  *
  * @remarks
- * Só o primeiro passo é um cartão, com o botão que leva ao Registrar. Os outros dois são texto,
- * porque ainda não há o que fazer neles. É local da tela Início: nasceu sem especificação no
- * `DS_REFERENCE.md`. Promova só se outra tela repetir o padrão.
+ * Só o primeiro passo é um cartão, com o botão que leva ao Registrar. Os outros dois são texto, e o
+ * terceiro traz o link "Ver como entregar", que leva ao guia de entrega (Como entregar). É local da
+ * tela Início: nasceu sem especificação no `DS_REFERENCE.md`. Promova só se outra tela repetir o
+ * padrão.
  *
  * @example
  * ```tsx
@@ -74,6 +75,9 @@ export function FirstSteps({ targetHours }: FirstStepsProps): ReactNode {
             <S.StepText>
               Com {goal}, o formulário fica pronto e os certificados separados para a coordenação.
             </S.StepText>
+            <Link as={NextLink} href="/atividades/pedido/como-entregar" isStandalone>
+              Ver como entregar
+            </Link>
           </S.Text>
         </S.Step>
       </S.List>

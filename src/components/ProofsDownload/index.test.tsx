@@ -52,12 +52,17 @@ const ACTIVITIES = [
   activity({ itemNumber: 13, name: 'Boas-vindas', status: 'nao_conta' }),
 ]
 
-function renderDownload(selectedIds?: ReadonlySet<string>) {
+function renderDownload(selectedIds?: ReadonlySet<string>, onDownloaded?: () => void) {
   const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } })
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <ProofsDownload activities={ACTIVITIES} ruleItems={RULE_ITEMS} selectedIds={selectedIds} />
+      <ProofsDownload
+        activities={ACTIVITIES}
+        ruleItems={RULE_ITEMS}
+        selectedIds={selectedIds}
+        onDownloaded={onDownloaded}
+      />
     </QueryClientProvider>,
   )
 }
@@ -103,6 +108,27 @@ describe('ProofsDownload', () => {
       'Item 13 - Palestras/Palestra de IA.pdf',
     ])
     expect(getProofFileMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('avisa quando o arquivo foi salvo, e não avisa ao cancelar', async () => {
+    const onDownloaded = vi.fn()
+
+    getProofFileMock.mockImplementation(
+      (_id, signal) =>
+        new Promise((_resolve, reject) => {
+          signal?.addEventListener('abort', () => reject(signal.reason))
+        }),
+    )
+    renderDownload(undefined, onDownloaded)
+    fireEvent.click(screen.getByRole('button', { name: 'Baixar os que contam' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Cancelar download' }))
+    await screen.findByRole('button', { name: 'Baixar os que contam' })
+    expect(onDownloaded).not.toHaveBeenCalled()
+
+    getProofFileMock.mockReset()
+    getProofFileMock.mockResolvedValue(new Blob(['ok']))
+    fireEvent.click(screen.getByRole('button', { name: 'Baixar os que contam' }))
+    await waitFor(() => expect(onDownloaded).toHaveBeenCalledOnce())
   })
 
   it('mostra o erro com o próximo passo e tenta de novo', async () => {

@@ -10,15 +10,16 @@ import { ActivityRow, AppFrame, Card, Disclosure, Icon, Link, TopBar } from '@de
 import type { ActivityRowSelection } from '@design-system'
 
 import { MainNav } from '@/components/MainNav'
+import { ProofsDownload } from '@/components/ProofsDownload'
 import { activitiesQueries } from '@/services/activities'
 import type { Activity } from '@/services/activities'
 import { profileQueries } from '@/services/profile'
 import { progressQueries } from '@/services/progress'
 import { rulesQueries } from '@/services/rules'
 import { formatHours } from '@/utils/format-hours'
+import { isCounting } from '@/utils/is-counting'
 
 import { ItemSelectAll } from './_components/ItemSelectAll'
-import { ProofsDownload } from './_components/ProofsDownload'
 import { Empty } from './Empty'
 import {
   formatDate,
@@ -26,7 +27,6 @@ import {
   formatReason,
   getCountingIds,
   groupActivitiesByItem,
-  isCounting,
   isItemFullySelected,
   toggleItemSelection,
 } from './utils'

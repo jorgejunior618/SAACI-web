@@ -67,7 +67,7 @@ export function Inicio(): ReactNode {
           missingHours={progress.missingHours}
           goalHours={progress.targetHours}
           itemsSum={progress.itemsSum}
-          guideHref="/atividades/pedido"
+          guideHref="/atividades/pedido/como-entregar"
           linkAs={NextLink}
         />
 

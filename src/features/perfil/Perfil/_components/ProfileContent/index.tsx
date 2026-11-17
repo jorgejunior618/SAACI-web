@@ -11,7 +11,7 @@ import type { Profile } from '@/services/profile'
 import { rulesQueries } from '@/services/rules'
 import { formatSemester, StartSemesterFormSchema } from '@/utils/start-semester'
 
-import { EnrollmentFormSchema } from '../../schema'
+import { EnrollmentFormSchema, NameFormSchema } from '../../schema'
 import { AboutCard } from '../AboutCard'
 import { CourseCard } from '../CourseCard'
 import { DeleteAccount } from '../DeleteAccount'
@@ -19,6 +19,7 @@ import { EditableRow } from '../EditableRow'
 import { ProfileHeader } from '../ProfileHeader'
 import * as S from './styles'
 
+const NAME_NOT_INFORMED = 'Não informado'
 const ENROLLMENT_NOT_INFORMED = 'Não informada'
 const SEMESTER_NOT_INFORMED = 'Não informado'
 
@@ -36,7 +37,8 @@ export type ProfileContentProps = {
  * conta.
  *
  * @remarks
- * Matrícula e semestre de início se editam na própria linha. Mudar o semestre avisa antes de salvar
+ * Nome, matrícula e semestre de início se editam na própria linha. O nome vai no formulário da
+ * coordenação, e a tela Seu pedido leva até aqui quando ele falta. Mudar o semestre avisa antes de salvar
  * (RF11) e, como altera o total de horas, derruba o progresso e as atividades pela rotina do
  * domínio. O curso só se mostra: trocar leva a Trocar curso, que explica a trava (RF10). Aparência
  * não entra aqui: a issue deixa a decisão do modo escuro para a equipe. Existe separado do `Perfil`
@@ -68,6 +70,21 @@ export function ProfileContent({ profile, courseId, email }: ProfileContentProps
               <span>E-mail</span>
               <S.FixedValue>{email}</S.FixedValue>
             </S.FixedRow>
+            <EditableRow
+              label="Nome"
+              displayValue={profile.name ?? NAME_NOT_INFORMED}
+              initialValue={profile.name ?? ''}
+              schema={NameFormSchema}
+              hint="Como está nos seus documentos. Vai no formulário da coordenação."
+              successMessage="Nome salvo. Ele já entra no seu formulário."
+              onSave={async (name) => {
+                // O schema do nome nunca devolve `null`. Se devolvesse, gravar `{}` mostraria "salvo"
+                // sem salvar, então a falha aparece como erro de envio.
+                if (name === null) throw new Error('O nome não pode ficar vazio.')
+
+                return updateProfile({ name })
+              }}
+            />
             <EditableRow
               label="Matrícula"
               displayValue={profile.enrollmentId ?? ENROLLMENT_NOT_INFORMED}
