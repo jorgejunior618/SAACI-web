@@ -18,6 +18,12 @@ type StateScreenContentBase = {
   description: string
   /** Botões da tela, em coluna: o principal primeiro. A tela escolhe quais e o que fazem. */
   actions?: ReactNode
+  /**
+   * Número em destaque entre a arte e o título, já formatado ("+10h"). É o número grande da tela:
+   * não use junto de outro número grande. Entra com uma animação curta, que some com
+   * `prefers-reduced-motion`.
+   */
+  highlight?: string
 }
 
 export type StateScreenEmptyProps = StateScreenContentBase & {
@@ -53,7 +59,8 @@ export type StateScreenProps = StateScreenContentProps | StateScreenLoadingProps
  * @remarks
  * O componente dá a estrutura e a arte; título, texto e ações são da tela. A arte é um ícone de 28px
  * num círculo de 56px com borda fina: `brand.text` no vazio e no sucesso, `danger` no erro. O
- * símbolo do Saci não é arte de estado. Em `loading` o spinner fica sem círculo e já é um
+ * símbolo do Saci não é arte de estado. Com `highlight`, um número de 56px em `brand.text` entra entre
+ * a arte e o título, como o "+10h" da atividade registrada. Em `loading` o spinner fica sem círculo e já é um
  * `role="status"`, então o texto visível fica fora da leitura para não repetir.
  *
  * @example
@@ -86,7 +93,7 @@ export function StateScreen(props: StateScreenProps): ReactNode {
     )
   }
 
-  const { variant, eyebrow, title, description, actions } = props
+  const { variant, eyebrow, title, description, actions, highlight } = props
   const glyph = props.variant === 'empty' ? props.icon : variant === 'success' ? Check : WifiOff
 
   return (
@@ -94,6 +101,7 @@ export function StateScreen(props: StateScreenProps): ReactNode {
       <S.Art variant={variant}>
         <Icon icon={glyph} size="xl" />
       </S.Art>
+      {highlight ? <S.Highlight>{highlight}</S.Highlight> : null}
       {eyebrow ? <S.Eyebrow>{eyebrow}</S.Eyebrow> : null}
       <S.Title>{title}</S.Title>
       <S.Description>{description}</S.Description>

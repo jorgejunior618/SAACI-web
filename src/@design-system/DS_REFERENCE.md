@@ -103,11 +103,13 @@ nasce ou muda.
 
 ### FileUpload
 
-- Uso: anexa o comprovante por foto ou arquivo. Rótulo, `hint` com formatos, limite e dica de frente e verso, e uma área tracejada com `Tirar foto` e `Escolher arquivo` (`secondary`, lado a lado). A linha sobre a leitura por IA, com o link de privacidade, é obrigatória e o texto é da tela (`notice` e `privacyLinkLabel` são props obrigatórias, então o tipo impede de esquecê-la). Depois de anexar, um `Card` mostra o ícone, o nome truncado (o nome inteiro fica no `title`), o tamanho e `Trocar`; a dica e a linha da IA saem.
+- Uso: anexa o comprovante por foto ou arquivo. Rótulo, `hint` com formatos, limite e dica de frente e verso, e uma área tracejada com `Tirar foto do comprovante` (`primary`, ícone de câmera) e, embaixo, `Escolher arquivo` (`secondary`, ícone de arquivo), empilhados e em linha inteira. A linha sobre a leitura por IA, com o link de privacidade, é obrigatória e o texto é da tela (`notice` e `privacyLinkLabel` são props obrigatórias, então o tipo impede de esquecê-la). Depois de anexar, um `Card` mostra o ícone, o nome truncado (o nome inteiro fica no `title`), o tamanho e `Trocar`; a dica e a linha da IA saem.
 - Props: `label`, `hint`, `accept: string[]` (tipos MIME), `maxSizeMb`, `file?`, `error?`, `onSelect(file)`, `onReplace()`, `notice`, `privacyLinkLabel`, `privacyHref`, `privacyLinkAs?`.
 - Conferência: tipo, tamanho e arquivo vazio são recusados no próprio componente, com uma frase de motivo e próximo passo em `danger` (`role="alert"`) e sem chamar `onSelect`. É ajuda na hora, não segurança. O `error` da tela vence o do componente; no envio que caiu, `file` continua e a frase diz que o arquivo segue anexado.
 - Fora do componente: enviar e ler o arquivo (`services/`). O componente só devolve o `File`.
-- Câmera: `Tirar foto` usa `capture="environment"`. No desktop o navegador ignora e abre o seletor comum; os dois botões aparecem sempre. Não há arrastar e soltar.
+- Câmera: `Tirar foto do comprovante` usa `capture="environment"`. No desktop o navegador ignora e abre o seletor comum; os dois botões aparecem sempre. Não há arrastar e soltar.
+- Medida: o protótipo de Registrar pede o botão de foto com 64px, ícone grande e texto de 17px, fora da escala do `Button`; o componente usa o `Button` padrão de 48px. A área pede 20px em cima e embaixo, que não existe na escala de 4px; usa 16px.
+- Validação: os botões empilhados, com `Tirar foto do comprovante` primário, vêm do protótipo "Registrar atividade" (issue #11), validado pela equipe em 16/11/2026.
 - Galeria: `/design-system/file-upload`.
 
 ### Notice
@@ -123,9 +125,11 @@ nasce ou muda.
 ### StateScreen
 
 - Uso: conteúdo de tela inteira para os estados fora do caminho normal. A arte é um ícone de 28px (`Icon xl`) dentro de um círculo de 56px em `surface` com borda de 1px em `line`. `empty` usa o ícone que a tela escolhe, em `brand.text`; `success` um check em `brand.text`; `connectionError` um wi-fi cortado em `danger`. Acima do título pode vir um selo (`eyebrow`, `caption` em `brand.text`, 4px de respiro), como "Em construção". Título em `title`, texto em `support`, 8px entre os dois e 24px até as ações (coluna, até 340px). O símbolo do Saci não é arte de estado. O vazio orienta ("Registre a primeira atividade"), nunca diz "Nenhum item encontrado"; o erro diz que nada foi perdido, quando for verdade, e o próximo passo.
-- Props: união por `variant`. `'empty'` pede `icon: LucideIcon`, `title` e `description`; `'success' | 'connectionError'` pedem `title` e `description`. Os três aceitam `eyebrow?` e `actions?`. `'loading'` pede só `label`. Título, texto e ações são da tela; o componente só dá a estrutura e a arte. Passe `icon` de um Client Component: o ícone do Lucide é um objeto e não atravessa a fronteira vinda de um Server Component.
+- Props: união por `variant`. `'empty'` pede `icon: LucideIcon`, `title` e `description`; `'success' | 'connectionError'` pedem `title` e `description`. Os três aceitam `eyebrow?`, `actions?` e `highlight?`. `'loading'` pede só `label`. Título, texto e ações são da tela; o componente só dá a estrutura e a arte. Passe `icon` de um Client Component: o ícone do Lucide é um objeto e não atravessa a fronteira vinda de um Server Component.
+- Destaque: `highlight` é um número já formatado ("+10h", a atividade registrada) entre a arte e o título, em `display` com 56px/60px e -1,6px, cor `brand.text`, 8px acima do título. É o número grande da tela: com ele, o `TotalProgress` da mesma tela vai em `size="compact"`. Entra com o keyframe `popIn` (500ms, `easings.out`, sobe 12px e cresce de 96%); com `prefers-reduced-motion` só aparece.
 - Carregando: `Spinner lg` com `label` (lido pelo leitor de tela, uma vez) e a mesma frase visível abaixo, sem círculo.
 - Nível: fica em `molecules/`, porque só compõe atoms (`Icon`, `Spinner`); o plano pedia `organisms/`, mas organism não pula degrau.
+- Validação: o `highlight` vem da tela de atividade registrada do protótipo "Registrar atividade" (issue #11), validado pela equipe em 16/11/2026.
 - Galeria: `/design-system/state-screen`.
 
 ### LoadingState
@@ -137,10 +141,12 @@ nasce ou muda.
 ### TotalProgress
 
 - Uso: topo do painel. O total que **falta** em 56px/60px (`display` com tamanho próprio, ver "Medidas sem token"), o rótulo "Faltam para completar suas horas" 4px abaixo, a `ProgressBar size="md"` (6px) 16px abaixo e a linha de meta em `support` tabular ("73h feitas" à esquerda, "meta de 120h" à direita). O cartão tem 20px de respiro em cima e 16px nos outros lados. Um número grande por tela. Com 0h o cartão aparece como os outros, com a barra vazia e "0h feitas".
-- Props: `doneHours`, `goalHours`, `guideHref?`, `linkAs?` (como `Button.as`). O componente recebe o valor pronto e não soma nada (RNF20); só formata com `formatHours` (`src/utils/format-hours.ts`).
-- Total: inteiro, arredondado para baixo (`Math.floor` nas horas feitas) e limitado à meta. A barra nunca passa de 100% e o "falta" nunca é negativo. 119,9h ainda não é completo.
-- Completo (`doneHours >= goalHours`): o número vira a meta em `brand.text`, o rótulo diz "Você completou suas horas" e **não há barra**. Se os itens somam mais que a meta, uma frase em `support` diz "Seus itens somam 124h. O que passa de 120h não é aproveitado." (12px abaixo do rótulo). O botão primário em largura total "Ver como entregar seu pedido" (`Button as`, 16px abaixo) leva ao guia do formulário e só aparece com `guideHref`.
+- Props: `doneHours` (o `totalHours` de `getProgress`), `missingHours` (o `missingHours` de `getProgress`, o número grande do cartão), `goalHours`, `itemsSum?` (o `itemsSum` de `getProgress`, só para a frase do excedente), `guideHref?`, `linkAs?` (como `Button.as`), `size?: 'default' | 'compact'` (padrão `default`). O componente não calcula (RNF20): mostra os números como chegam e só formata com `formatHours` (`src/utils/format-hours.ts`).
+- Total: inteiro, arredondado para baixo e limitado à meta pelo cálculo único (`computeProgress`), nunca pelo componente. O "falta" também chega pronto, em `missingHours`: o componente não subtrai. Por isso a barra não passa de 100% e o "falta" não fica negativo. 119,9h somadas chegam como 119h e ainda não são completo.
+- Completo (`doneHours >= goalHours`): o número vira a meta em `brand.text`, o rótulo diz "Você completou suas horas" e **não há barra**. Com `itemsSum` acima da meta, uma frase em `support` diz "Seus itens somam 124,6h. O que passa de 120h não é aproveitado." (12px abaixo do rótulo), com a soma em uma casa decimal, como chega. O botão primário em largura total "Ver como entregar seu pedido" (`Button as`, 16px abaixo) leva ao guia do formulário e só aparece com `guideHref`.
+- Compacto: `size="compact"` é para tela que já tem outro número grande (a atividade registrada, com o `highlight` do `StateScreen`). O número cai para `title` tabular, na mesma linha de base do rótulo em minúscula ("51h faltam para completar suas horas", 8px entre os dois); a barra vem 12px abaixo e a linha de meta segue igual. Completo: "120h feitas, você completou suas horas", sem barra.
 - Skeleton: `TotalProgressSkeleton`, blocos em `progress.track` com o keyframe `pulse`, escondidos de leitor de tela (`aria-hidden`), com a altura do número (60px) e da barra (6px).
+- Validação: o `size="compact"` vem da tela de atividade registrada do protótipo "Registrar atividade" (issue #11), validado pela equipe em 16/11/2026.
 - Galeria: `/design-system/total-progress`.
 
 ### CategoryCard
@@ -212,7 +218,7 @@ fica em `molecules/`.
 
 ## Medidas sem token
 
-`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup, 56px do círculo da arte do StateScreen, 300px e 340px de largura máxima do texto e das ações do StateScreen, 36 por 4px da alça do BottomSheet, e 24px do símbolo, 1px da linha e 16px de rolagem da borda da TopBar, e as larguras e alturas dos blocos do `Skeleton` do TotalProgress (96px, 60%, 60px, 20px), o círculo de 48px, o recuo de -22px e a borda de 4px da ação Registrar do BottomNav, o número de 56px com linha de 60px e -1,6px de espaçamento do TotalProgress (sobre o textStyle `display`) e os 6px da ProgressBar `md`, e os 18px do checkbox do ActivityRow com a área de toque de 48px (margens negativas de 12px e 15px que devolvem o espaço à linha).
+`sizes` só tem `touch`, `control`, `topbar`, `bottomnav` e `content`. Estas medidas do desenho ficam em px no `recipe.ts` ou no `styles.ts` do componente: 16px e 32px do Spinner, 4px da ProgressBar, 20px do Badge, 84px de respiro do TextField sob o botão Mostrar/Ocultar, 18px do controle e 46px de recuo da divisória do ChoiceGroup, 56px do círculo da arte do StateScreen, 300px e 340px de largura máxima do texto e das ações do StateScreen, 36 por 4px da alça do BottomSheet, e 24px do símbolo, 1px da linha e 16px de rolagem da borda da TopBar, e as larguras e alturas dos blocos do `Skeleton` do TotalProgress (96px, 60%, 60px, 20px), o círculo de 48px, o recuo de -22px e a borda de 4px da ação Registrar do BottomNav, o número de 56px com linha de 60px e -1,6px de espaçamento do TotalProgress e do `highlight` do StateScreen (sobre o textStyle `display`), os 500ms do `popIn` e os 6px da ProgressBar `md`, e os 18px do checkbox do ActivityRow com a área de toque de 48px (margens negativas de 12px e 15px que devolvem o espaço à linha).
 
 ## Galeria
 

@@ -33,7 +33,7 @@ export function Empty({ targetHours }: EmptyProps): ReactNode {
   return (
     <AppFrame topBar={<TopBar variant="home" />} bottomNav={<MainNav />}>
       <S.Page>
-        <TotalProgress doneHours={0} goalHours={targetHours} />
+        <TotalProgress doneHours={0} missingHours={targetHours} goalHours={targetHours} />
         <FirstSteps targetHours={targetHours} />
       </S.Page>
     </AppFrame>

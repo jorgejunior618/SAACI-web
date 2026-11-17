@@ -1,16 +1,14 @@
 import { styled } from '@/styled-system/jsx'
 
-import { totalNumber } from './recipe'
+import { totalBar, totalHead, totalLabel, totalNumber } from './recipe'
 
 export const Total = styled('span', totalNumber)
 
-export const Label = styled('p', {
-  base: { margin: '0', marginBlockStart: '1', textStyle: 'support', color: 'ink.muted' },
-})
+export const Head = styled('div', totalHead)
 
-export const BarWrap = styled('div', {
-  base: { marginBlockStart: '4' },
-})
+export const Label = styled('p', totalLabel)
+
+export const BarWrap = styled('div', totalBar)
 
 export const Meta = styled('div', {
   base: {

@@ -13,7 +13,7 @@ export function StateScreenSection(): ReactNode {
   return (
     <Section
       title="StateScreen"
-      description="Tela inteira para vazio, sucesso, erro de conexão e carregando. A arte é um ícone de 28px num círculo de 56px; o vazio escolhe o ícone, e o selo acima do título é opcional. O texto de erro diz que nada foi perdido e o próximo passo."
+      description="Tela inteira para vazio, sucesso, erro de conexão e carregando. A arte é um ícone de 28px num círculo de 56px; o vazio escolhe o ícone, o selo acima do título e o número em destaque são opcionais. O texto de erro diz que nada foi perdido e o próximo passo."
     >
       <S.Specimens>
         <Specimen label='variant="empty"'>
@@ -47,6 +47,14 @@ export function StateScreenSection(): ReactNode {
                 </Button>
               </>
             }
+          />
+        </Specimen>
+        <Specimen label="highlight · número em destaque">
+          <StateScreen
+            variant="success"
+            highlight="+10h"
+            title="Atividade registrada"
+            description="Curso de React com TypeScript entrou no item 7."
           />
         </Specimen>
         <Specimen label='variant="connectionError"'>

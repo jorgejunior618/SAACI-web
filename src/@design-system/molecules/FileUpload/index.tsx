@@ -52,7 +52,8 @@ export type FileUploadProps = {
  * Não envia nem lê o arquivo: devolve o `File` em `onSelect` e o envio é de `services/`. Só entrega
  * arquivo que passou na conferência de tipo e tamanho; o que não passa vira uma frase de erro com o
  * motivo e o que fazer. A conferência é ajuda na hora, não segurança. Os dois botões são o caminho
- * em qualquer tela, e arrastar e soltar não existe. No desktop "Tirar foto" abre o seletor comum.
+ * em qualquer tela, empilhados: "Tirar foto do comprovante" (primário) em cima e "Escolher arquivo"
+ * (secundário) embaixo. Arrastar e soltar não existe. No desktop a foto abre o seletor comum.
  *
  * @example
  * ```tsx
@@ -142,15 +143,15 @@ export function FileUpload({
             aria-describedby={shownError ? `${hintId} ${errorId}` : hintId}
           >
             <S.Actions>
+              <Button icon={Camera} block onClick={() => cameraRef.current?.click()}>
+                Tirar foto do comprovante
+              </Button>
               <Button
                 variant="secondary"
-                icon={Camera}
+                icon={FileText}
                 block
-                onClick={() => cameraRef.current?.click()}
+                onClick={() => fileRef.current?.click()}
               >
-                Tirar foto
-              </Button>
-              <Button variant="secondary" block onClick={() => fileRef.current?.click()}>
                 Escolher arquivo
               </Button>
             </S.Actions>
