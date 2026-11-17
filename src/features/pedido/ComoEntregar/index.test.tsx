@@ -11,16 +11,16 @@ import type { Profile } from '@/services/profile'
 import { progressQueries } from '@/services/progress'
 import { rulesQueries } from '@/services/rules'
 import type { Course, RuleItem } from '@/services/rules'
+import { buildFormPdf, PdfCharacterError } from '@/utils/coordination-form'
 import { saveFile } from '@/utils/save-file'
 
-import { buildFormPdf, PdfCharacterError } from '../Pedido/utils'
 import { ComoEntregar } from './index'
 
 vi.mock('next/navigation', () => ({ usePathname: () => '/atividades/pedido/como-entregar' }))
 vi.mock('@supabase/client', () => ({ createClient: vi.fn() }))
-// O PDF de verdade é testado em `Pedido/utils.test.ts`. Aqui só interessa o que a tela faz com ele.
-vi.mock('../Pedido/utils', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../Pedido/utils')>()),
+// O PDF de verdade é testado em `coordination-form.test.ts`. Aqui só interessa o que a tela faz com ele.
+vi.mock('@/utils/coordination-form', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/utils/coordination-form')>()),
   buildFormPdf: vi.fn(),
 }))
 vi.mock('@/utils/save-file', () => ({ saveFile: vi.fn() }))

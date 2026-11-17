@@ -40,10 +40,11 @@ type ToggleProps = {
   onToggle: () => void
 }
 
-// Marcar e desmarcar é um botão só, para o aluno corrigir um toque errado.
+// Marcar e desmarcar é um botão só, para o aluno corrigir um toque errado. O rótulo já diz o estado,
+// então não leva `aria-pressed`: os dois juntos fariam o leitor de tela anunciar o estado duas vezes.
 function Toggle({ isChecked, checkedLabel, uncheckedLabel, onToggle }: ToggleProps): ReactNode {
   return (
-    <Link as="button" type="button" isStandalone aria-pressed={isChecked} onClick={onToggle}>
+    <Link as="button" type="button" isStandalone onClick={onToggle}>
       {isChecked ? checkedLabel : uncheckedLabel}
     </Link>
   )

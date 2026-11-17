@@ -11,9 +11,9 @@ import { activitiesQueries } from '@/services/activities'
 import { profileQueries } from '@/services/profile'
 import { progressQueries } from '@/services/progress'
 import { rulesQueries } from '@/services/rules'
+import { buildFormRows, formatFormHeader } from '@/utils/coordination-form'
 
-import { DeliverySteps } from '../_components/DeliverySteps'
-import { buildFormRows, formatFormHeader } from '../Pedido/utils'
+import { DeliverySteps } from './_components/DeliverySteps'
 import * as S from './styles'
 
 /**

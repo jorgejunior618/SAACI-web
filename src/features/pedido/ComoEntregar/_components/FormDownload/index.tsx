@@ -6,15 +6,15 @@ import type { ReactNode } from 'react'
 
 import { Button, Link, Notice } from '@design-system'
 
-import { saveFile } from '@/utils/save-file'
-
 import {
   buildFileName,
   buildFormPdf,
   formatGeneratedAt,
   PdfCharacterError,
-} from '../../Pedido/utils'
-import type { FormRow } from '../../Pedido/utils'
+} from '@/utils/coordination-form'
+import type { FormRow } from '@/utils/coordination-form'
+import { saveFile } from '@/utils/save-file'
+
 import * as S from './styles'
 
 /** Dados do formulário que o PDF leva. Todos chegam prontos (RNF20). */

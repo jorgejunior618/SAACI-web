@@ -18,9 +18,10 @@ type FirstStepsProps = {
  * Mostra o caminho do primeiro acesso em três passos: registrar, ver o cálculo e entregar o pedido.
  *
  * @remarks
- * Só o primeiro passo é um cartão, com o botão que leva ao Registrar. Os outros dois são texto,
- * porque ainda não há o que fazer neles. É local da tela Início: nasceu sem especificação no
- * `DS_REFERENCE.md`. Promova só se outra tela repetir o padrão.
+ * Só o primeiro passo é um cartão, com o botão que leva ao Registrar. Os outros dois são texto, e o
+ * terceiro traz o link "Ver como entregar", que leva ao guia de entrega (Como entregar). É local da
+ * tela Início: nasceu sem especificação no `DS_REFERENCE.md`. Promova só se outra tela repetir o
+ * padrão.
  *
  * @example
  * ```tsx

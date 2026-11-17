@@ -1,9 +1,9 @@
 import { useId } from 'react'
 import type { ReactNode } from 'react'
 
+import type { FormRow } from '@/utils/coordination-form'
 import { formatHours } from '@/utils/format-hours'
 
-import type { FormRow } from '../../utils'
 import * as S from './styles'
 
 /** Props de {@link FormSummary}. */

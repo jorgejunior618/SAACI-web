@@ -75,8 +75,8 @@ async function zipProofs(
 }
 
 /**
- * Parte do cartão de Atividades que baixa os comprovantes que contam num arquivo compactado, com uma
- * pasta por item.
+ * Baixa os comprovantes que contam num arquivo compactado, com uma pasta por item. Serve ao cartão de
+ * Atividades e ao passo de baixar do roadmap de entrega (Como entregar).
  *
  * @remarks
  * Três estados, como no protótipo: parado (botão, tamanho e quem fica de fora), baixando (progresso

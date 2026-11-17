@@ -1,12 +1,11 @@
-'use client'
-
 import NextLink from 'next/link'
 import type { ReactNode } from 'react'
 
 import { AppFrame, Button, Notice, TopBar } from '@design-system'
 
-import { formatGeneratedAt } from '../../utils'
-import type { FormRow } from '../../utils'
+import { formatGeneratedAt } from '@/utils/coordination-form'
+import type { FormRow } from '@/utils/coordination-form'
+
 import { FormPreview } from '../FormPreview'
 import * as S from './styles'
 

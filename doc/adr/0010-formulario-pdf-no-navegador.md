@@ -5,16 +5,17 @@
 
 ## Contexto
 
-O aluno baixa o formulário de solicitação de atividades complementares já preenchido (RF37, tela
-Seu pedido). O `doc/tecnologia.md` pede que o arquivo saia dos mesmos dados que a pessoa acabou de
-ver, mas não diz onde o PDF é montado nem com qual biblioteca. A issue da tela pediu essa decisão.
+O aluno baixa o formulário de solicitação de atividades complementares já preenchido (RF37). O
+download fica no passo 1 do roadmap de entrega (tela Como entregar), e a tela Seu pedido só confere o
+formulário e mostra a prévia. O `doc/tecnologia.md` pede que o arquivo saia dos mesmos dados que a
+pessoa acabou de ver, mas não diz onde o PDF é montado nem com qual biblioteca. A issue da tela pediu essa decisão.
 
 ## Decisão
 
 - **O PDF é montado no navegador.** A tela passa à função os dados que já mostra (`progress`,
   `profile`, itens do curso). Nenhuma conta é refeita para o arquivo (RNF20).
-- **Biblioteca: `pdf-lib`**, carregada com `import()` só no clique de "Baixar formulário em PDF",
-  como o `fflate` da ADR 0008. Fora do carregamento inicial da tela.
+- **Biblioteca: `pdf-lib`**, carregada com `import()` só no clique de "Baixar formulário em PDF"
+  do roadmap de entrega, como o `fflate` da ADR 0008. Fora do carregamento inicial da tela.
 - **A página é desenhada pelo código:** A4, cabeçalho do campus e da coordenação, aluno, matrícula,
   tabela com todos os itens do curso (horas ou traço), total e a data de geração. A fonte é a
   Helvetica padrão do PDF, que cobre os acentos do português.

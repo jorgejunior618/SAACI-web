@@ -12,6 +12,7 @@ import { activitiesQueries } from '@/services/activities'
 import { profileQueries } from '@/services/profile'
 import { progressQueries } from '@/services/progress'
 import { rulesQueries } from '@/services/rules'
+import { buildFormRows, formatFormHeader } from '@/utils/coordination-form'
 
 import { ChecklistCard } from './_components/ChecklistCard'
 import { FormSummary } from './_components/FormSummary'
@@ -19,10 +20,8 @@ import { PreviewStep } from './_components/PreviewStep'
 import { Empty } from './Empty'
 import {
   buildChecks,
-  buildFormRows,
   buildPreviewWarnings,
   formatBlankRowsNote,
-  formatFormHeader,
   formatOverflowNote,
   formatPendingTitle,
 } from './utils'
