@@ -35,7 +35,6 @@ function formatGain(hours: number): string {
  */
 export function Registered({ activity, progress, onRegisterAnother }: RegisteredProps): ReactNode {
   const hasHours = activity.countedHours > 0
-  const isComplete = progress.totalHours >= progress.targetHours
   const placement = `${activity.name} entrou no item ${activity.itemNumber}.`
 
   return (
@@ -59,8 +58,9 @@ export function Registered({ activity, progress, onRegisterAnother }: Registered
           description={hasHours ? placement : `${placement} Ela fica guardada, mas não soma horas.`}
         />
         <TotalProgress
-          doneHours={isComplete ? progress.itemsSum : progress.totalHours}
+          doneHours={progress.totalHours}
           goalHours={progress.targetHours}
+          itemsSum={progress.itemsSum}
           size="compact"
         />
       </S.Page>

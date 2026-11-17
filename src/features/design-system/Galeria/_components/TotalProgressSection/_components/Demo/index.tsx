@@ -9,9 +9,12 @@ import { RangeControl } from '../../../Controls'
 import { Playground } from '../../../Playground'
 import * as S from './styles'
 
-/** Área de teste do `TotalProgress`: `doneHours` acima da meta mostra o estado completo. */
+/**
+ * Área de teste do `TotalProgress`. Faz aqui o que o cálculo único faz para a tela: `doneHours` é a
+ * soma arredondada para baixo e limitada à meta, e a soma inteira vai em `itemsSum`.
+ */
 export function Demo(): ReactNode {
-  const [doneHours, setDoneHours] = useState(73.5)
+  const [itemsSum, setItemsSum] = useState(73.5)
   const [goalHours, setGoalHours] = useState(120)
 
   return (
@@ -19,11 +22,11 @@ export function Demo(): ReactNode {
       controls={
         <>
           <RangeControl
-            label="doneHours"
-            value={doneHours}
+            label="itemsSum"
+            value={itemsSum}
             min={0}
             max={160}
-            onChange={setDoneHours}
+            onChange={setItemsSum}
           />
           <RangeControl
             label="goalHours"
@@ -36,7 +39,12 @@ export function Demo(): ReactNode {
       }
     >
       <S.Wrap>
-        <TotalProgress doneHours={doneHours} goalHours={goalHours} guideHref="#" />
+        <TotalProgress
+          doneHours={Math.min(Math.floor(itemsSum), goalHours)}
+          goalHours={goalHours}
+          itemsSum={itemsSum}
+          guideHref="#"
+        />
       </S.Wrap>
     </Playground>
   )

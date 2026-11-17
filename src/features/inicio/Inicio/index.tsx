@@ -63,8 +63,9 @@ export function Inicio(): ReactNode {
         ) : null}
 
         <TotalProgress
-          doneHours={isComplete ? progress.itemsSum : progress.totalHours}
+          doneHours={progress.totalHours}
           goalHours={progress.targetHours}
+          itemsSum={progress.itemsSum}
           guideHref="/atividades/pedido"
           linkAs={NextLink}
         />

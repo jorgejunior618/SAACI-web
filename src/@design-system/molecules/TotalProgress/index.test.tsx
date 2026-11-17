@@ -18,21 +18,6 @@ describe('TotalProgress', () => {
     expect(bar).toHaveAttribute('aria-valuemax', '120')
   })
 
-  it('arredonda as horas feitas para baixo', () => {
-    render(<TotalProgress doneHours={73.9} goalHours={120} />)
-
-    expect(screen.getByText('47h')).toBeInTheDocument()
-    expect(screen.getByText('73h feitas')).toBeInTheDocument()
-  })
-
-  it('para na meta: horas acima dela viram o estado completo, sem número negativo', () => {
-    render(<TotalProgress doneHours={150} goalHours={120} />)
-
-    expect(screen.getByText('120h')).toBeInTheDocument()
-    expect(screen.getByText('Você completou suas horas')).toBeInTheDocument()
-    expect(screen.queryByText(/-/)).not.toBeInTheDocument()
-  })
-
   it('completo não tem barra e leva ao guia quando há guideHref', () => {
     render(<TotalProgress doneHours={120} goalHours={120} guideHref="/formulario/guia" />)
 
@@ -49,23 +34,31 @@ describe('TotalProgress', () => {
     expect(screen.queryByRole('link')).not.toBeInTheDocument()
   })
 
-  it('119,9h ainda não está completo', () => {
-    render(<TotalProgress doneHours={119.9} goalHours={120} />)
-
-    expect(screen.getByText('1h')).toBeInTheDocument()
-    expect(screen.getByRole('progressbar')).toBeInTheDocument()
-  })
-
   it('completo com excedente avisa quanto os itens somam e que o resto não conta', () => {
-    render(<TotalProgress doneHours={124.6} goalHours={120} />)
+    render(<TotalProgress doneHours={120} goalHours={120} itemsSum={124.6} />)
 
     expect(
-      screen.getByText('Seus itens somam 124h. O que passa de 120h não é aproveitado.'),
+      screen.getByText('Seus itens somam 124,6h. O que passa de 120h não é aproveitado.'),
     ).toBeInTheDocument()
   })
 
-  it('completo na meta exata não mostra a frase do excedente', () => {
+  it('fora do estado completo, mostra doneHours e ignora itemsSum', () => {
+    render(<TotalProgress doneHours={73} goalHours={120} itemsSum={73.9} />)
+
+    expect(screen.getByText('47h')).toBeInTheDocument()
+    expect(screen.getByText('73h feitas')).toBeInTheDocument()
+    expect(screen.queryByText(/Seus itens somam/)).not.toBeInTheDocument()
+  })
+
+  it('completo sem itemsSum não mostra a frase do excedente', () => {
     render(<TotalProgress doneHours={120} goalHours={120} />)
+
+    expect(screen.getByText('Você completou suas horas')).toBeInTheDocument()
+    expect(screen.queryByText(/Seus itens somam/)).not.toBeInTheDocument()
+  })
+
+  it('completo na meta exata não mostra a frase do excedente', () => {
+    render(<TotalProgress doneHours={120} goalHours={120} itemsSum={120} />)
 
     expect(screen.queryByText(/Seus itens somam/)).not.toBeInTheDocument()
   })
