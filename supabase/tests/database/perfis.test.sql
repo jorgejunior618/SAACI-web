@@ -66,13 +66,10 @@ select is(
   '2023104501',
   'a mudança do próprio perfil ficou gravada'
 );
-select is(
-  (with alterada as (
-     update public.perfis set matricula = 'invadida'
-      where aluno_id = '00000000-0000-0000-0000-0000000000e2'
-     returning 1
-   ) select count(*)::int from alterada),
-  0,
+select is_empty(
+  $$update public.perfis set matricula = 'invadida'
+     where aluno_id = '00000000-0000-0000-0000-0000000000e2'
+    returning aluno_id$$,
   'o aluno não muda o perfil de outro aluno'
 );
 

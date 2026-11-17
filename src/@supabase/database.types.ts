@@ -91,11 +91,51 @@ export type Database = {
           },
         ]
       }
+      perfis: {
+        Row: {
+          aluno_id: string
+          created_at: string
+          curso_id: string | null
+          matricula: string | null
+          nome: string | null
+          semestre_inicio: string | null
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          aluno_id: string
+          created_at?: string
+          curso_id?: string | null
+          matricula?: string | null
+          nome?: string | null
+          semestre_inicio?: string | null
+          updated_at?: string
+        }
+        Update: {
+          aluno_id?: string
+          created_at?: string
+          curso_id?: string | null
+          matricula?: string | null
+          nome?: string | null
+          semestre_inicio?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'perfis_curso_id_fkey'
+            columns: ['curso_id']
+            isOneToOne: false
+            referencedRelation: 'cursos'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      aluno_tem_atividades: { Args: { aluno: string }; Returns: boolean }
       apagar_contas_nao_confirmadas: { Args: { prazo?: string }; Returns: number }
       apagar_minha_conta: { Args: Record<PropertyKey, never>; Returns: number }
       barrar_email_externo: { Args: { event: Json }; Returns: Json }
