@@ -18,31 +18,41 @@ import { Registrar } from './index'
 vi.mock('next/navigation', () => ({ usePathname: () => '/registrar' }))
 vi.mock('@supabase/client', () => ({ createClient: vi.fn() }))
 // O progresso que o service devolve depois da gravação, já com as 10h da atividade nova. O atraso
-// faz o teste pegar a tela que mostrasse o sucesso antes do total novo chegar.
-vi.mock('@/services/progress/progress.api', () => ({
-  getProgress: vi.fn(
-    () =>
-      new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({
-            totalHours: 10,
-            targetHours: 120,
-            missingHours: 110,
-            itemsSum: 10,
-            categories: [
-              {
-                itemNumber: 7,
-                name: 'Curso na área de engenharia de computação',
-                countedHours: 10,
-                maxHours: 60,
-                hoursOverLimit: 0,
-              },
-            ],
-          })
-        }, 100)
+// faz o teste pegar a tela que mostrasse o sucesso antes do total novo chegar. O mock fica na
+// fronteira do domínio: só a `queryFn` do resumo muda, e a chave continua a da factory.
+vi.mock('@/services/progress', async (importOriginal) => {
+  const original = await importOriginal<typeof import('@/services/progress')>()
+
+  return {
+    ...original,
+    progressQueries: {
+      ...original.progressQueries,
+      summary: () => ({
+        ...original.progressQueries.summary(),
+        queryFn: () =>
+          new Promise<Progress>((resolve) => {
+            setTimeout(() => {
+              resolve({
+                totalHours: 10,
+                targetHours: 120,
+                missingHours: 110,
+                itemsSum: 10,
+                categories: [
+                  {
+                    itemNumber: 7,
+                    name: 'Curso na área de engenharia de computação',
+                    countedHours: 10,
+                    maxHours: 60,
+                    hoursOverLimit: 0,
+                  },
+                ],
+              })
+            }, 100)
+          }),
       }),
-  ),
-}))
+    },
+  }
+})
 vi.mock('@/services/activities', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/services/activities')>()),
   readProof: vi.fn(),
