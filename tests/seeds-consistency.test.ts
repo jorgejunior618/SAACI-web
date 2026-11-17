@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getActivities } from '@/services/activities'
-import { updateProfile } from '@/services/profile'
 import { getProgress } from '@/services/progress'
 import type { Course, RuleItem } from '@/services/rules'
 
@@ -57,9 +56,27 @@ vi.mock('@/services/rules/rules.api', () => ({
   getRuleItems: () => Promise.resolve(rules.items),
 }))
 
+// O perfil mora no Supabase. Aqui ele é um objeto em memória, que o teste muda quando precisa.
+const profileDb = vi.hoisted(() => ({
+  profile: {
+    name: 'Ana Beatriz Moura',
+    enrollmentId: '2023104501',
+    startSemester: '2023-07-01' as string | null,
+    courseId: '3b1f6d2e-5a47-4c80-9e1b-7d0c2a4f8e11' as string | null,
+  },
+}))
+
+vi.mock('@/services/profile/profile.api', () => ({
+  getProfile: () => Promise.resolve(structuredClone(profileDb.profile)),
+}))
+
 describe('mocks dos domínios', () => {
-  beforeEach(async () => {
-    await updateProfile({ courseId: rules.courseId, startSemester: '2023-07-01' })
+  beforeEach(() => {
+    profileDb.profile = {
+      ...profileDb.profile,
+      courseId: rules.courseId,
+      startSemester: '2023-07-01',
+    }
   })
 
   it('as atividades de exemplo somam o mesmo total do progresso de exemplo', async () => {

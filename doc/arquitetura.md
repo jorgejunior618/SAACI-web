@@ -106,7 +106,8 @@ disparar uma busca. A exceção está explicada em `react-query.md`.
 - RPC usa `security invoker`. Qualquer `security definer` entra aqui, por nome, antes de ser escrito.
   Registrados: `apagar_contas_nao_confirmadas` (RNF27, ADR 0003), que só o dono executa, e
   `apagar_minha_conta` (RF33, ADR 0006), que só o aluno logado executa e que lê `auth.uid()` em vez de
-  receber o dono.
+  receber o dono, e `cria_perfil_do_aluno` (ADR 0009), gatilho em `auth.users` que cria a linha vazia
+  do perfil e que ninguém executa por RPC.
 - **Agendamento que só mexe no banco e não usa segredo** roda como função SQL com `pg_cron`, sem Route
   Handler. A limpeza de conta não confirmada (RNF27) é assim (ADR 0003).
 - Tabela editável inclui `updated_at` no `WHERE` de todo update/delete: zero linhas afetadas é
@@ -117,11 +118,12 @@ disparar uma busca. A exceção está explicada em `react-query.md`.
 
 Uma exceção que ninguém consegue enumerar já virou regra. Por isso cada uma está aqui, por nome.
 
-| Exceção                                             | Regra que ela dobra                           | Por que existe                                                                      |
-| --------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `SessionGate` decide a sessão só no navegador       | Página é Server Component e faz prefetch      | Enquanto a sessão for do mock, o servidor não a enxerga                             |
-| `setQueryData` da sessão em vez de invalidar        | Invalidação sempre pela rotina do domínio     | A resposta de `signIn`/`signOut` já é o novo estado                                 |
-| `/conta-apagada` fora dos grupos, sem `SessionGate` | Um `SessionGate` por grupo de rota (ADR 0007) | A sessão acabou de ser apagada, e qualquer gate redirecionaria antes da confirmação |
+| Exceção                                             | Regra que ela dobra                             | Por que existe                                                                      |
+| --------------------------------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `SessionGate` decide a sessão só no navegador       | Página é Server Component e faz prefetch        | Enquanto a sessão for do mock, o servidor não a enxerga                             |
+| `setQueryData` da sessão em vez de invalidar        | Invalidação sempre pela rotina do domínio       | A resposta de `signIn`/`signOut` já é o novo estado                                 |
+| `/conta-apagada` fora dos grupos, sem `SessionGate` | Um `SessionGate` por grupo de rota (ADR 0007)   | A sessão acabou de ser apagada, e qualquer gate redirecionaria antes da confirmação |
+| Update do perfil sem `updated_at` no `WHERE`        | Tabela editável confere `updated_at` (ADR 0009) | O aluno é o único escritor e o patch é por campo, então não há conflito a detectar  |
 
 ## Onde está a verdade corrente
 

@@ -10,7 +10,7 @@ export const profileQueries = {
   detail: () =>
     queryOptions({
       queryKey: profileKeys.detail(),
-      queryFn: getProfile,
+      queryFn: () => getProfile(),
       staleTime: STALE_TIME.cadastro,
     }),
 }

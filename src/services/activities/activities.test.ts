@@ -1,7 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { resetProfileMock } from '../profile/profile.mock'
-import { updateProfile } from '../profile/profile.mutations'
 import type { RuleItem } from '../rules/rules.types'
 import { getActivities, getActivity, getProofFile, readProof } from './activities.api'
 import {
@@ -55,11 +53,28 @@ function pdf(name = 'certificado.pdf'): File {
   return new File(['conteudo'], name, { type: 'application/pdf' })
 }
 
+// O perfil mora no Supabase. Aqui ele é um objeto em memória, que o teste muda quando precisa.
+const profileDb = vi.hoisted(() => ({
+  profile: {
+    name: 'Ana Beatriz Moura',
+    enrollmentId: '2023104501',
+    startSemester: '2023-07-01' as string | null,
+    courseId: '3b1f6d2e-5a47-4c80-9e1b-7d0c2a4f8e11' as string | null,
+  },
+}))
+
+vi.mock('../profile/profile.api', () => ({
+  getProfile: () => Promise.resolve(structuredClone(profileDb.profile)),
+}))
+
 describe('atividades', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     resetActivitiesMock()
-    resetProfileMock()
-    await updateProfile({ courseId: rules.courseId, startSemester: '2023-07-01' })
+    profileDb.profile = {
+      ...profileDb.profile,
+      courseId: rules.courseId,
+      startSemester: '2023-07-01',
+    }
   })
 
   it('lista as 9 atividades por item e pela data em que terminaram', async () => {
@@ -90,7 +105,7 @@ describe('atividades', () => {
   })
 
   it('passa a contar a atividade antiga quando o semestre de ingresso muda', async () => {
-    await updateProfile({ startSemester: '2023-01-01' })
+    profileDb.profile = { ...profileDb.profile, startSemester: '2023-01-01' }
     const list = await getActivities()
 
     expect(list.every((a) => a.status === 'conta')).toBe(true)
