@@ -109,6 +109,7 @@ nasce ou muda.
 - Fora do componente: enviar e ler o arquivo (`services/`). O componente só devolve o `File`.
 - Câmera: `Tirar foto do comprovante` usa `capture="environment"`. No desktop o navegador ignora e abre o seletor comum; os dois botões aparecem sempre. Não há arrastar e soltar.
 - Medida: o protótipo de Registrar pede o botão de foto com 64px, ícone grande e texto de 17px, fora da escala do `Button`; o componente usa o `Button` padrão de 48px. A área pede 20px em cima e embaixo, que não existe na escala de 4px; usa 16px.
+- Validação: os botões empilhados, com `Tirar foto do comprovante` primário, vêm do protótipo "Registrar atividade" (issue #11), validado pela equipe em 16/11/2026.
 - Galeria: `/design-system/file-upload`.
 
 ### Notice
@@ -128,6 +129,7 @@ nasce ou muda.
 - Destaque: `highlight` é um número já formatado ("+10h", a atividade registrada) entre a arte e o título, em `display` com 56px/60px e -1,6px, cor `brand.text`, 8px acima do título. É o número grande da tela: com ele, o `TotalProgress` da mesma tela vai em `size="compact"`. Entra com o keyframe `popIn` (500ms, `easings.out`, sobe 12px e cresce de 96%); com `prefers-reduced-motion` só aparece.
 - Carregando: `Spinner lg` com `label` (lido pelo leitor de tela, uma vez) e a mesma frase visível abaixo, sem círculo.
 - Nível: fica em `molecules/`, porque só compõe atoms (`Icon`, `Spinner`); o plano pedia `organisms/`, mas organism não pula degrau.
+- Validação: o `highlight` vem da tela de atividade registrada do protótipo "Registrar atividade" (issue #11), validado pela equipe em 16/11/2026.
 - Galeria: `/design-system/state-screen`.
 
 ### LoadingState
@@ -144,6 +146,7 @@ nasce ou muda.
 - Completo (`doneHours >= goalHours`): o número vira a meta em `brand.text`, o rótulo diz "Você completou suas horas" e **não há barra**. Se os itens somam mais que a meta, uma frase em `support` diz "Seus itens somam 124h. O que passa de 120h não é aproveitado." (12px abaixo do rótulo). O botão primário em largura total "Ver como entregar seu pedido" (`Button as`, 16px abaixo) leva ao guia do formulário e só aparece com `guideHref`.
 - Compacto: `size="compact"` é para tela que já tem outro número grande (a atividade registrada, com o `highlight` do `StateScreen`). O número cai para `title` tabular, na mesma linha de base do rótulo em minúscula ("51h faltam para completar suas horas", 8px entre os dois); a barra vem 12px abaixo e a linha de meta segue igual. Completo: "120h feitas, você completou suas horas", sem barra.
 - Skeleton: `TotalProgressSkeleton`, blocos em `progress.track` com o keyframe `pulse`, escondidos de leitor de tela (`aria-hidden`), com a altura do número (60px) e da barra (6px).
+- Validação: o `size="compact"` vem da tela de atividade registrada do protótipo "Registrar atividade" (issue #11), validado pela equipe em 16/11/2026.
 - Galeria: `/design-system/total-progress`.
 
 ### CategoryCard
