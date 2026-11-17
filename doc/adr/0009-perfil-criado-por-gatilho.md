@@ -35,6 +35,11 @@ O perfil do aluno (nome, matrícula, semestre de início e curso) sai do mock e 
 - **Exceção nomeada: o update do perfil não leva `updated_at` no `WHERE`.** O aluno é o único
   escritor da própria linha e o patch é por campo, então dois aparelhos gravando campos diferentes
   não se sobrescrevem. A regra de `arquitetura.md` continua valendo para as atividades (ADR 0001).
+- **Curso e semestre obrigatórios (RF09, RF11) valem só na tela, sem `check` condicional.** A
+  `modelagem-dados.md` previa um `check` além da tela. Ele foi retirado: a linha nasce com os dois
+  nulos, e um `check` que os exigisse só funcionaria com uma coluna de estado ("cadastro
+  concluído"), que o RF09 não pede. Quem leva o aluno a Seu curso é o `SessionGate`. O banco
+  garante o formato do semestre (`check` no mês) e a trava de troca de curso, mas não a presença.
 - **`public.atualiza_updated_at()` é genérica** e serve às próximas tabelas do aluno.
 
 ## Consequências
@@ -45,7 +50,12 @@ O perfil do aluno (nome, matrícula, semestre de início e curso) sai do mock e 
   comportamento observável é o correto.
 - `updateProfile` faz duas idas à rede (usuário da sessão e `update`), porque o Supabase exige um
   filtro no `update`.
-- Quem escrever a #20 precisa trocar o corpo de `aluno_tem_atividades` e retirar o `TODO`.
+- Quem escrever a #20 precisa trocar o corpo de `aluno_tem_atividades`, retirar o `TODO` e decidir
+  a visibilidade da função: hoje `authenticated` a executa por RPC, porque o gatilho roda como o
+  invocador. A tela de Trocar curso também passa a ler o "travado" do mesmo dado do banco, e não
+  de `activitiesQueries.list()`.
+- Obrigatoriedade de curso e semestre no banco fica descartada por esta ADR. Se um dia houver
+  coluna de estado do cadastro, uma ADR nova a reabre.
 - `arquitetura.md`, `rls-e-permissoes.md` e `modelagem-dados.md` mudam neste commit.
 
 ## Alternativas descartadas

@@ -71,7 +71,8 @@ on conflict do nothing;
 
 -- RF10: diz se o aluno tem atividade registrada.
 -- TODO [#20]: a tabela de atividades ainda não existe, então a função devolve `false` e a trava
--- abaixo fica inerte. A #20 troca o corpo por `create or replace`, sem mexer no gatilho. Enquanto
+-- abaixo fica inerte. A #20 troca o corpo por `create or replace`, sem mexer no gatilho, e decide
+-- se a função continua chamável por RPC (hoje `authenticated` a executa, ADR 0009). Enquanto
 -- não há atividade no banco, `false` é também a resposta certa.
 -- `security invoker`: depois da #20 a RLS de quem chama vale, e o aluno só enxerga as próprias.
 create function public.aluno_tem_atividades(aluno uuid)

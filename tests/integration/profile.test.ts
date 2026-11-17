@@ -9,6 +9,9 @@ import { waitForEmailLink } from './helpers/mailpit'
 // Perfil contra o Supabase local: o gatilho cria a linha no cadastro, o aluno só lê e muda a própria,
 // e o banco recusa semestre fora de 1º de janeiro ou de julho. A trava de troca de curso (RF10) é
 // provada no pgTAP, porque só há um curso cadastrado e a tabela de atividades ainda não existe.
+// TODO [#20]: com atividades reais, acrescentar aqui o caso de `CourseLockedError` pelo service. O
+// caminho PostgREST até `SA010` foi conferido à mão (stub `true` e 2º curso), sem teste permanente,
+// porque a suíte não tem como trocar a função do banco.
 const PASSWORD = 'senhaforte1'
 const COURSE_ID = '3b1f6d2e-5a47-4c80-9e1b-7d0c2a4f8e11'
 const stamp = Date.now()
@@ -103,6 +106,9 @@ describe('isolamento entre alunos', () => {
   })
 
   it('o aluno B não lê o perfil de A pelo id', async () => {
+    // Pré-condição: o perfil de A existe e tem dado, senão `[]` passaria sobre nada.
+    await signIn(EMAIL_A, PASSWORD)
+    expect(await getProfile()).toMatchObject({ name: 'Ana Beatriz Moura' })
     await signIn(EMAIL_B, PASSWORD)
 
     const { data, error } = await createClient().from('perfis').select('nome').eq('aluno_id', idA)
