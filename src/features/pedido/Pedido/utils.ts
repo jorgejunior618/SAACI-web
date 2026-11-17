@@ -3,6 +3,7 @@ import type { Profile } from '@/services/profile'
 import type { Progress } from '@/services/progress'
 import type { Course, RuleItem } from '@/services/rules'
 import { formatHours } from '@/utils/format-hours'
+import { isCounting } from '@/utils/is-counting'
 
 /** Uma linha da lista "O que o formulário precisa". */
 export type FormCheck = {
@@ -36,13 +37,14 @@ export type BuildChecksInput = {
  * Conta os comprovantes que contam no total, inteiros ou em parte.
  *
  * @remarks
- * Lê o `status` que o cálculo único devolveu: não decide o que conta.
+ * Lê o `status` que o cálculo único devolveu, pelo mesmo `isCounting` de Atividades: não decide o
+ * que conta.
  *
  * @param activities Atividades do aluno.
  * @returns Quantos comprovantes entram no pedido.
  */
 export function countProofs(activities: Activity[]): number {
-  return activities.filter((activity) => activity.status !== 'nao_conta').length
+  return activities.filter(isCounting).length
 }
 
 /**

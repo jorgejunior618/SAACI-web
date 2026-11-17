@@ -56,7 +56,7 @@ export function buildProtocolEmail({
     .join(' - ')
 
   const body = [
-    'Olá, equipe do protocolo.',
+    'Olá,',
     '',
     'Peço a abertura de um protocolo para a solicitação de atividades complementares.',
     '',

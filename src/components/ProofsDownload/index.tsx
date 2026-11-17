@@ -19,8 +19,8 @@ import {
   formatMegabytes,
   formatSelectedLabel,
   getProofEntries,
-} from '../../utils'
-import type { ProofEntry } from '../../utils'
+} from './utils'
+import type { ProofEntry } from './utils'
 import * as S from './styles'
 
 /** Nome do arquivo que vai para os downloads do aparelho. */
