@@ -7,7 +7,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { accountQueries } from '@/services/account'
 import { activitiesKeys } from '@/services/activities'
 import { getProfile, profileQueries, updateProfile } from '@/services/profile'
-import { resetProfileMock } from '@/services/profile/profile.mock'
 import { progressKeys } from '@/services/progress'
 import { rulesQueries } from '@/services/rules'
 import type { Course } from '@/services/rules'
@@ -19,12 +18,32 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
   usePathname: () => '/perfil',
 }))
-// Nada aqui fala com o Supabase: sessão e curso entram pelo cache, e o perfil vem do mock em memória.
+// O perfil mora no Supabase. Aqui ele é um objeto em memória, lido por `getProfile` e gravado por
+// `updateProfile`, para a tela ver a escrita voltar na leitura.
+const profileDb = vi.hoisted(() => ({
+  profile: {
+    name: 'Ana Beatriz Moura',
+    enrollmentId: '2023104501' as string | null,
+    startSemester: '2023-07-01' as string | null,
+    courseId: 'curso-1' as string | null,
+  },
+}))
+
+// Nada aqui fala com o Supabase: sessão e curso entram pelo cache, e o perfil vem do objeto acima.
 vi.mock('@supabase/client', () => ({ createClient: vi.fn() }))
+vi.mock('@/services/profile/profile.api', () => ({
+  getProfile: () => Promise.resolve(structuredClone(profileDb.profile)),
+}))
 vi.mock('@/services/profile', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/services/profile')>()
 
-  return { ...actual, updateProfile: vi.fn(actual.updateProfile) }
+  return {
+    ...actual,
+    updateProfile: vi.fn((changes: Partial<typeof profileDb.profile>) => {
+      profileDb.profile = { ...profileDb.profile, ...changes }
+      return Promise.resolve(structuredClone(profileDb.profile))
+    }),
+  }
 })
 
 const SESSION = { email: 'ana.moura07@aluno.ifce.edu.br', emailConfirmed: true }
@@ -56,10 +75,13 @@ async function openRow(user: ReturnType<typeof userEvent.setup>, label: RegExp):
 }
 
 describe('Perfil', () => {
-  beforeEach(async () => {
-    resetProfileMock()
-    // A primeira escolha de curso é aceita mesmo com atividades lançadas (RF10).
-    await updateProfile({ courseId: COURSE.id, startSemester: '2023-07-01' })
+  beforeEach(() => {
+    profileDb.profile = {
+      name: 'Ana Beatriz Moura',
+      enrollmentId: '2023104501',
+      startSemester: '2023-07-01',
+      courseId: COURSE.id,
+    }
     vi.mocked(updateProfile).mockClear()
   })
 
@@ -77,8 +99,7 @@ describe('Perfil', () => {
   })
 
   it('sem curso escolhido, diz o que falta e leva a Seu curso em vez de quebrar', async () => {
-    // Estado de partida sem curso: o mock aceita `courseId` nulo só na criação, então a tela é
-    // montada com o perfil já no cache.
+    // Estado de partida sem curso: a tela é montada com o perfil já no cache.
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
 
     queryClient.setQueryData(accountQueries.session().queryKey, SESSION)
