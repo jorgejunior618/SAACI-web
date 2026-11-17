@@ -11,6 +11,7 @@ import { Button, Notice, ProgressBar, Spinner } from '@design-system'
 import { getProofFile } from '@/services/activities'
 import type { Activity } from '@/services/activities'
 import type { RuleItem } from '@/services/rules'
+import { saveFile } from '@/utils/save-file'
 
 import {
   formatFileCount,
@@ -69,18 +70,6 @@ async function zipProofs(
     if (signal.aborted) return null
     throw error
   }
-}
-
-// Entrega o arquivo ao navegador como download. O endereço é liberado depois, para o navegador ter
-// tempo de começar a gravar.
-function saveFile(file: Blob, name: string): void {
-  const url = URL.createObjectURL(file)
-  const link = document.createElement('a')
-
-  link.href = url
-  link.download = name
-  link.click()
-  setTimeout(() => URL.revokeObjectURL(url), 60_000)
 }
 
 /**

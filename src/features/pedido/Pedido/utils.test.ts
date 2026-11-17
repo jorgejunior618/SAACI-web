@@ -1,3 +1,4 @@
+import { PDFDocument } from 'pdf-lib'
 import { describe, expect, it } from 'vitest'
 
 import type { Activity } from '@/services/activities'
@@ -8,13 +9,18 @@ import type { RuleItem } from '@/services/rules'
 import {
   buildChecks,
   buildFileName,
+  buildFormPdf,
   buildFormRows,
   countProofs,
   formatBlankRowsNote,
+  formatFormHeader,
   formatGeneratedAt,
+  formatKilobytes,
   formatOverflowNote,
   formatPendingTitle,
+  PdfCharacterError,
 } from './utils'
+import type { FormPdfInput } from './utils'
 
 function activity(status: Activity['status']): Activity {
   return {
@@ -212,5 +218,76 @@ describe('buildFileName', () => {
   it('marca a versão em branco quando não há nome', () => {
     expect(buildFileName(null)).toBe('formulario-atividades-complementares-em-branco.pdf')
     expect(buildFileName('  ')).toBe('formulario-atividades-complementares-em-branco.pdf')
+  })
+})
+
+describe('formatFormHeader', () => {
+  it('junta o campus e a coordenação do curso', () => {
+    expect(formatFormHeader({ campus: 'Fortaleza', name: 'Engenharia de Computação' })).toBe(
+      'IFCE campus Fortaleza · Coordenação de Engenharia de Computação',
+    )
+  })
+})
+
+describe('formatKilobytes', () => {
+  it('arredonda para KB e nunca mostra 0 KB para arquivo com conteúdo', () => {
+    expect(formatKilobytes(184_320)).toBe('180 KB')
+    expect(formatKilobytes(10)).toBe('1 KB')
+    expect(formatKilobytes(0)).toBe('0 KB')
+  })
+})
+
+describe('buildFormPdf', () => {
+  const input: FormPdfInput = {
+    header: 'IFCE campus Fortaleza · Coordenação de Engenharia de Computação',
+    studentName: 'Ana Beatriz Moura',
+    enrollmentId: '2023104501',
+    rows: buildFormRows([ruleItem(1), ruleItem(2), ruleItem(7)], progress()),
+    totalHours: 120,
+    generatedAt: '31/10/2026, 15:30',
+  }
+
+  async function load(blob: Blob): Promise<PDFDocument> {
+    return PDFDocument.load(new Uint8Array(await blob.arrayBuffer()))
+  }
+
+  it('gera um PDF de uma página com o título do formulário', async () => {
+    const blob = await buildFormPdf(input)
+    const bytes = new Uint8Array(await blob.arrayBuffer())
+    const pdf = await load(blob)
+
+    expect(blob.type).toBe('application/pdf')
+    expect(new TextDecoder().decode(bytes.slice(0, 5))).toBe('%PDF-')
+    expect(pdf.getPageCount()).toBe(1)
+    expect(pdf.getTitle()).toBe('Formulário para Solicitação de Atividades Complementares')
+  })
+
+  it('segue a tabela em outra página quando os itens não cabem', async () => {
+    const manyRows = buildFormRows(
+      Array.from({ length: 60 }, (_, index) => ruleItem(index + 1)),
+      progress(),
+    )
+    const pdf = await load(await buildFormPdf({ ...input, rows: manyRows }))
+
+    expect(pdf.getPageCount()).toBeGreaterThan(1)
+  })
+
+  it('gera a versão em branco', async () => {
+    const blob = await buildFormPdf({ ...input, isBlank: true })
+
+    expect(blob.type).toBe('application/pdf')
+    expect((await load(blob)).getPageCount()).toBe(1)
+  })
+
+  it('aceita acentos do português', async () => {
+    await expect(
+      buildFormPdf({ ...input, studentName: 'João Conceição Ávila' }),
+    ).resolves.toBeInstanceOf(Blob)
+  })
+
+  it('recusa com um erro próprio o caractere que a fonte não tem', async () => {
+    await expect(buildFormPdf({ ...input, studentName: '山田 太郎' })).rejects.toBeInstanceOf(
+      PdfCharacterError,
+    )
   })
 })

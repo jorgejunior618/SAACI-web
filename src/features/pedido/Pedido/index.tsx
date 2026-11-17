@@ -2,6 +2,7 @@
 
 import { useSuspenseQueries } from '@tanstack/react-query'
 import NextLink from 'next/link'
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 
 import { AppFrame, Button, TopBar } from '@design-system'
@@ -13,25 +14,37 @@ import { progressQueries } from '@/services/progress'
 import { rulesQueries } from '@/services/rules'
 
 import { ChecklistCard } from './_components/ChecklistCard'
+import { DownloadedStep } from './_components/DownloadedStep'
 import { FormSummary } from './_components/FormSummary'
+import { PreviewStep } from './_components/PreviewStep'
 import { Empty } from './Empty'
 import {
   buildChecks,
   buildFormRows,
   formatBlankRowsNote,
+  formatFormHeader,
   formatOverflowNote,
   formatPendingTitle,
 } from './utils'
+import type { DownloadedFile } from './utils'
 import * as S from './styles'
+
+// Em que ponto do fluxo o aluno está. A conferência é a entrada; a prévia guarda o momento em que
+// foi aberta, e o baixado guarda o PDF gerado.
+type Step =
+  | { name: 'review' }
+  | { name: 'preview'; generatedAt: Date }
+  | { name: 'downloaded'; file: DownloadedFile }
 
 /**
  * Tela Seu pedido: o que falta para o formulário da coordenação e o que vai nele.
  *
  * @remarks
  * Só compõe `progress`, `profile`, `activities` e `rules`: não tem service próprio e não soma horas
- * (RNF20). O estado "pronto" ou "incompleto" sai dos dados, não de um `useState`. Nome e matrícula
- * levam ao Perfil, onde se edita, então a tela não grava nada. Sem atividade, mostra o `Empty`. A
- * página envolve este componente em `Suspense`, com `Loading` como fallback.
+ * (RNF20). O estado "pronto" ou "incompleto" sai dos dados, não de um `useState`. O `useState` guarda
+ * só o passo do fluxo: conferir, pré-visualizar e baixado. Nome e matrícula levam ao Perfil, onde se
+ * edita, então a tela não grava nada. Sem atividade, mostra o `Empty`. A página envolve este
+ * componente em `Suspense`, com `Loading` como fallback.
  *
  * @example
  * ```tsx
@@ -41,6 +54,7 @@ import * as S from './styles'
  * ```
  */
 export function Pedido(): ReactNode {
+  const [step, setStep] = useState<Step>({ name: 'review' })
   const [{ data: activities }, { data: progress }, { data: profile }] = useSuspenseQueries({
     queries: [activitiesQueries.list(), progressQueries.summary(), profileQueries.detail()],
   })
@@ -61,8 +75,45 @@ export function Pedido(): ReactNode {
   const pendingCount = checks.filter((check) => !check.isDone).length
   const isReady = pendingCount === 0
 
-  // TODO: provisório. A prévia e o download do PDF entram na etapa 3 da issue #14.
-  function openPreview(): void {}
+  // Cada passo é uma tela nova: sobe ao topo para não abrir no meio da página da conferência.
+  function goTo(next: Step): void {
+    setStep(next)
+    window.scrollTo({ top: 0 })
+  }
+
+  function openPreview(): void {
+    goTo({ name: 'preview', generatedAt: new Date() })
+  }
+
+  if (step.name === 'preview') {
+    return (
+      <PreviewStep
+        header={formatFormHeader(course)}
+        studentName={profile.name}
+        enrollmentId={profile.enrollmentId}
+        rows={rows}
+        totalHours={progress.totalHours}
+        generatedAt={step.generatedAt}
+        onBack={() => goTo({ name: 'review' })}
+        onDownloaded={(file) => goTo({ name: 'downloaded', file })}
+      />
+    )
+  }
+
+  if (step.name === 'downloaded') {
+    return (
+      <DownloadedStep
+        file={step.file}
+        email={{
+          name: profile.name,
+          enrollmentId: profile.enrollmentId,
+          courseName: course.name,
+          totalHours: progress.totalHours,
+        }}
+        onBack={() => goTo({ name: 'review' })}
+      />
+    )
+  }
 
   return (
     <AppFrame
