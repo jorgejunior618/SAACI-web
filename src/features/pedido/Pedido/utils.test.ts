@@ -215,9 +215,16 @@ describe('buildFileName', () => {
     expect(buildFileName('Ana')).toBe('formulario-atividades-complementares-ana.pdf')
   })
 
-  it('marca a versão em branco quando não há nome', () => {
-    expect(buildFileName(null)).toBe('formulario-atividades-complementares-em-branco.pdf')
-    expect(buildFileName('  ')).toBe('formulario-atividades-complementares-em-branco.pdf')
+  it('marca a versão em branco, tenha o aluno nome ou não', () => {
+    expect(buildFileName(null, true)).toBe('formulario-atividades-complementares-em-branco.pdf')
+    expect(buildFileName('Ana Moura', true)).toBe(
+      'formulario-atividades-complementares-em-branco.pdf',
+    )
+  })
+
+  it('não diz que está em branco quando o PDF é preenchido e o nome ainda falta', () => {
+    expect(buildFileName(null)).toBe('formulario-atividades-complementares.pdf')
+    expect(buildFileName('  ')).toBe('formulario-atividades-complementares.pdf')
   })
 })
 

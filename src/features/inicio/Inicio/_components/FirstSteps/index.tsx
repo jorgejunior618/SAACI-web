@@ -3,7 +3,7 @@ import NextLink from 'next/link'
 import { useId } from 'react'
 import type { ReactNode } from 'react'
 
-import { Button, Card, Icon } from '@design-system'
+import { Button, Card, Icon, Link } from '@design-system'
 
 import { formatHours } from '@/utils/format-hours'
 
@@ -74,6 +74,9 @@ export function FirstSteps({ targetHours }: FirstStepsProps): ReactNode {
             <S.StepText>
               Com {goal}, o formulário fica pronto e os certificados separados para a coordenação.
             </S.StepText>
+            <Link as={NextLink} href="/atividades/pedido/como-entregar" isStandalone>
+              Ver como entregar
+            </Link>
           </S.Text>
         </S.Step>
       </S.List>

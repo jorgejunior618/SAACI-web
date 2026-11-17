@@ -31,13 +31,13 @@ export type DeliveryStepsProps = {
 }
 
 /**
- * Roadmap da entrega do pedido no IFCE: baixar, mandar o e-mail, ir ao protocolo e acompanhar.
+ * Roadmap da entrega do pedido no IFCE: baixar, mandar o e-mail, ir à recepção do IFCE e acompanhar.
  *
  * @remarks
  * O processo é manual e este componente só orienta: não guarda passo feito. O `doneCount` vem da
  * tela e só pinta os círculos (hoje, "baixou o formulário" é o passo 1). O passo do e-mail tem o
  * link `mailto:` com o texto pronto e "Copiar texto" de reserva. O `mailto:` não anexa arquivo, e o
- * texto diz isso. Os dados do protocolo que ainda não temos aparecem como marcador.
+ * texto diz isso. Os dados da recepção e do protocolo que ainda não temos aparecem como marcador.
  *
  * @example
  * ```tsx
@@ -68,6 +68,14 @@ export function DeliverySteps({
     }
   }
 
+  // O arquivo dos comprovantes mora em Atividades. O passo 1 o oferece, e o passo 2 repete o link no
+  // `compact`, onde o passo 1 já está feito e fechado: o aluno precisa do arquivo para anexar.
+  const proofsLink = (
+    <Link as={NextLink} href="/atividades" isStandalone>
+      Baixar os comprovantes que contam
+    </Link>
+  )
+
   const steps: { title: string; detail: ReactNode }[] = [
     {
       title: 'Baixar o formulário e os comprovantes',
@@ -76,9 +84,7 @@ export function DeliverySteps({
           <S.DetailText>
             O formulário em PDF desta tela e o arquivo com os comprovantes que contam.
           </S.DetailText>
-          <Link as={NextLink} href="/atividades" isStandalone>
-            Baixar os comprovantes que contam
-          </Link>
+          {proofsLink}
         </>
       ),
     },
@@ -90,6 +96,7 @@ export function DeliverySteps({
             Escreva para <S.Address>{PROTOCOL_EMAIL}</S.Address> com o formulário e o arquivo dos
             comprovantes anexados. O e-mail abre sem anexo: anexe os dois antes de enviar.
           </S.DetailText>
+          {variant === 'compact' ? proofsLink : null}
           <S.Actions>
             <Button as="a" href={protocolEmail.mailtoHref} variant="secondary" block>
               Escrever o e-mail
@@ -110,14 +117,17 @@ export function DeliverySteps({
       ),
     },
     {
-      title: 'Ir ao protocolo e preencher o formulário de lá',
+      title: 'Ir à recepção do IFCE',
       detail: (
         <>
           <S.DetailText>
-            O atendente abre o seu protocolo com o que você enviou por e-mail.
+            Preencha o formulário de lá. O atendente abre o seu protocolo com o que você enviou por
+            e-mail.
           </S.DetailText>
-          {/* TODO: provisório. Trocar os marcadores pelo dado real quando a coordenação informar. */}
-          <S.DetailText>[LOCAL E HORÁRIO DO PROTOCOLO]</S.DetailText>
+          {/* TODO: provisório. O endereço vem do relatório de recredenciamento do e-MEC. Trocar os marcadores pelo dado real quando a coordenação informar o horário da recepção e se o protocolo dá número. */}
+          <S.DetailText>
+            Av. Treze de Maio, 2081, Benfica, Fortaleza. [HORÁRIO DA RECEPÇÃO]
+          </S.DetailText>
           <S.DetailText>[O PROTOCOLO INFORMA UM NÚMERO?]</S.DetailText>
         </>
       ),

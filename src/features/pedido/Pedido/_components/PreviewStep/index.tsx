@@ -78,7 +78,7 @@ export function PreviewStep({
         isBlank,
       })
 
-      return { blob, fileName: buildFileName(isBlank ? null : studentName) }
+      return { blob, fileName: buildFileName(studentName, isBlank) }
     },
     onSuccess: ({ blob, fileName }) => {
       saveFile(blob, fileName)

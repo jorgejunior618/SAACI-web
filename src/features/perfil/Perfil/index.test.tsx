@@ -88,7 +88,8 @@ describe('Perfil', () => {
   it('mostra quem é o aluno, os dados, o semestre como ele digita e o curso com a meta', async () => {
     renderPerfil()
 
-    expect(await screen.findByText('Ana Beatriz Moura')).toBeInTheDocument()
+    // O nome aparece no cabeçalho e na linha "Nome" de Seus dados.
+    expect(await screen.findAllByText('Ana Beatriz Moura')).toHaveLength(2)
     expect(screen.getAllByText(SESSION.email)).not.toHaveLength(0)
     expect(screen.getByText('2023104501')).toBeInTheDocument()
     expect(screen.getByText('2023.2')).toBeInTheDocument()
@@ -140,6 +141,36 @@ describe('Perfil', () => {
       'href',
       '/excluir-conta',
     )
+  })
+
+  it('salva o nome novo, mostra o valor e avisa que ele já entra no formulário', async () => {
+    const user = userEvent.setup()
+
+    renderPerfil()
+    await openRow(user, /^Nome/)
+    await user.clear(screen.getByRole('textbox', { name: /Nome/ }))
+    await user.type(screen.getByRole('textbox', { name: /Nome/ }), '  Ana  Moura Silva ')
+    await user.click(screen.getByRole('button', { name: 'Salvar' }))
+
+    expect(
+      await screen.findByText('Nome salvo. Ele já entra no seu formulário.'),
+    ).toBeInTheDocument()
+    expect(await getProfile()).toMatchObject({ name: 'Ana Moura Silva' })
+  })
+
+  it('não deixa salvar o nome em branco e diz o que escrever', async () => {
+    const user = userEvent.setup()
+
+    renderPerfil()
+    await openRow(user, /^Nome/)
+    await user.clear(screen.getByRole('textbox', { name: /Nome/ }))
+    await user.click(screen.getByRole('button', { name: 'Salvar' }))
+
+    expect(
+      await screen.findByText('Escreva o seu nome completo, como está nos seus documentos.'),
+    ).toBeInTheDocument()
+    expect(updateProfile).not.toHaveBeenCalled()
+    expect(await getProfile()).toMatchObject({ name: 'Ana Beatriz Moura' })
   })
 
   it('salva a matrícula nova, mostra o valor e avisa que ela já entra no formulário', async () => {

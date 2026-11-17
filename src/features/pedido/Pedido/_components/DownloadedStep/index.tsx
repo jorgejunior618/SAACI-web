@@ -79,7 +79,6 @@ export function DownloadedStep({ file, email, onBack }: DownloadedStepProps): Re
               <S.NextLabel>Próximo passo</S.NextLabel>
               <S.NextTitle id={nextId}>Entregar na coordenação</S.NextTitle>
             </S.NextHeader>
-            {/* TODO: provisório. O guia completo entra na etapa 4 da issue #14. */}
             <DeliverySteps
               variant="compact"
               doneCount={1}

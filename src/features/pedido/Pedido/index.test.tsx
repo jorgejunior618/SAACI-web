@@ -315,5 +315,34 @@ describe('Pedido', () => {
       expect(screen.getByRole('heading', { name: 'Pré-visualizar' })).toBeInTheDocument()
       expect(screen.getByRole('button', { name: 'Baixar formulário em PDF' })).toBeInTheDocument()
     })
+
+    it('não chama de "em branco" o PDF preenchido quando o nome ainda falta', async () => {
+      vi.mocked(buildFormPdf).mockResolvedValue(new Blob(['%PDF']))
+      renderPedido({
+        profile: { ...COMPLETE_PROFILE, name: null, enrollmentId: null },
+        progress: INCOMPLETE_PROGRESS,
+        activities: [ACTIVITY],
+      })
+      await userEvent.click(screen.getByRole('button', { name: 'Pré-visualizar como está' }))
+
+      await userEvent.click(screen.getByRole('button', { name: 'Baixar formulário em PDF' }))
+
+      expect(await screen.findByText('Formulário baixado')).toBeInTheDocument()
+      expect(saveFile).toHaveBeenCalledWith(
+        expect.any(Blob),
+        'formulario-atividades-complementares.pdf',
+      )
+    })
+
+    it('mantém o link dos comprovantes no passo do e-mail, onde o aluno precisa anexá-los', async () => {
+      vi.mocked(buildFormPdf).mockResolvedValue(new Blob(['%PDF']))
+      renderPedido(READY)
+      await openPreview()
+      await userEvent.click(screen.getByRole('button', { name: 'Baixar formulário em PDF' }))
+
+      expect(
+        await screen.findByRole('link', { name: 'Baixar os comprovantes que contam' }),
+      ).toHaveAttribute('href', '/atividades')
+    })
   })
 })

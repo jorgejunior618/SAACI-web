@@ -225,12 +225,17 @@ const FILE_PREFIX = 'formulario-atividades-complementares'
  * Monta o nome do arquivo do PDF, com o primeiro e o último nome do aluno.
  *
  * @remarks
- * Tira acento e caractere que sistema de arquivo recusa. Sem nome, o arquivo é a versão em branco.
+ * Tira acento e caractere que sistema de arquivo recusa. A versão em branco termina em
+ * `-em-branco`. Sem nome do aluno, o arquivo preenchido leva só o prefixo, para o nome não dizer
+ * que está em branco quando não está.
  *
- * @param name Nome completo do aluno, ou `null` na versão em branco.
+ * @param name Nome completo do aluno, ou `null` quando ainda não foi escrito.
+ * @param isBlank `true` na versão em branco. Padrão: `false`.
  * @returns O nome, por exemplo `"formulario-atividades-complementares-ana-moura.pdf"`.
  */
-export function buildFileName(name: string | null): string {
+export function buildFileName(name: string | null, isBlank = false): string {
+  if (isBlank) return `${FILE_PREFIX}-em-branco.pdf`
+
   const words = (name ?? '')
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
@@ -238,7 +243,7 @@ export function buildFileName(name: string | null): string {
     .split(/[^a-z0-9]+/)
     .filter(Boolean)
 
-  if (words.length === 0) return `${FILE_PREFIX}-em-branco.pdf`
+  if (words.length === 0) return `${FILE_PREFIX}.pdf`
 
   const slug = words.length === 1 ? words[0] : `${words[0]}-${words.at(-1)}`
 
