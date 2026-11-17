@@ -24,6 +24,8 @@ export const Step = styled('li', {
   },
 })
 
+// 24px e a borda de 1,5px são o desenho do marcador do protótipo, sem token: `sizes` não tem escala
+// numérica e o DS não tem token de espessura de borda.
 export const Marker = styled('span', {
   base: {
     display: 'grid',
