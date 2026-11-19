@@ -107,11 +107,13 @@ dois errou ajudaria quem tenta descobrir e-mails de aluno.
   enxerga o cookie de sessão: a busca volta vazia, sem erro nenhum**.
 - **Tradução de erro.** `invalid_credentials` vira `InvalidCredentialsError` e `email_not_confirmed` vira
   um erro próprio, que a tela leva à verificação (RF05).
-- **Escrita com comprovante (implementada em `activities`, ADR 0011).** O arquivo sobe antes, para
-  a pasta do dono, e a RPC recebe só a referência. Se a RPC falhar, o service apaga o arquivo na hora,
-  e o que escapar a rotina `limpa-comprovantes` apaga. O que o aluno preencheu continua na tela
-  (RNF24). `createActivity` é a exceção ao cliente por parâmetro: só roda no navegador
-  (`arquitetura.md`, exceções nomeadas).
+- **Escrita com comprovante (implementada em `activities`, ADR 0011).** Toda leitura de que a
+  resposta precisa acontece antes do upload. O arquivo sobe para a pasta do dono, a RPC recebe só a
+  referência e devolve a linha criada, e depois do commit nada mais vai à rede: falha ali diria "não
+  registrada" para o que foi gravado. Se o banco recusar (erro com código), o service apaga o arquivo
+  na hora. Erro de rede não apaga, porque o commit pode ter acontecido, e o que sobrar a rotina
+  `limpa-comprovantes` apaga. O que o aluno preencheu continua na tela (RNF24). `createActivity` é a
+  exceção ao cliente por parâmetro: só roda no navegador (`arquitetura.md`, exceções nomeadas).
 - **Função passada direto ao TanStack.** `queryFn: getActivities` e `mutationFn: createActivity`
   mandam o contexto da query ou da mutation como argumento, e ele cairia no lugar do `db`. Na query,
   embrulhe: `queryFn: () => getActivities()`.

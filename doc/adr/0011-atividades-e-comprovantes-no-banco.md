@@ -31,8 +31,15 @@ hash não é `unique` (RF42) e o arquivo que sobra é limpo por rotina agendada.
   escolhe dono, curso, tamanho nem tipo; no `update`, não troca o comprovante.
 - **Hash SHA-256 calculado no navegador**, em hexadecimal, com índice comum em
   `(aluno_id, comprovante_hash)`. O banco só confere o formato.
-- **Registrar:** upload em `<aluno>/<uuid>.<ext>` com `upsert: false`, depois a RPC. Se a RPC falhar,
-  o service apaga o arquivo na hora (melhor esforço) e repassa o erro.
+- **Registrar:** o service lê perfil, regras e atividades **antes** do upload. Depois faz o upload em
+  `<aluno>/<uuid>.<ext>` com `upsert: false` e chama a RPC, que devolve a linha criada: id, datas de
+  controle, tamanho e tipo. As horas da resposta saem do cálculo único sobre a lista lida antes mais
+  essa linha. Depois do commit, nada vai à rede: uma leitura que falhasse ali faria a tela dizer "não
+  registrada" para uma atividade gravada, e o aluno, ao tentar de novo, a duplicaria.
+- **Arquivo quando a RPC falha:** o service só apaga o arquivo quando o banco recusou, ou seja, quando
+  o erro traz código (SQLSTATE ou `PGRST…`). Erro de rede chega sem código, e a requisição pode ter
+  chegado e só a resposta se perdido. Apagar o arquivo nesse caso deixaria uma atividade gravada sem
+  comprovante. O arquivo fica; se a atividade não existe, a rotina de limpeza o apaga.
 - **Remover:** a linha sai primeiro e o arquivo depois. A ordem inversa deixaria uma atividade sem
   comprovante se a segunda parte falhasse.
 - **Limpeza por Edge Function chamada pelo `pg_cron`.** A função SQL `comprovantes_orfaos` só lista
@@ -85,3 +92,8 @@ hash não é `unique` (RF42) e o arquivo que sobra é limpo por rotina agendada.
 - **`security definer` em `comprovantes_orfaos`.** Desnecessário: a `service_role` já enxerga tudo.
 - **Mudar `removeActivity` e `createActivity` para o formato das outras funções.** Exigiria mudar a
   tela, que a issue proíbe.
+- **Reler a lista depois da RPC para devolver a atividade com as horas.** Era o desenho inicial. Uma
+  falha nessa releitura dizia "não registrada" para uma atividade gravada.
+- **Apagar o arquivo em qualquer erro da RPC.** Também era o desenho inicial. Com a resposta perdida
+  depois do commit, deixava atividade sem comprovante, o estado que RNF24 proíbe.
+- **Erro próprio para "gravou, mas não carregou".** A tela teria de mostrar outra mensagem.

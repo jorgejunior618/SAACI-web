@@ -79,8 +79,10 @@ transação só. O gatilho `prepara_atividade` recusa a atividade cujo arquivo n
 comprovante. O caminho inverso (gravar primeiro, subir depois) deixaria uma atividade sem
 comprovante, o estado que RNF24 proíbe. Na remoção, a linha sai antes do arquivo pelo mesmo motivo.
 
-**Arquivo que sobra.** Se a RPC falhar, o service apaga o arquivo na hora. O que escapar (falha nessa
-remoção, arquivo que a remoção da atividade não apagou, conta apagada) a rotina
+**Arquivo que sobra.** Se o banco recusar a RPC (erro com código), o service apaga o arquivo na hora.
+Se a falha for de rede, o arquivo fica: a resposta pode ter se perdido depois do commit, e apagá-lo
+deixaria a atividade sem comprovante. O que escapar (falha de rede, falha na remoção, arquivo que a
+remoção da atividade não apagou, conta apagada) a rotina
 `limpa-comprovantes` apaga de hora em hora: uma Edge Function chamada pelo `pg_cron`, que pede a
 lista a `comprovantes_orfaos` e apaga pela API do Storage. Arquivo com menos de 1 hora fica, porque
 pode ser um registro em andamento.

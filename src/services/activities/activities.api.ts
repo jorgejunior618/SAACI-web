@@ -8,6 +8,7 @@ import { simulateLatency } from '@/utils/simulate-latency'
 
 import { getProfile } from '../profile/profile.api'
 import { getRuleItems } from '../rules/rules.api'
+import type { RuleItem } from '../rules/rules.types'
 import { ActivityNotFoundError, ProofDownloadError } from './activities.errors'
 import { suggestFromFile } from './activities.proof-reading.mock'
 import { ActivitySchema, ProofSuggestionSchema } from './activities.types'
@@ -23,7 +24,8 @@ const PROOF_URL_TTL_SECONDS = 60
 const ACTIVITY_COLUMNS =
   'id, nome, item_numero, quantidade, data_inicio, data_fim, created_at, updated_at, comprovante_nome, comprovante_tamanho, comprovante_tipo'
 
-type ActivityRow = Pick<
+/** Linha de `atividades` com as colunas que a leitura pede, em `snake_case`. */
+export type ActivityRow = Pick<
   Tables<'atividades'>,
   | 'id'
   | 'nome'
@@ -40,6 +42,16 @@ type ActivityRow = Pick<
 
 /** Atividade como o banco guarda: sem as horas, que o cálculo único deriva na leitura. */
 type StoredActivity = Omit<Activity, 'activityHours' | 'countedHours' | 'status' | 'reason'>
+
+/**
+ * Tudo de que o cálculo único precisa: as atividades sem horas, as regras do curso e o semestre de
+ * ingresso. Lido de uma vez por {@link readActivityContext}.
+ */
+export type ActivityContext = {
+  stored: StoredActivity[]
+  ruleItems: RuleItem[]
+  startSemester: string | null
+}
 
 const PROOF_TYPES: Record<string, Proof['type']> = {
   'application/pdf': 'pdf',
@@ -63,7 +75,17 @@ export function isActivityId(id: string): boolean {
   return v.is(UuidSchema, id)
 }
 
-function toStoredActivity(row: ActivityRow): StoredActivity {
+/**
+ * Traduz a linha de `atividades` para a atividade sem horas, em `camelCase`.
+ *
+ * @remarks
+ * Uso interno do domínio: a leitura e o `createActivity`, que monta a linha nova com o que a RPC
+ * devolveu. Não valida; quem valida é o `v.parse` de {@link attachHours}.
+ *
+ * @param row Linha do banco, ou montada com as mesmas colunas.
+ * @returns A atividade sem `activityHours`, `countedHours`, `status` e `reason`.
+ */
+export function toStoredActivity(row: ActivityRow): StoredActivity {
   return {
     id: row.id,
     name: row.nome,
@@ -83,18 +105,17 @@ function toStoredActivity(row: ActivityRow): StoredActivity {
 }
 
 /**
- * Lê todas as atividades do aluno já com as horas do cálculo único, na ordem da lista.
+ * Lê o que o cálculo único precisa: o perfil, as regras do curso e as atividades do aluno.
  *
  * @remarks
- * Uso interno do domínio (api, mutations e `progress`), fora do `index.ts`. Junta as linhas de
- * `atividades`, as regras do curso e o semestre de ingresso do perfil. Calcula sempre a lista
- * inteira, porque o máximo do item é dividido entre as atividades. A #21 leva esta conta para o
- * banco.
+ * Uso interno do domínio, fora do `index.ts`. São três idas ao banco. O `createActivity` chama esta
+ * função **antes** de gravar, para que nada vá à rede depois do commit.
  *
- * @param db Cliente do Supabase. No servidor, passe o de `@supabase/server`.
- * @returns As atividades validadas pelo `ActivitySchema`, por item e pela data de fim.
+ * @param db Cliente do Supabase.
+ * @returns As atividades sem horas, na ordem da lista (item, data de fim e registro), as regras e
+ * o semestre de ingresso.
  */
-export async function readActivitiesWithHours(db: DbClient = createClient()): Promise<Activity[]> {
+export async function readActivityContext(db: DbClient): Promise<ActivityContext> {
   const profile = await getProfile(db)
   const [ruleItems, rows] = await Promise.all([
     profile.courseId ? getRuleItems(profile.courseId, db) : Promise.resolve([]),
@@ -107,13 +128,44 @@ export async function readActivitiesWithHours(db: DbClient = createClient()): Pr
   ])
 
   if (rows.error) throw rows.error
-  const stored = rows.data.map(toStoredActivity)
-  const hours = computeActivities(stored, ruleItems, profile.startSemester)
+  return {
+    stored: rows.data.map(toStoredActivity),
+    ruleItems,
+    startSemester: profile.startSemester,
+  }
+}
+
+/**
+ * Junta às atividades as horas do cálculo único, sem ir à rede.
+ *
+ * @remarks
+ * Uso interno do domínio. Calcula sempre a lista inteira, porque o máximo do item é dividido entre
+ * as atividades pela ordem de registro. A #21 leva esta conta para o banco.
+ *
+ * @param context Atividades, regras e semestre, como {@link readActivityContext} devolve.
+ * @returns As atividades na mesma ordem, validadas pelo `ActivitySchema`.
+ */
+export function attachHours({ stored, ruleItems, startSemester }: ActivityContext): Activity[] {
+  const hours = computeActivities(stored, ruleItems, startSemester)
 
   return v.parse(
     v.array(ActivitySchema),
     stored.map((activity, index) => ({ ...activity, ...hours[index] })),
   )
+}
+
+/**
+ * Lê todas as atividades do aluno já com as horas do cálculo único, na ordem da lista.
+ *
+ * @remarks
+ * Uso interno do domínio (api, mutations e `progress`), fora do `index.ts`. É
+ * {@link readActivityContext} seguida de {@link attachHours}.
+ *
+ * @param db Cliente do Supabase. No servidor, passe o de `@supabase/server`.
+ * @returns As atividades validadas pelo `ActivitySchema`, por item e pela data de fim.
+ */
+export async function readActivitiesWithHours(db: DbClient = createClient()): Promise<Activity[]> {
+  return attachHours(await readActivityContext(db))
 }
 
 /**

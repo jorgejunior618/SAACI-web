@@ -101,14 +101,16 @@ const db = vi.hoisted(() => {
     createSignedUrl: vi.fn(),
     download: vi.fn(),
   }
+  // A RPC de registro encadeia `.single()`; o teste define a resposta em `rpcSingle`.
+  const rpcSingle = vi.fn()
   const client = {
     from: (table: string) => new FakeQuery(table),
-    rpc: vi.fn(),
+    rpc: vi.fn(() => ({ single: rpcSingle })),
     auth: { getUser: vi.fn() },
     storage: { from: vi.fn(() => storage) },
   }
 
-  return { state, storage, client }
+  return { state, storage, client, rpcSingle }
 })
 
 vi.mock('@supabase/client', () => ({ createClient: () => db.client }))
@@ -239,9 +241,19 @@ describe('getActivity', () => {
 })
 
 describe('createActivity', () => {
+  // A linha que a RPC devolve: o que o banco decidiu (id, datas de controle, tamanho e tipo).
+  const REGISTERED = {
+    id: NEW_ID,
+    created_at: '2026-11-19T12:00:00.123456+00:00',
+    updated_at: '2026-11-19T12:00:00.123456+00:00',
+    comprovante_tamanho: 8,
+    comprovante_tipo: 'application/pdf',
+  }
+
   it('sobe o arquivo na pasta do aluno e registra pela RPC com o hash do arquivo', async () => {
-    db.client.rpc.mockResolvedValue({ data: NEW_ID, error: null })
-    queue(ok([...ROWS, row(NEW_ID, { nome: NEW_ACTIVITY.name, quantidade: 40 })]))
+    // Leitura antes do upload: a lista atual. Depois da RPC, nenhuma consulta mais.
+    queue(ok(ROWS))
+    db.rpcSingle.mockResolvedValue(ok(REGISTERED))
 
     const created = await createActivity({ ...NEW_ACTIVITY, proof: pdf() })
 
@@ -260,20 +272,73 @@ describe('createActivity', () => {
       comprovante_nome: 'certificado.pdf',
       comprovante_hash: createHash('sha256').update('conteudo').digest('hex'),
     })
-    expect(created).toMatchObject({ id: NEW_ID, countedHours: 10, status: 'conta' })
+    expect(created).toMatchObject({
+      id: NEW_ID,
+      name: NEW_ACTIVITY.name,
+      registeredAt: REGISTERED.created_at,
+      updatedAt: REGISTERED.updated_at,
+      countedHours: 10,
+      status: 'conta',
+      proof: { fileName: 'certificado.pdf', sizeBytes: 8, type: 'pdf' },
+    })
   })
 
-  it('apaga o arquivo enviado quando a RPC falha e repassa o erro', async () => {
+  it('calcula as horas da nova junto com as que já existem (máximo do item, RF16)', async () => {
+    // Item 7 vai até 60h. A lista já tem 55h nele (220h de curso); a nova (40h → 10h) só cabe 5h.
+    queue(ok([row(ID_1, { quantidade: 220 })]))
+    db.rpcSingle.mockResolvedValue(ok(REGISTERED))
+
+    const created = await createActivity({ ...NEW_ACTIVITY, proof: pdf() })
+
+    expect(created).toMatchObject({ countedHours: 5, status: 'parcial', reason: 'item_cheio' })
+  })
+
+  it('depois que a RPC grava, não vai mais à rede: a falha não vira "não registrada"', async () => {
+    queue(ok(ROWS))
+    db.rpcSingle.mockResolvedValue(ok(REGISTERED))
+
+    await expect(createActivity({ ...NEW_ACTIVITY, proof: pdf() })).resolves.toMatchObject({
+      id: NEW_ID,
+    })
+    // A única consulta de tabela foi a leitura de antes do upload.
+    expect(db.state.calls.filter(([call]) => call === 'atividades.select')).toHaveLength(1)
+    expect(db.state.responses).toEqual([])
+  })
+
+  it('não sobe nada quando a leitura de antes falha', async () => {
+    const failure = new Error('falha de rede')
+
+    queue({ data: null, error: failure })
+
+    await expect(createActivity({ ...NEW_ACTIVITY, proof: pdf() })).rejects.toBe(failure)
+    expect(db.storage.upload).not.toHaveBeenCalled()
+    expect(db.client.rpc).not.toHaveBeenCalled()
+  })
+
+  it('apaga o arquivo enviado quando o banco recusa e repassa o erro', async () => {
     const failure = { code: 'SA024', message: 'O comprovante não foi enviado.' }
 
-    db.client.rpc.mockResolvedValue({ data: null, error: failure })
+    queue(ok(ROWS))
+    db.rpcSingle.mockResolvedValue({ data: null, error: failure })
 
     await expect(createActivity({ ...NEW_ACTIVITY, proof: pdf() })).rejects.toBe(failure)
     expect(db.storage.remove).toHaveBeenCalledWith([db.storage.upload.mock.calls[0]?.[0]])
   })
 
+  it('mantém o arquivo quando a RPC falha sem código (rede): a atividade pode ter sido gravada', async () => {
+    // Formato do erro do postgrest-js quando o `fetch` falha: sem SQLSTATE.
+    const failure = { code: '', message: 'TypeError: fetch failed', details: '', hint: '' }
+
+    queue(ok(ROWS))
+    db.rpcSingle.mockResolvedValue({ data: null, error: failure })
+
+    await expect(createActivity({ ...NEW_ACTIVITY, proof: pdf() })).rejects.toBe(failure)
+    expect(db.storage.remove).not.toHaveBeenCalled()
+  })
+
   it('traduz o check de datas do banco', async () => {
-    db.client.rpc.mockResolvedValue({
+    queue(ok(ROWS))
+    db.rpcSingle.mockResolvedValue({
       data: null,
       error: {
         code: '23514',
@@ -289,6 +354,7 @@ describe('createActivity', () => {
   it('não chama a RPC quando o upload falha', async () => {
     const failure = new Error('upload recusado')
 
+    queue(ok(ROWS))
     db.storage.upload.mockResolvedValue({ data: null, error: failure })
 
     await expect(createActivity({ ...NEW_ACTIVITY, proof: pdf() })).rejects.toBe(failure)

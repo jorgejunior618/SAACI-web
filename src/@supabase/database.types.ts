@@ -215,7 +215,13 @@ export type Database = {
           nome: string
           quantidade: number
         }
-        Returns: string
+        Returns: {
+          comprovante_tamanho: number
+          comprovante_tipo: string
+          created_at: string
+          id: string
+          updated_at: string
+        }[]
       }
       sem_acento: { Args: { texto: string }; Returns: string }
     }

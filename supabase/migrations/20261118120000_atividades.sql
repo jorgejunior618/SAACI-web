@@ -127,9 +127,11 @@ grant insert (
 grant update (nome, item_numero, quantidade, data_inicio, data_fim)
   on public.atividades to authenticated;
 
--- RNF24: registra a atividade depois que o arquivo subiu, numa transação só, e devolve o `id`.
--- `security invoker`: valem a RLS e os privilégios de quem chama. Os parâmetros são lidos por
--- posição porque têm o nome das colunas.
+-- RNF24: registra a atividade depois que o arquivo subiu, numa transação só. Devolve o que o banco
+-- decidiu (id, datas de controle, tamanho e tipo do comprovante), para o service montar a resposta
+-- sem ler de novo: uma leitura depois do commit que falhasse diria "não registrada" para uma
+-- atividade gravada. `security invoker`: valem a RLS e os privilégios de quem chama. Os parâmetros
+-- são lidos por posição porque têm o nome das colunas.
 create function public.registrar_atividade(
   nome text,
   item_numero integer,
@@ -140,16 +142,22 @@ create function public.registrar_atividade(
   comprovante_nome text,
   comprovante_hash text
 )
-returns uuid
+returns table (
+  id uuid,
+  created_at timestamptz,
+  updated_at timestamptz,
+  comprovante_tamanho bigint,
+  comprovante_tipo text
+)
 language sql
 set search_path = ''
 as $$
-  insert into public.atividades (
+  insert into public.atividades as a (
     nome, item_numero, quantidade, data_inicio, data_fim,
     comprovante_caminho, comprovante_nome, comprovante_hash
   )
   values ($1, $2, $3, $4, $5, $6, $7, $8)
-  returning id;
+  returning a.id, a.created_at, a.updated_at, a.comprovante_tamanho, a.comprovante_tipo;
 $$;
 
 -- RF10: o stub da migration `perfis` (ADR 0009) passa a olhar a tabela de verdade. Continua

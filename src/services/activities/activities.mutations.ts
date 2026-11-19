@@ -6,7 +6,14 @@ import * as v from 'valibot'
 
 import { readCurrentUser } from '../account/account.api'
 import { progressKeys } from '../progress/progress.keys'
-import { isActivityId, PROOF_BUCKET, readActivitiesWithHours } from './activities.api'
+import {
+  attachHours,
+  isActivityId,
+  PROOF_BUCKET,
+  readActivitiesWithHours,
+  readActivityContext,
+  toStoredActivity,
+} from './activities.api'
 import { ActivityNotFoundError, StaleActivityError, toActivityError } from './activities.errors'
 import { activitiesKeys } from './activities.keys'
 import { ActivityCorrectionSchema, NewActivitySchema } from './activities.types'
@@ -48,14 +55,36 @@ function toCorrectionRow(changes: ActivityCorrection): TablesUpdate<'atividades'
   return row
 }
 
+// O que a RPC `registrar_atividade` devolve da linha criada. O gerador de tipos marca toda coluna de
+// `returns table` como não nula sem saber; quem confere é este schema (`camada-servicos.md`).
+const RegisteredRowSchema = v.object({
+  id: v.pipe(v.string(), v.uuid()),
+  created_at: v.string(),
+  updated_at: v.string(),
+  comprovante_tamanho: v.number(),
+  comprovante_tipo: v.string(),
+})
+
+// O banco recusou de verdade quando o erro traz um código: SQLSTATE do Postgres (`23503`, `SA024`)
+// ou do PostgREST (`PGRST…`). Erro de rede chega sem código, e aí não se sabe se o commit aconteceu:
+// a requisição pode ter chegado e só a resposta se perdido.
+function isDatabaseRejection(error: { code?: string }): boolean {
+  return typeof error.code === 'string' && error.code !== ''
+}
+
 /**
  * Registra uma atividade com o comprovante, completa ou nada (RNF24).
  *
  * @remarks
- * O arquivo sobe primeiro, para a pasta do aluno, e a RPC `registrar_atividade` grava a atividade
- * numa transação só. O banco recusa a atividade cujo arquivo não está no bucket. Se a RPC falhar, o
- * arquivo é apagado na hora, e o que sobrar a rotina de limpeza apaga. O que o aluno preencheu
- * continua na tela. Chame `invalidateAfterActivityWrite` no `onSuccess`.
+ * Lê perfil, regras e atividades **antes** de subir o arquivo: depois que a RPC grava, nada mais vai
+ * à rede, então uma falha de leitura nunca diz "não registrada" para uma atividade gravada. O arquivo
+ * sobe para a pasta do aluno, e a RPC `registrar_atividade` grava a atividade numa transação só e
+ * devolve a linha criada. O banco recusa a atividade cujo arquivo não está no bucket.
+ *
+ * Se o banco recusar (erro com código), o arquivo é apagado na hora. Se a falha for de rede, o
+ * arquivo fica: a atividade pode ter sido gravada, e apagá-lo a deixaria sem comprovante. Se não foi,
+ * a rotina de limpeza apaga o arquivo depois de 1 hora. O que o aluno preencheu continua na tela.
+ * Chame `invalidateAfterActivityWrite` no `onSuccess`.
  *
  * Sem parâmetro `db`, ao contrário das outras: o upload do `File` só acontece no navegador, e a tela
  * passa a função direto para o `mutationFn`, que mandaria o contexto da mutation no 2º argumento.
@@ -73,6 +102,8 @@ export async function createActivity(input: NewActivity): Promise<Activity> {
 
   if (!user) throw new Error(SESSION_ENDED_MESSAGE)
 
+  // Antes do upload: se falhar aqui, nada foi gravado, e "não registrada" é verdade.
+  const context = await readActivityContext(db)
   const { proof } = activity
   const path = `${user.id}/${crypto.randomUUID()}.${PROOF_EXTENSIONS[proof.type] ?? 'pdf'}`
   const hash = await hashFile(proof)
@@ -82,23 +113,42 @@ export async function createActivity(input: NewActivity): Promise<Activity> {
 
   if (upload.error) throw upload.error
 
-  const { data: id, error } = await db.rpc('registrar_atividade', {
+  const { data, error } = await db
+    .rpc('registrar_atividade', {
+      nome: activity.name,
+      item_numero: activity.itemNumber,
+      quantidade: activity.quantity,
+      data_inicio: activity.startDate,
+      data_fim: activity.endDate,
+      comprovante_caminho: path,
+      comprovante_nome: proof.name,
+      comprovante_hash: hash,
+    })
+    .single()
+
+  if (error) {
+    // Só com recusa certa. Melhor esforço: se o remove falhar, a rotina de limpeza apaga o arquivo.
+    if (isDatabaseRejection(error)) await db.storage.from(PROOF_BUCKET).remove([path])
+    throw toActivityError(error)
+  }
+
+  // Daqui em diante, só conta local: a lista lida antes mais a linha que a RPC devolveu.
+  const registered = v.parse(RegisteredRowSchema, data)
+  const created = toStoredActivity({
+    ...registered,
     nome: activity.name,
     item_numero: activity.itemNumber,
     quantidade: activity.quantity,
     data_inicio: activity.startDate,
     data_fim: activity.endDate,
-    comprovante_caminho: path,
     comprovante_nome: proof.name,
-    comprovante_hash: hash,
   })
+  const withNew = attachHours({ ...context, stored: [...context.stored, created] })
+  const result = withNew.find((item) => item.id === registered.id)
 
-  if (error) {
-    // Melhor esforço: se o remove também falhar, a rotina de limpeza apaga o arquivo sem atividade.
-    await db.storage.from(PROOF_BUCKET).remove([path])
-    throw toActivityError(error)
-  }
-  return withHours(v.parse(v.pipe(v.string(), v.uuid()), id), db)
+  // O cálculo devolve uma entrada por atividade enviada, então a nova sempre está na lista.
+  if (!result) throw new Error('A atividade foi registrada, mas o cálculo não a encontrou.')
+  return result
 }
 
 /**
