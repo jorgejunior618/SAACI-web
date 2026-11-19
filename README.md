@@ -160,6 +160,54 @@ passo futuro precisar de segredo (por exemplo, o deploy), ele entra só em
 **Settings > Secrets and variables > Actions** do GitHub e é lido por `${{ secrets.NOME }}`. Nunca
 vai para o repositório nem para o `config.toml`.
 
+### Limpeza dos comprovantes
+
+Sobram arquivos no bucket `comprovantes` quando o registro falha depois do upload, quando a remoção
+apaga a atividade mas não o arquivo, e quando a conta é apagada. De hora em hora, o `pg_cron` chama a
+Edge Function `limpa-comprovantes` (`supabase/functions/`), que apaga pela API do Storage os
+arquivos sem atividade com mais de 1 hora. A função `public.comprovantes_orfaos` só lista; o SQL não
+apaga arquivo.
+
+A chamada leva um segredo, que fica em dois lugares e nunca no repositório:
+
+| Onde               | Nome              | Valor                                |
+| ------------------ | ----------------- | ------------------------------------ |
+| Ambiente da função | `LIMPEZA_SEGREDO` | o segredo                            |
+| Vault do banco     | `limpeza_segredo` | o mesmo segredo                      |
+| Vault do banco     | `limpeza_url`     | o endereço da função (tabela abaixo) |
+
+Sem os dois segredos do Vault, o job roda e não chama nada. Sem o `LIMPEZA_SEGREDO`, a função recusa
+toda chamada.
+
+**No banco local** (o `pnpm db:reset` apaga o Vault, então repita depois de cada reset):
+
+1. Copie `supabase/functions/.env.example` para `supabase/functions/.env` e troque o valor, por
+   exemplo pela saída de `openssl rand -hex 32`. O `.env` não vai para o Git.
+2. Sirva a função: `pnpm exec supabase functions serve`.
+3. No SQL Editor do Studio, grave os segredos. Dentro do Docker, o endereço do host é
+   `host.docker.internal`:
+
+   ```sql
+   select vault.create_secret('http://host.docker.internal:54321/functions/v1/limpa-comprovantes', 'limpeza_url');
+   select vault.create_secret('<o mesmo valor do .env>', 'limpeza_segredo');
+   ```
+
+4. Para testar sem esperar a hora cheia, chame a função com uma idade menor:
+
+   ```bash
+   curl -X POST http://127.0.0.1:54321/functions/v1/limpa-comprovantes \
+     -H "x-limpeza-segredo: <o segredo>" -d '{"idade":"0 seconds"}'
+   ```
+
+   A resposta diz quantos arquivos foram apagados: `{"apagados":1}`.
+
+**No projeto remoto** (junto do passo de produção, #40):
+
+1. `pnpm exec supabase functions deploy limpa-comprovantes`
+2. `pnpm exec supabase secrets set LIMPEZA_SEGREDO=<o segredo>`
+3. No SQL Editor do painel, os mesmos `vault.create_secret`, com a URL
+   `https://<ref-do-projeto>.supabase.co/functions/v1/limpa-comprovantes`.
+
 ### Cliente do Supabase no código
 
 Os clientes ficam em `src/@supabase/` e só os `services/` os usam. Tela, componente e

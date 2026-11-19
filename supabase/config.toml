@@ -411,6 +411,12 @@ deno_version = 2
 
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
+# O `LIMPEZA_SEGREDO` da função `limpa-comprovantes` vem de `supabase/functions/.env`, que não vai para
+# o repositório (README, seção "Limpeza dos comprovantes").
+
+# Chamada pelo `pg_cron`, sem sessão de usuário: quem protege é o header `x-limpeza-segredo`.
+[functions.limpa-comprovantes]
+verify_jwt = false
 
 [analytics]
 enabled = true
