@@ -17,7 +17,10 @@ function listSourceFiles(dir: string): string[] {
   })
 }
 
-/** Texto das migrations que mexem no bucket de comprovantes, na ordem em que rodam. */
+/**
+ * Texto das migrations que configuram o bucket de comprovantes, na ordem em que rodam. Só conta quem
+ * escreve em `storage.buckets`: migration que só cita o bucket (gatilho, limpeza) não muda limite.
+ */
 function readBucketMigrations(): string[] {
   const dir = resolve(root, 'supabase/migrations')
 
@@ -25,7 +28,7 @@ function readBucketMigrations(): string[] {
     .filter((name) => name.endsWith('.sql'))
     .sort()
     .map((name) => readFileSync(resolve(dir, name), 'utf8'))
-    .filter((sql) => sql.includes("'comprovantes'"))
+    .filter((sql) => sql.includes('storage.buckets') && sql.includes("'comprovantes'"))
 }
 
 describe('bucket de comprovantes', () => {
