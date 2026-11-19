@@ -51,7 +51,10 @@ declarar. `<dom>.api.ts` e `<dom>.mutations.ts` falam só com esse arquivo.
   esqueleto novo).
 
 Na migração, `<dom>.api.ts` e `<dom>.mutations.ts` trocam a chamada ao `<dom>.mock.ts` por
-`supabase-js`, e o mock do domínio é apagado no mesmo commit.
+`supabase-js`, e o mock do domínio é apagado no mesmo commit. Se uma parte do domínio depende de uma
+integração que vem depois, ela fica num mock próprio com `TODO` para a issue que o apaga: em
+`activities`, a leitura do comprovante mora em `activities.proof-reading.mock.ts` até a #22
+(ADR 0011).
 
 > O código atual (`services/_mock/`, `MockPanel` e o `localStorage` `saaci:mock`) ainda guarda o
 > banco inteiro no navegador. É legado e sai no reset do projeto.
@@ -104,9 +107,14 @@ dois errou ajudaria quem tenta descobrir e-mails de aluno.
   enxerga o cookie de sessão: a busca volta vazia, sem erro nenhum**.
 - **Tradução de erro.** `invalid_credentials` vira `InvalidCredentialsError` e `email_not_confirmed` vira
   um erro próprio, que a tela leva à verificação (RF05).
-- **Escrita com comprovante.** O arquivo sobe antes, para a pasta do dono, e a RPC recebe só a
-  referência. Se a RPC falhar, o arquivo fica órfão e uma rotina agendada o limpa. O que o aluno
-  preencheu continua na tela (RNF24).
+- **Escrita com comprovante (implementada em `activities`, ADR 0011).** O arquivo sobe antes, para
+  a pasta do dono, e a RPC recebe só a referência. Se a RPC falhar, o service apaga o arquivo na hora,
+  e o que escapar a rotina `limpa-comprovantes` apaga. O que o aluno preencheu continua na tela
+  (RNF24). `createActivity` é a exceção ao cliente por parâmetro: só roda no navegador
+  (`arquitetura.md`, exceções nomeadas).
+- **Função passada direto ao TanStack.** `queryFn: getActivities` e `mutationFn: createActivity`
+  mandam o contexto da query ou da mutation como argumento, e ele cairia no lugar do `db`. Na query,
+  embrulhe: `queryFn: () => getActivities()`.
 - **Quando a leitura vira função SQL (RPC).** O `.select()` basta para lista simples. Vai para uma
   função SQL o que o construtor não expressa sem erro silencioso: total do filtro inteiro (somar o
   array recebido daria a soma **da página**), valor derivado de outras linhas (horas computadas

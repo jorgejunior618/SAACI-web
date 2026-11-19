@@ -92,7 +92,8 @@ disparar uma busca. A exceção está explicada em `react-query.md`.
 | escreve em 2+ tabelas, ou em tabela e arquivo               | RPC transacional          |
 | decide quem pode ler ou gravar                              | RLS e policy do Storage   |
 | depende de segredo (chave do serviço de IA, `service_role`) | Route Handler             |
-| roda por agendamento (RNF05, RNF27)                         | Route Handler + Cron      |
+| roda por agendamento e só mexe no banco (RNF27)             | função SQL + `pg_cron`    |
+| roda por agendamento e apaga arquivo do Storage (RNF24)     | Edge Function + `pg_cron` |
 
 - **Escrita com comprovante:** sobe o arquivo, depois a RPC grava atividade e referência numa
   transação só. Falha parcial não existe, e o arquivo órfão é limpo por rotina agendada
@@ -110,6 +111,9 @@ disparar uma busca. A exceção está explicada em `react-query.md`.
   do perfil e que ninguém executa por RPC.
 - **Agendamento que só mexe no banco e não usa segredo** roda como função SQL com `pg_cron`, sem Route
   Handler. A limpeza de conta não confirmada (RNF27) é assim (ADR 0003).
+- **Agendamento que apaga arquivo do Storage** é uma Edge Function em `supabase/functions/`, chamada
+  pelo `pg_cron` via `pg_net`, com a URL e o segredo no Vault. O SQL só lista; quem apaga é a API do
+  Storage, com a chave secret do ambiente da função. A limpeza de comprovantes é assim (ADR 0011).
 - Tabela editável inclui `updated_at` no `WHERE` de todo update/delete: zero linhas afetadas é
   conflito de concorrência, não sucesso.
 - Feature não importa `supabase-js`; fala só com `services/`.
@@ -118,12 +122,15 @@ disparar uma busca. A exceção está explicada em `react-query.md`.
 
 Uma exceção que ninguém consegue enumerar já virou regra. Por isso cada uma está aqui, por nome.
 
-| Exceção                                             | Regra que ela dobra                             | Por que existe                                                                      |
-| --------------------------------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `SessionGate` decide a sessão só no navegador       | Página é Server Component e faz prefetch        | Enquanto a sessão for do mock, o servidor não a enxerga                             |
-| `setQueryData` da sessão em vez de invalidar        | Invalidação sempre pela rotina do domínio       | A resposta de `signIn`/`signOut` já é o novo estado                                 |
-| `/conta-apagada` fora dos grupos, sem `SessionGate` | Um `SessionGate` por grupo de rota (ADR 0007)   | A sessão acabou de ser apagada, e qualquer gate redirecionaria antes da confirmação |
-| Update do perfil sem `updated_at` no `WHERE`        | Tabela editável confere `updated_at` (ADR 0009) | O aluno é o único escritor e o patch é por campo, então não há conflito a detectar  |
+| Exceção                                             | Regra que ela dobra                             | Por que existe                                                                       |
+| --------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `SessionGate` decide a sessão só no navegador       | Página é Server Component e faz prefetch        | Enquanto a sessão for do mock, o servidor não a enxerga                              |
+| `setQueryData` da sessão em vez de invalidar        | Invalidação sempre pela rotina do domínio       | A resposta de `signIn`/`signOut` já é o novo estado                                  |
+| `/conta-apagada` fora dos grupos, sem `SessionGate` | Um `SessionGate` por grupo de rota (ADR 0007)   | A sessão acabou de ser apagada, e qualquer gate redirecionaria antes da confirmação  |
+| Update do perfil sem `updated_at` no `WHERE`        | Tabela editável confere `updated_at` (ADR 0009) | O aluno é o único escritor e o patch é por campo, então não há conflito a detectar   |
+| `removeActivity(id)` sem `updated_at` no `WHERE`    | Tabela editável confere `updated_at` (ADR 0011) | A tela só envia o id, e remover é apagar a versão que estiver lá                     |
+| `removeActivity` não lança se só o arquivo falhar   | Erro nunca é engolido (ADR 0011)                | A atividade já saiu; a rotina `limpa-comprovantes` apaga o arquivo                   |
+| `createActivity(input)` sem o cliente `db`          | Service recebe o cliente por parâmetro (0011)   | O upload só roda no navegador, e o `mutationFn` passaria o contexto no lugar do `db` |
 
 ## Onde está a verdade corrente
 

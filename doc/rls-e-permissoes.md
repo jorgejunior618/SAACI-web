@@ -27,12 +27,12 @@ segurança. A fronteira real é esta.
 
 ## Padrão por tipo de tabela
 
-| Tipo de tabela             | Policy                                                                                                     |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| Do aluno (atividades)      | dono = `(select auth.uid())` em todos os comandos, com `with check` na escrita                             |
-| Do aluno (perfil)          | `select` e `update` do dono; sem `insert` (gatilho cria) nem `delete` (cascade), `grant update` por coluna |
-| Cadastro (cursos e regras) | `select` para `authenticated`; sem policy de escrita, só migration altera                                  |
-| Arquivo (Storage)          | pasta do dono: `(storage.foldername(name))[1] = (select auth.uid())::text`                                 |
+| Tipo de tabela             | Policy                                                                                                       |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Do aluno (atividades)      | dono = `(select auth.uid())` em todos os comandos, com `with check` na escrita; `insert`/`update` por coluna |
+| Do aluno (perfil)          | `select` e `update` do dono; sem `insert` (gatilho cria) nem `delete` (cascade), `grant update` por coluna   |
+| Cadastro (cursos e regras) | `select` para `authenticated`; sem policy de escrita, só migration altera                                    |
+| Arquivo (Storage)          | pasta do dono: `(storage.foldername(name))[1] = (select auth.uid())::text`                                   |
 
 **Referência cruzada.** Uma chave estrangeira garante que a linha existe, não que é do mesmo aluno:
 quem souber o UUID de uma atividade alheia a referenciaria. O `with check` confere o dono da linha
@@ -54,6 +54,16 @@ bucket (ADR 0004). Há policy de `select`, `insert` e `delete` na pasta do dono 
 `update`**: o comprovante não se troca, e sem `update` o `upsert` também é recusado. Nunca se pede
 URL pública (`getPublicUrl`). O `delete` direto em `storage.objects` é barrado pelo Storage, que só
 libera com `storage.allow_delete_query = 'true'`, como a API faz; o teste liga esse ajuste.
+
+**Atividades (ADR 0011).** O aluno escreve só as colunas que informa: no `insert`, nome, item,
+quantidade, datas, caminho, nome e hash do comprovante; no `update`, só nome, item, quantidade e
+datas. Dono, curso, tipo e tamanho vêm do default e do gatilho `prepara_atividade`, que também
+recusa caminho fora da pasta do aluno. O gatilho é `security invoker`: ele procura o arquivo em
+`storage.objects` com a RLS de quem chama, então o arquivo de outro aluno não é encontrado.
+
+**Lista da limpeza.** `comprovantes_orfaos` revela caminhos de todos os alunos, então só a
+`service_role` a executa (`revoke` de `public`, `anon` e `authenticated`). Ela é `security invoker`,
+porque a `service_role` já enxerga tudo sem RLS.
 
 ## Regras
 
