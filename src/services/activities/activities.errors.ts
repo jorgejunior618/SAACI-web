@@ -41,6 +41,33 @@ export class ProofDownloadError extends Error {
   }
 }
 
+/**
+ * Nome do `check` de datas na migration `atividades`. O SQLSTATE `23514` vale para todo `check`, então
+ * é o nome que diz que o problema é a data.
+ */
+const DATES_CHECK = 'atividades_datas_check'
+
+/**
+ * Traduz o erro do banco para o erro de domínio das atividades, quando conhece a causa.
+ *
+ * @remarks
+ * Só traduz o que conhece. Erro de rede ou qualquer outro volta intacto, para uma falha de conexão
+ * nunca virar "corrija as datas" na tela.
+ *
+ * @param error Erro devolvido pelo `supabase-js`.
+ * @returns `InvalidActivityDatesError` para o `check` de datas, ou o próprio `error` nos demais casos.
+ *
+ * @example
+ * if (error) throw toActivityError(error)
+ */
+export function toActivityError<E extends { code?: string; message?: string }>(
+  error: E,
+): InvalidActivityDatesError | E {
+  return error.code === '23514' && error.message?.includes(DATES_CHECK)
+    ? new InvalidActivityDatesError()
+    : error
+}
+
 /** O serviço de leitura não conseguiu ler o comprovante. A tela deixa preencher à mão. */
 export class UnreadableProofError extends Error {
   constructor() {

@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { resetActivitiesMock } from '../activities/activities.mock'
-import { createActivity, removeActivity } from '../activities/activities.mutations'
+import { readActivitiesWithHours } from '../activities/activities.api'
 import type { Course, RuleItem } from '../rules/rules.types'
 import { getProgress } from './progress.api'
 
@@ -57,9 +56,51 @@ vi.mock('../rules/rules.api', () => ({
   getRuleItems: () => Promise.resolve(rules.items),
 }))
 
-function pdf(): File {
-  return new File(['conteudo'], 'certificado.pdf', { type: 'application/pdf' })
+type Seed = [id: number, name: string, item: number, quantity: number, start: string, end: string]
+
+// As 9 atividades do protótipo (Atividades, "Atividade que não conta"), como linhas de `atividades`.
+// Pelas regras do curso somam 59h. A última começa antes do ingresso (2023.2) e não conta.
+const SEEDS: Seed[] = [
+  [1, 'Curso de inglês intermediário', 6, 60, '2025-02-03', '2025-06-30'],
+  [2, 'Curso de Git e GitHub', 7, 32, '2025-04-07', '2025-05-03'],
+  [3, 'Curso de Python para análise de dados', 7, 40, '2025-09-15', '2025-11-14'],
+  [4, 'Semana de Engenharia de Computação 2025', 12, 3, '2025-09-17', '2025-09-19'],
+  [5, 'Hackathon IFCE', 12, 1, '2026-03-08', '2026-03-08'],
+  [6, 'Palestra sobre computação quântica', 13, 1, '2025-03-12', '2025-03-12'],
+  [7, 'Palestra sobre IA em sistemas embarcados', 13, 1, '2025-09-20', '2025-09-20'],
+  [8, 'Ciclo de Palestras Tech IFCE', 13, 3, '2026-10-20', '2026-10-22'],
+  [9, 'Palestra de boas-vindas aos calouros', 13, 1, '2023-02-10', '2023-02-10'],
+]
+
+function toRow([n, nome, item, quantidade, inicio, fim]: Seed): Record<string, unknown> {
+  return {
+    id: `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`,
+    nome,
+    item_numero: item,
+    quantidade,
+    data_inicio: inicio,
+    data_fim: fim,
+    created_at: `${fim}T12:00:00.000000+00:00`,
+    updated_at: `${fim}T12:00:00.000000+00:00`,
+    comprovante_nome: `comprovante-${n}.pdf`,
+    comprovante_tamanho: 700_000 + n * 1_000,
+    comprovante_tipo: 'application/pdf',
+  }
 }
+
+// O banco já devolve as linhas na ordem da lista. O cliente falso entrega `db.rows` a cada `select`.
+const db = vi.hoisted(() => ({ rows: [] as Record<string, unknown>[] }))
+
+vi.mock('@supabase/client', () => {
+  const query = {
+    select: () => query,
+    order: () => query,
+    then: (resolve: (value: { data: unknown; error: null }) => unknown) =>
+      Promise.resolve({ data: db.rows, error: null }).then(resolve),
+  }
+
+  return { createClient: () => ({ from: () => query }) }
+})
 
 // O perfil mora no Supabase. Aqui ele é um objeto em memória, que o teste muda quando precisa.
 const profileDb = vi.hoisted(() => ({
@@ -77,7 +118,7 @@ vi.mock('../profile/profile.api', () => ({
 
 describe('progress', () => {
   beforeEach(() => {
-    resetActivitiesMock()
+    db.rows = SEEDS.map(toRow)
     profileDb.profile = {
       ...profileDb.profile,
       courseId: rules.courseId,
@@ -98,22 +139,25 @@ describe('progress', () => {
     expect(progress.categories.reduce((sum, c) => sum + c.countedHours, 0)).toBe(progress.itemsSum)
   })
 
-  it('registrar uma atividade muda o total', async () => {
-    await createActivity({
-      name: 'Curso de React com TypeScript',
-      itemNumber: 7,
-      quantity: 40,
-      startDate: '2026-08-03',
-      endDate: '2026-09-12',
-      proof: pdf(),
-    })
+  it('o total é a soma das horas de cada atividade da lista', async () => {
+    const [activities, progress] = await Promise.all([readActivitiesWithHours(), getProgress()])
+
+    expect(activities.length).toBeGreaterThan(0)
+    expect(activities.reduce((sum, a) => sum + a.countedHours, 0)).toBe(progress.totalHours)
+  })
+
+  it('uma atividade a mais muda o total', async () => {
+    db.rows = [
+      ...db.rows,
+      toRow([10, 'Curso de React com TypeScript', 7, 40, '2026-08-03', '2026-09-12']),
+    ]
 
     expect(await getProgress()).toMatchObject({ totalHours: 69, missingHours: 51 })
   })
 
-  it('remover uma atividade tira as horas dela do total', async () => {
+  it('sem uma atividade, as horas dela saem do total', async () => {
     // a primeira seed é o curso de inglês, que conta 15h
-    await removeActivity('00000000-0000-4000-8000-000000000001')
+    db.rows = db.rows.slice(1)
 
     expect((await getProgress()).totalHours).toBe(44)
   })

@@ -7,11 +7,9 @@ import { getProfile, updateProfile } from '@/services/profile'
 import { waitForEmailLink } from './helpers/mailpit'
 
 // Perfil contra o Supabase local: o gatilho cria a linha no cadastro, o aluno só lê e muda a própria,
-// e o banco recusa semestre fora de 1º de janeiro ou de julho. A trava de troca de curso (RF10) é
-// provada no pgTAP, porque só há um curso cadastrado e a tabela de atividades ainda não existe.
-// TODO [#20]: com atividades reais, acrescentar aqui o caso de `CourseLockedError` pelo service. O
-// caminho PostgREST até `SA010` foi conferido à mão (stub `true` e 2º curso), sem teste permanente,
-// porque a suíte não tem como trocar a função do banco.
+// e o banco recusa semestre fora de 1º de janeiro ou de julho. A trava de troca de curso (RF10) com
+// atividade real, até o `CourseLockedError` do service, está em `activities.test.ts`: é lá que a
+// suíte registra atividade, e a fixture é de um arquivo só (doc/testes.md).
 const PASSWORD = 'senhaforte1'
 const COURSE_ID = '3b1f6d2e-5a47-4c80-9e1b-7d0c2a4f8e11'
 const stamp = Date.now()
