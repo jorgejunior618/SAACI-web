@@ -385,8 +385,16 @@ describe('createActivity', () => {
 describe('updateActivity', () => {
   const READ_AT = '2025-05-03T12:00:00.123456+00:00'
 
+  // A linha que o `update` devolve: a corrigida, com o `updated_at` novo do gatilho.
+  const CORRECTED = row(ID_1, {
+    nome: 'Novo nome',
+    quantidade: 80,
+    updated_at: '2026-11-19T12:00:00.654321+00:00',
+  })
+
   it('grava só os campos enviados, presa ao updated_at lido', async () => {
-    queue(ok({ id: ID_1 }), ok([row(ID_1, { nome: 'Novo nome', quantidade: 80 }), ROWS[1]]))
+    // Leitura antes do `update`: a lista atual. Depois, a linha corrigida que o `update` devolve.
+    queue(ok(ROWS), ok(CORRECTED))
 
     const corrected = await updateActivity(ID_1, READ_AT, { name: 'Novo nome', quantity: 80 })
 
@@ -396,11 +404,44 @@ describe('updateActivity', () => {
     ])
     expect(db.state.calls).toContainEqual(['atividades.eq', 'id', ID_1])
     expect(db.state.calls).toContainEqual(['atividades.eq', 'updated_at', READ_AT])
-    expect(corrected).toMatchObject({ name: 'Novo nome', countedHours: 20 })
+    expect(corrected).toMatchObject({
+      id: ID_1,
+      name: 'Novo nome',
+      updatedAt: CORRECTED.updated_at,
+      countedHours: 20,
+    })
+  })
+
+  it('não vai à rede depois de gravar: a leitura acontece antes do update', async () => {
+    queue(ok(ROWS), ok(CORRECTED))
+
+    await updateActivity(ID_1, READ_AT, { name: 'Novo nome', quantity: 80 })
+
+    const methods = db.state.calls.map(([method]) => method)
+    const updateAt = methods.indexOf('atividades.update')
+
+    expect(updateAt).toBeGreaterThan(methods.lastIndexOf('atividades.order'))
+    // Depois do `update`, só o encadeamento dele: nenhuma consulta nova.
+    expect(methods.slice(updateAt)).toEqual([
+      'atividades.update',
+      'atividades.eq',
+      'atividades.eq',
+      'atividades.select',
+      'atividades.maybeSingle',
+    ])
+  })
+
+  it('falha na leitura antes do update não grava nada', async () => {
+    const failure = new Error('rede caiu')
+
+    queue({ data: null, error: failure })
+
+    await expect(updateActivity(ID_1, READ_AT, { name: 'Outro' })).rejects.toBe(failure)
+    expect(db.state.calls.map(([method]) => method)).not.toContain('atividades.update')
   })
 
   it('zero linhas com a atividade ainda lá é conflito', async () => {
-    queue(ok(null), ok({ id: ID_1 }))
+    queue(ok(ROWS), ok(null), ok({ id: ID_1 }))
 
     await expect(updateActivity(ID_1, READ_AT, { name: 'Outro' })).rejects.toBeInstanceOf(
       StaleActivityError,
@@ -408,7 +449,7 @@ describe('updateActivity', () => {
   })
 
   it('zero linhas sem a atividade é não encontrada', async () => {
-    queue(ok(null), ok(null))
+    queue(ok(ROWS), ok(null), ok(null))
 
     await expect(updateActivity(ID_1, READ_AT, { name: 'Outro' })).rejects.toBeInstanceOf(
       ActivityNotFoundError,
@@ -416,7 +457,7 @@ describe('updateActivity', () => {
   })
 
   it('traduz o check de datas quando só uma das datas foi corrigida', async () => {
-    queue({
+    queue(ok(ROWS), {
       data: null,
       error: {
         code: '23514',
@@ -433,7 +474,7 @@ describe('updateActivity', () => {
   it('repassa outro check sem traduzir', async () => {
     const failure = { code: '23514', message: 'violates check constraint "atividades_nome_check"' }
 
-    queue({ data: null, error: failure })
+    queue(ok(ROWS), { data: null, error: failure })
 
     await expect(updateActivity(ID_1, READ_AT, { name: 'x' })).rejects.toBe(failure)
   })

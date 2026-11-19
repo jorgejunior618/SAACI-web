@@ -7,6 +7,7 @@ import * as v from 'valibot'
 import { readCurrentUser } from '../account/account.api'
 import { progressKeys } from '../progress/progress.keys'
 import {
+  ACTIVITY_COLUMNS,
   attachHours,
   isActivityId,
   PROOF_BUCKET,
@@ -155,9 +156,14 @@ export async function createActivity(input: NewActivity): Promise<Activity> {
  * Corrige nome, item, quantidade ou data de uma atividade. O comprovante não se troca.
  *
  * @remarks
- * O `update` só pega a linha se o `updated_at` ainda for o que a tela leu. Zero linhas quer dizer
- * que a atividade mudou ou sumiu, e uma segunda leitura diz qual dos dois. As horas são recalculadas
- * pelo cálculo único. Chame `invalidateAfterActivityWrite`.
+ * Lê perfil, regras e atividades **antes** do `update`, como o `createActivity`: depois do commit,
+ * nada mais vai à rede. Senão, uma leitura que falhasse diria "não salva" para uma correção gravada,
+ * e a nova tentativa, com o `updatedAt` antigo, viraria `StaleActivityError`.
+ *
+ * O `update` só pega a linha se o `updated_at` ainda for o que a tela leu, e devolve a linha
+ * corrigida. Zero linhas quer dizer que a atividade mudou ou sumiu, e uma segunda leitura diz qual
+ * dos dois (nada foi gravado, então ler é seguro). As horas são recalculadas pelo cálculo único,
+ * sobre a lista lida antes com a linha trocada. Chame `invalidateAfterActivityWrite`.
  *
  * @param id Identificador da atividade.
  * @param updatedAt O `updatedAt` que a tela leu, sem mexer no texto. Se a atividade mudou desde
@@ -181,12 +187,14 @@ export async function updateActivity(
   // Sem campo a gravar, o `update` do Supabase falharia. Devolver a atividade atual mantém o contrato.
   if (Object.keys(row).length === 0) return withHours(id, db)
 
+  // Antes do `update`: se falhar aqui, nada foi gravado, e "não salva" é verdade.
+  const context = await readActivityContext(db)
   const { data, error } = await db
     .from('atividades')
     .update(row)
     .eq('id', id)
     .eq('updated_at', updatedAt)
-    .select('id')
+    .select(ACTIVITY_COLUMNS)
     .maybeSingle()
 
   if (error) throw toActivityError(error)
@@ -196,7 +204,17 @@ export async function updateActivity(
     if (current.error) throw current.error
     throw current.data ? new StaleActivityError() : new ActivityNotFoundError()
   }
-  return withHours(id, db)
+
+  // Daqui em diante, só conta local. A ordem do array não pesa: o cálculo ordena pelo registro.
+  const corrected = toStoredActivity(data)
+  const others = context.stored.filter((item) => item.id !== id)
+  const result = attachHours({ ...context, stored: [...others, corrected] }).find(
+    (item) => item.id === id,
+  )
+
+  // O cálculo devolve uma entrada por atividade enviada, então a corrigida sempre está na lista.
+  if (!result) throw new Error('A atividade foi corrigida, mas o cálculo não a encontrou.')
+  return result
 }
 
 /**

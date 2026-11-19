@@ -20,8 +20,14 @@ export const PROOF_BUCKET = 'comprovantes'
 /** Vida da URL assinada do comprovante, em segundos. Basta para abrir; a tela pede outra a cada vez. */
 const PROOF_URL_TTL_SECONDS = 60
 
-/** Colunas do `select` da atividade. Listadas porque `select('*')` não é permitido. */
-const ACTIVITY_COLUMNS =
+/**
+ * Colunas do `select` da atividade. Listadas porque `select('*')` não é permitido.
+ *
+ * @remarks
+ * Uso interno do domínio, fora do `index.ts`: a leitura e o `updateActivity`, que pede a linha
+ * corrigida de volta no próprio `update` para não ler de novo depois do commit.
+ */
+export const ACTIVITY_COLUMNS =
   'id, nome, item_numero, quantidade, data_inicio, data_fim, created_at, updated_at, comprovante_nome, comprovante_tamanho, comprovante_tipo'
 
 /** Linha de `atividades` com as colunas que a leitura pede, em `snake_case`. */
@@ -79,8 +85,9 @@ export function isActivityId(id: string): boolean {
  * Traduz a linha de `atividades` para a atividade sem horas, em `camelCase`.
  *
  * @remarks
- * Uso interno do domínio: a leitura e o `createActivity`, que monta a linha nova com o que a RPC
- * devolveu. Não valida; quem valida é o `v.parse` de {@link attachHours}.
+ * Uso interno do domínio: a leitura, o `createActivity`, que monta a linha nova com o que a RPC
+ * devolveu, e o `updateActivity`, com a linha que o `update` devolveu. Não valida; quem valida é o
+ * `v.parse` de {@link attachHours}.
  *
  * @param row Linha do banco, ou montada com as mesmas colunas.
  * @returns A atividade sem `activityHours`, `countedHours`, `status` e `reason`.
@@ -108,8 +115,8 @@ export function toStoredActivity(row: ActivityRow): StoredActivity {
  * Lê o que o cálculo único precisa: o perfil, as regras do curso e as atividades do aluno.
  *
  * @remarks
- * Uso interno do domínio, fora do `index.ts`. São três idas ao banco. O `createActivity` chama esta
- * função **antes** de gravar, para que nada vá à rede depois do commit.
+ * Uso interno do domínio, fora do `index.ts`. São três idas ao banco. O `createActivity` e o
+ * `updateActivity` chamam esta função **antes** de gravar, para que nada vá à rede depois do commit.
  *
  * @param db Cliente do Supabase.
  * @returns As atividades sem horas, na ordem da lista (item, data de fim e registro), as regras e
