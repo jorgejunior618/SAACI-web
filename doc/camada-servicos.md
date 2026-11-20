@@ -87,6 +87,12 @@ export async function signIn(email: string, password: string): Promise<Session> 
 }
 ```
 
+**Depois do commit, nada vai à rede (ADR 0012).** A resposta sai do que a escrita devolveu
+(`.select(colunas)` no `update`, `returning` na RPC) somado ao que foi lido **antes** dela. Uma
+leitura que falhasse depois do commit faria a tela dizer "não salva" para o que foi gravado, e a nova
+tentativa duplicaria o registro ou bateria na trava de `updated_at`. Reler depois de uma escrita que
+não gravou (zero linhas) continua permitido.
+
 ## Tradução de erro
 
 O service traduz erro de domínio conhecido antes de lançar, e a tela nunca vê código nem mensagem de
