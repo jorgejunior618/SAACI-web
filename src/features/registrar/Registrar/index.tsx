@@ -13,8 +13,9 @@ import type { ReactNode } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import type { FieldErrors } from 'react-hook-form'
 
-import { AppFrame, Link, Notice, RulePanel, TopBar } from '@design-system'
+import { AppFrame, Link, Notice, RulePanel, SubmitBar, TopBar } from '@design-system'
 
+import { ActivityFields } from '@/components/ActivityFields'
 import {
   activitiesQueries,
   createActivity,
@@ -24,18 +25,17 @@ import {
 import { profileQueries } from '@/services/profile'
 import { progressQueries } from '@/services/progress'
 import { rulesQueries } from '@/services/rules'
+import { ActivityFormSchema, buildPreview, EMPTY_FORM, parseQuantity } from '@/utils/activity-form'
+import type { ActivityFormInput, ActivityFormOutput } from '@/utils/activity-form'
+import { parseBrDate } from '@/utils/br-date'
 
-import { ActivityFields } from './_components/ActivityFields'
 import { ErrorSummary } from './_components/ErrorSummary'
 import type { ErrorSummaryItem } from './_components/ErrorSummary'
 import { ItemStep } from './_components/ItemStep'
 import { ProofStep } from './_components/ProofStep'
 import { Registered } from './_components/Registered'
-import { SubmitBar } from './_components/SubmitBar'
 import { Empty } from './Empty'
-import { ActivityFormSchema } from './schema'
-import type { ActivityFormInput, ActivityFormOutput } from './schema'
-import { buildPreview, EMPTY_FORM, parseBrDate, parseQuantity, suggestionToForm } from './utils'
+import { suggestionToForm } from './utils'
 import * as S from './styles'
 
 // Ordem dos campos na tela, que é a ordem do resumo de erros.
@@ -158,7 +158,6 @@ export function Registrar(): ReactNode {
       ? buildPreview({
           activities,
           ruleItems,
-          categories: progress.categories,
           startSemester: profile.startSemester,
           itemNumber,
           quantity: parseQuantity(quantityText),
@@ -178,10 +177,14 @@ export function Registrar(): ReactNode {
         preview === null ? undefined : (
           <SubmitBar
             formId={formId}
+            summaryLabel="Vai contar"
             willCount={preview.willCount}
-            isWarning={preview.hours?.status === 'nao_conta'}
-            isBusy={registering.isPending}
-          />
+            isWarning={preview.hours !== null && preview.hours.status !== 'conta'}
+            busy={registering.isPending}
+            busyLabel="Registrando"
+          >
+            Registrar
+          </SubmitBar>
         )
       }
     >

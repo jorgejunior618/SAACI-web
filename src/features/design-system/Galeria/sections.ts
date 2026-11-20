@@ -21,6 +21,7 @@ import { ProgressBarSection } from './_components/ProgressBarSection'
 import { RulePanelSection } from './_components/RulePanelSection'
 import { SpinnerSection } from './_components/SpinnerSection'
 import { StateScreenSection } from './_components/StateScreenSection'
+import { SubmitBarSection } from './_components/SubmitBarSection'
 import { SuggestionCardSection } from './_components/SuggestionCardSection'
 import { TextFieldSection } from './_components/TextFieldSection'
 import { TextStyles } from './_components/TextStyles'
@@ -90,6 +91,7 @@ export const sections: GallerySection[] = [
   },
   { id: 'disclosure', title: 'Disclosure', group: 'Molecules', Component: DisclosureSection },
   { id: 'activity-row', title: 'ActivityRow', group: 'Molecules', Component: ActivityRowSection },
+  { id: 'submit-bar', title: 'SubmitBar', group: 'Molecules', Component: SubmitBarSection },
   {
     id: 'suggestion-card',
     title: 'SuggestionCard',

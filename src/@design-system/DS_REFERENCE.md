@@ -183,6 +183,14 @@ nasce ou muda.
 - Acessibilidade: no `reading`, o spinner anuncia a frase como `status` e o texto visível fica `aria-hidden`, para o leitor de tela ouvir uma vez só. O cartão é uma região nomeada pela pergunta.
 - Galeria: `/design-system/suggestion-card`.
 
+### SubmitBar
+
+- Uso: rodapé fixo do formulário de atividade (Registrar e Corrigir atividade), no `bottomNav` do `AppFrame`. `surface`, borda superior de 1px em `line`, padding 16px nas laterais, 12px em cima e 16px mais a área segura embaixo. Em cima, a linha de horas: o rótulo em `support` `ink.muted` à esquerda e o número em `title` tabular à direita, na mesma linha de base; embaixo, o `Button primary block` de envio, 8px abaixo.
+- Props: `formId` (o botão envia o formulário pelo atributo `form`, porque fica fora dele), `summaryLabel` ("Vai contar", "Vai contar (antes 1,0h)"), `willCount: number | null` (`null` esconde a linha de horas), `isWarning?`, `busy?`, `busyLabel` (gerúndio: "Registrando", "Salvando") e `children` (texto do botão: "Registrar", "Salvar correção").
+- Regras: recebe as horas prontas e não calcula (RNF20); só formata com `formatHours`. `isWarning` pinta o número de `warning` quando a atividade vai contar menos do que vale (status `parcial` ou `nao_conta`), coerente com o aviso do `RulePanel`. Quando mostrar o rodapé é decisão da tela.
+- Composição: importa `Button`.
+- Galeria: `/design-system/submit-bar`.
+
 ## Organisms
 
 Organism é o bloco que usa pelo menos uma molecule e pode usar atoms junto. Quem só compõe atoms

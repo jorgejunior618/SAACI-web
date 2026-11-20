@@ -1,28 +1,8 @@
 import type { Activity } from '@/services/activities'
 import type { ProgressCategory } from '@/services/progress'
 import type { RuleItem } from '@/services/rules'
+import { formatHours } from '@/utils/format-hours'
 import { isCounting } from '@/utils/is-counting'
-
-/**
- * Escreve uma data ISO (`AAAA-MM-DD`) no formato brasileiro, `DD/MM/AAAA`.
- *
- * @remarks
- * Só reorganiza o texto: não cria `Date`, então o fuso do aparelho nunca muda o dia. Fica aqui
- * enquanto só esta tela usa; sobe para `src/utils/` quando a segunda tela (o Detalhe) precisar.
- *
- * @param isoDate Data no formato `AAAA-MM-DD`, como vem do service.
- * @returns A data como o aluno lê, por exemplo `"03/05/2025"`.
- *
- * @example
- * ```ts
- * formatDate('2025-05-03') // "03/05/2025"
- * ```
- */
-export function formatDate(isoDate: string): string {
-  const [year, month, day] = isoDate.split('-')
-
-  return `${day}/${month}/${year}`
-}
 
 /** Um item do formulário com as atividades do aluno nele, como a seção "Por item" mostra. */
 export type ItemGroup = {
@@ -35,6 +15,37 @@ export type ItemGroup = {
   maxHours: number
   /** Atividades do item, na ordem do service (data de término). */
   activities: Activity[]
+}
+
+/**
+ * Lê o nome da atividade removida do endereço (`/atividades?removida=…`), que o Detalhe manda depois
+ * de remover.
+ *
+ * @param value O valor cru de `searchParams.removida`.
+ * @returns O nome, sem espaços nas pontas, ou `null` quando falta ou está em branco.
+ */
+export function parseRemovedParam(value: string | string[] | undefined): string | null {
+  const raw = (Array.isArray(value) ? value[0] : value)?.trim()
+
+  return raw ? raw : null
+}
+
+/**
+ * Escreve o aviso de remoção confirmada: quem saiu, o total novo e quanto falta.
+ *
+ * @param name Nome da atividade removida.
+ * @param totalHours Total atual, de `progressQueries.summary`, já sem a atividade.
+ * @param missingHours Quanto falta para a meta, do mesmo resumo.
+ * @returns O corpo do aviso "Atividade removida".
+ */
+export function describeRemoved(name: string, totalHours: number, missingHours: number): string {
+  const format = (hours: number): string => formatHours(hours, { fractionDigits: 'auto' })
+  const next =
+    missingHours > 0
+      ? `Faltam ${format(missingHours)} para completar suas horas.`
+      : 'Suas horas continuam completas.'
+
+  return `${name} saiu do seu total, que agora é ${format(totalHours)}. ${next}`
 }
 
 /**

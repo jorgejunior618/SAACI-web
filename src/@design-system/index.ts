@@ -45,6 +45,8 @@ export type {
   StateScreenLoadingProps,
   StateScreenProps,
 } from './molecules/StateScreen'
+export { SubmitBar } from './molecules/SubmitBar'
+export type { SubmitBarProps } from './molecules/SubmitBar'
 export { TextField } from './molecules/TextField'
 export type { TextFieldProps, TextFieldStatusProps } from './molecules/TextField'
 export { TopBar } from './molecules/TopBar'

@@ -6,7 +6,7 @@ import NextLink from 'next/link'
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 
-import { ActivityRow, AppFrame, Card, Disclosure, Icon, Link, TopBar } from '@design-system'
+import { ActivityRow, AppFrame, Card, Disclosure, Icon, Link, Notice, TopBar } from '@design-system'
 import type { ActivityRowSelection } from '@design-system'
 
 import { MainNav } from '@/components/MainNav'
@@ -16,13 +16,14 @@ import type { Activity } from '@/services/activities'
 import { profileQueries } from '@/services/profile'
 import { progressQueries } from '@/services/progress'
 import { rulesQueries } from '@/services/rules'
+import { formatBrDate } from '@/utils/br-date'
 import { formatHours } from '@/utils/format-hours'
 import { isCounting } from '@/utils/is-counting'
 
 import { ItemSelectAll } from './_components/ItemSelectAll'
 import { Empty } from './Empty'
 import {
-  formatDate,
+  describeRemoved,
   formatProofsSummary,
   formatReason,
   getCountingIds,
@@ -36,6 +37,11 @@ import * as S from './styles'
 export type AtividadesProps = {
   /** Item que já abre aberto, vindo de `?item=` (o Início manda para cá). `null`: todos fechados. */
   openItem: number | null
+  /**
+   * Nome da atividade que o Detalhe acabou de remover, vindo de `?removida=`. Mostra o aviso de
+   * remoção com o total novo. `null`: sem aviso.
+   */
+  removedName?: string | null
 }
 
 type ActivityItemProps = {
@@ -58,7 +64,7 @@ function ActivityItem({ activity, selection }: ActivityItemProps): ReactNode {
           {...common}
           status="counts"
           countedHours={activity.countedHours}
-          endDate={formatDate(activity.endDate)}
+          endDate={formatBrDate(activity.endDate)}
         />
       )
     case 'parcial':
@@ -68,7 +74,7 @@ function ActivityItem({ activity, selection }: ActivityItemProps): ReactNode {
           status="partial"
           countedHours={activity.countedHours}
           activityHours={activity.activityHours}
-          endDate={formatDate(activity.endDate)}
+          endDate={formatBrDate(activity.endDate)}
         />
       )
     case 'nao_conta':
@@ -83,7 +89,8 @@ function ActivityItem({ activity, selection }: ActivityItemProps): ReactNode {
  *
  * @remarks
  * Não soma horas: o total vem de `getProgress` e as horas de cada item de `progress.categories`
- * (RNF20). O nome e o máximo do item vêm das regras do curso. Sem atividade, mostra o `Empty`. A
+ * (RNF20). O nome e o máximo do item vêm das regras do curso. Com `removedName`, abre com o aviso
+ * de remoção que o Detalhe pediu. Sem atividade, mostra o `Empty`. A
  * página envolve este componente em `Suspense`, com `Loading` como fallback.
  *
  * "Escolher quais" abre todos os itens e liga o checkbox nas atividades que contam, todas já
@@ -98,7 +105,7 @@ function ActivityItem({ activity, selection }: ActivityItemProps): ReactNode {
  * </Suspense>
  * ```
  */
-export function Atividades({ openItem }: AtividadesProps): ReactNode {
+export function Atividades({ openItem, removedName = null }: AtividadesProps): ReactNode {
   // `null`: fora do modo de seleção. Os hooks vêm antes de qualquer retorno antecipado.
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<string> | null>(null)
   // Sobe a cada entrada no modo: troca a `key` dos itens, que remontam abertos. Ao sair, nada muda,
@@ -155,6 +162,12 @@ export function Atividades({ openItem }: AtividadesProps): ReactNode {
   return (
     <AppFrame topBar={<TopBar variant="root" title="Atividades" />} bottomNav={<MainNav />}>
       <S.Page>
+        {removedName === null ? null : (
+          <Notice format="block" tone="success" title="Atividade removida" role="status">
+            {describeRemoved(removedName, progress.totalHours, progress.missingHours)}
+          </Notice>
+        )}
+
         <Card>
           <S.Summary>
             <S.Total>

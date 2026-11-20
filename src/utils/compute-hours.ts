@@ -46,6 +46,29 @@ function toHours(tenths: number): number {
   return tenths / 10
 }
 
+/**
+ * Compara duas atividades pela ordem em que ocupam o máximo do item: registro e, no empate, `id`.
+ *
+ * @remarks
+ * É a ordem do cálculo único. Quem precisa saber se uma atividade vem antes de outra (o "Cabia no
+ * item" do Detalhe, a prévia da correção) usa esta função, nunca uma cópia da regra.
+ *
+ * @param a Uma atividade, com `id` e `registeredAt`.
+ * @param b Outra atividade, com os mesmos campos.
+ * @returns Negativo se `a` vem antes, positivo se vem depois e `0` se é a mesma posição.
+ *
+ * @example
+ * ```ts
+ * compareByRegistration(earlier, later) < 0 // true: `earlier` ocupa o máximo primeiro
+ * ```
+ */
+export function compareByRegistration(
+  a: Pick<HoursActivityInput, 'id' | 'registeredAt'>,
+  b: Pick<HoursActivityInput, 'id' | 'registeredAt'>,
+): number {
+  return a.registeredAt.localeCompare(b.registeredAt) || a.id.localeCompare(b.id)
+}
+
 type ItemResult = { activities: ActivityHours[]; countedTenths: number; overTenths: number }
 
 function computeItem(
@@ -56,9 +79,7 @@ function computeItem(
   let remaining = Math.round(rule.maxHours * 10)
   let countedTenths = 0
   let overTenths = 0
-  const ordered = [...activities].sort(
-    (a, b) => a.registeredAt.localeCompare(b.registeredAt) || a.id.localeCompare(b.id),
-  )
+  const ordered = [...activities].sort(compareByRegistration)
 
   const results = ordered.map((activity): ActivityHours => {
     const raw = rawTenths(activity.quantity, rule.ratio)

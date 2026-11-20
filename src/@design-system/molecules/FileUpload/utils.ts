@@ -1,24 +1,11 @@
+import { formatFileSize } from '@/utils/format-file-size'
+
 const BYTES_PER_MB = 1024 * 1024
 
 const TYPE_NAMES: Record<string, string> = {
   'application/pdf': 'PDF',
   'image/jpeg': 'JPG',
   'image/png': 'PNG',
-}
-
-const numberFormat = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 })
-
-/**
- * Escreve o tamanho de um arquivo em português ("1,2 MB").
- *
- * @param bytes Tamanho em bytes.
- * @returns O tamanho em B, KB ou MB, com vírgula decimal.
- */
-export function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < BYTES_PER_MB) return `${numberFormat.format(bytes / 1024)} KB`
-
-  return `${numberFormat.format(bytes / BYTES_PER_MB)} MB`
 }
 
 /** Nomes dos formatos aceitos para a frase de erro ("PDF, JPG ou PNG"). */

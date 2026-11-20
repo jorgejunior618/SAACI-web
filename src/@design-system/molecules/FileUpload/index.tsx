@@ -4,11 +4,13 @@ import { Camera, FileText } from 'lucide-react'
 import { useId, useRef, useState } from 'react'
 import type { ChangeEvent, ElementType, ReactNode } from 'react'
 
+import { formatFileSize } from '@/utils/format-file-size'
+
 import { Button } from '../../atoms/Button'
 import { Card } from '../../atoms/Card'
 import { Icon } from '../../atoms/Icon'
 import { Link } from '../../atoms/Link'
-import { formatFileSize, validateFile } from './utils'
+import { validateFile } from './utils'
 import * as S from './styles'
 
 export type FileUploadProps = {
