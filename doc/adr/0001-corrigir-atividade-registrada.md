@@ -1,6 +1,6 @@
 # 0001. O aluno corrige a atividade registrada
 
-- **Status:** Proposta
+- **Status:** Aceita
 - **Data:** 07/11/2026
 
 ## Contexto
