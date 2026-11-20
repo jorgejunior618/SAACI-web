@@ -39,6 +39,7 @@ import {
   getStatusBadge,
   getTotalAfterRemoval,
 } from './utils'
+import type { RemovalInput } from './utils'
 import * as S from './styles'
 
 /** Props de {@link Detalhe}. */
@@ -53,9 +54,9 @@ export type DetalheProps = {
  * @remarks
  * Não recalcula horas (RNF20): o número e o status vêm do service, e o "Cabia no item" soma o que as
  * atividades registradas antes já contam. "Corrigir dados" troca a tela pelo `CorrectionForm`; ao
- * salvar, volta ao detalhe com o aviso de correção salva. Atividade que não existe (ou é de outro aluno) chama
- * `notFound()`. Remover pede confirmação no `BottomSheet`, apaga o comprovante junto e chama
- * `invalidateAfterActivityRemoval`, que não derruba este detalhe: com a outra rotina, o `notFound()`
+ * salvar, volta ao detalhe com o aviso de correção salva. Atividade que não existe (ou é de outro
+ * aluno) chama `notFound()`. Remover pede confirmação no `BottomSheet`, com a frase do efeito
+ * fixada ao abrir, apaga o comprovante junto e chama `invalidateAfterActivityRemoval`, que não derruba este detalhe: com a outra rotina, o `notFound()`
  * dispararia antes da volta à lista. Atividade que já não existia (removida em outra aba) conta como
  * remoção concluída. Espera a lista e o total novos antes de voltar, para Atividades
  * já abrir certa, com o aviso de remoção pelo `?removida=`. A página envolve este componente em
@@ -74,6 +75,9 @@ export function Detalhe({ id }: DetalheProps): ReactNode {
   const removeSheetRef = useRef<BottomSheetHandle>(null)
   const [isCorrecting, setIsCorrecting] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
+  // A frase do sheet é guardada quando ele abre: depois da remoção, a lista e o total novos chegam
+  // com o sheet ainda aberto, e a frase calculada no render mudaria no meio da ação confirmada.
+  const [removalText, setRemovalText] = useState('')
   const [{ data: activity }, { data: activities }, { data: progress }, { data: profile }] =
     useSuspenseQueries({
       queries: [
@@ -114,13 +118,14 @@ export function Detalhe({ id }: DetalheProps): ReactNode {
   const badge = getStatusBadge(activity.status)
   const quantity = describeQuantity(activity.quantity, rule.ratio.unit)
   const roomHours = getRoomHours(activity, activities, rule.maxHours)
-  const totalAfterRemoval = getTotalAfterRemoval({
+  // Só a entrada fica no render; a conta roda no `openSheet`, uma vez por abertura.
+  const removalInput: RemovalInput = {
     activity,
     activities,
     ruleItems,
     startSemester: profile.startSemester,
     targetHours: progress.targetHours,
-  })
+  }
 
   // Espera lista e total novos, para Atividades abrir sem a atividade removida e com o total certo.
   // Se a busca falhar, a remoção já aconteceu: volta mesmo assim, nunca vira erro.
@@ -152,6 +157,7 @@ export function Detalhe({ id }: DetalheProps): ReactNode {
   function openSheet(): void {
     removing.reset()
     setIsSaved(false)
+    setRemovalText(describeRemoval(name, progress.totalHours, getTotalAfterRemoval(removalInput)))
     removeSheetRef.current?.open()
   }
 
@@ -239,7 +245,7 @@ export function Detalhe({ id }: DetalheProps): ReactNode {
       <BottomSheet
         ref={removeSheetRef}
         title="Remover esta atividade?"
-        description={`${describeRemoval(name, progress.totalHours, totalAfterRemoval)} Se só um dado está errado, use Corrigir dados.`}
+        description={`${removalText} Se só um dado está errado, use Corrigir dados.`}
         actions={
           <>
             <Button

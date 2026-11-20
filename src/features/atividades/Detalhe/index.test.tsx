@@ -243,6 +243,27 @@ describe('Detalhe', () => {
     expect(screen.queryByText('A atividade não foi removida')).not.toBeInTheDocument()
   })
 
+  it('mantém a frase da confirmação quando a lista e o total mudam com o sheet aberto', async () => {
+    const queryClient = renderDetalhe(PARTIAL)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Remover atividade' }))
+
+    const sheet = await screen.findByRole('dialog')
+    const text = 'Palestra sobre segurança em redes sai da lista, e seu total continua em 30h.'
+
+    expect(within(sheet).getByText(text, { exact: false })).toBeInTheDocument()
+
+    // Como depois da remoção: a lista sem a atividade e o total novo chegam com o sheet aberto. O
+    // Query avisa a tela num `setTimeout(0)`, então o `act` espera esse aviso antes de conferir.
+    await act(async () => {
+      queryClient.setQueryData(activitiesQueries.list().queryKey, [{ ...EARLIER, quantity: 5 }])
+      queryClient.setQueryData(progressQueries.summary().queryKey, { ...PROGRESS, totalHours: 10 })
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    })
+
+    expect(within(sheet).getByText(text, { exact: false })).toBeInTheDocument()
+  })
+
   it('diz que nada foi removido e o que fazer quando a remoção falha', async () => {
     vi.mocked(removeActivity).mockRejectedValue(new Error('rede caiu'))
     renderDetalhe(PARTIAL)
