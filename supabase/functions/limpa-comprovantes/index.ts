@@ -5,74 +5,116 @@
 // Ambiente:
 // - `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY`: o Supabase injeta, local e remoto.
 // - `LIMPEZA_SEGREDO`: o mesmo valor do segredo `limpeza_segredo` do Vault (README).
+//
+// Ficam em português só os contratos com o banco e o cron: o nome da função, o header
+// `x-limpeza-segredo`, a variável `LIMPEZA_SEGREDO` e os parâmetros `idade` e `limite` da RPC.
+import { createHash, timingSafeEqual } from 'node:crypto'
+
 import { createClient } from 'npm:@supabase/supabase-js@2.119.0'
 
 const BUCKET = 'comprovantes'
-const LOTE = 100
+const SECRET_HEADER = 'x-limpeza-segredo'
+const BATCH_SIZE = 100
 // Teto de lotes por chamada. Se o Storage recusar algum arquivo, ele volta na próxima listagem, e o
 // teto impede o laço infinito. O que sobrar sai na próxima hora.
-const MAXIMO_DE_LOTES = 20
+const MAX_BATCHES = 20
 // Folga padrão: o upload que ainda espera a RPC não pode ser apagado.
-const IDADE_PADRAO = '1 hour'
-// A idade pode vir no corpo, para o teste manual. Só número e unidade, nada que vire SQL estranho.
-const IDADE_VALIDA = /^\d{1,4} (seconds|minutes|hours|days)$/
-
-function resposta(status: number, corpo: Record<string, unknown>): Response {
-  return Response.json(corpo, { status })
+const DEFAULT_AGE = '1 hour'
+// Piso da idade que vem no corpo (teste manual). A lista e a remoção não são atômicas: com idade
+// perto de zero, a RPC de um registro em andamento pode gravar entre a lista e a remoção, e a
+// atividade ficaria sem comprovante (RNF24). Um minuto é muito mais que o intervalo entre o upload e
+// a RPC, que é de segundos.
+const MIN_AGE_SECONDS = 60
+// Só número e unidade, nada que vire SQL estranho. Singular e plural, como o Postgres aceita.
+const AGE_PATTERN = /^(\d{1,4}) (second|minute|hour|day)s?$/
+const SECONDS_PER_UNIT: Record<string, number> = {
+  second: 1,
+  minute: 60,
+  hour: 3_600,
+  day: 86_400,
 }
 
-async function lerIdade(req: Request): Promise<string | null> {
-  const texto = await req.text()
+function respond(status: number, body: Record<string, unknown>): Response {
+  return Response.json(body, { status })
+}
 
-  if (!texto) return IDADE_PADRAO
+// Compara em tempo constante: `!==` para no primeiro caractere diferente, e o tempo de resposta
+// revelaria quanto do começo acertou. O hash deixa os dois lados do mesmo tamanho.
+function isSameSecret(received: string, expected: string): boolean {
+  const digest = (value: string) => createHash('sha256').update(value).digest()
+
+  return timingSafeEqual(digest(received), digest(expected))
+}
+
+// A idade em segundos, ou `null` se o texto não for "número unidade".
+function toSeconds(age: string): number | null {
+  const match = AGE_PATTERN.exec(age)
+
+  if (!match) return null
+  return Number(match[1]) * (SECONDS_PER_UNIT[match[2] ?? ''] ?? 0)
+}
+
+// A idade do corpo, a padrão se o corpo vier vazio, ou `null` se for inválida ou menor que o piso.
+async function readAge(req: Request): Promise<string | null> {
+  const text = await req.text()
+
+  if (!text) return DEFAULT_AGE
 
   try {
-    const corpo: unknown = JSON.parse(texto)
-    const idade =
-      typeof corpo === 'object' && corpo !== null && 'idade' in corpo ? corpo.idade : undefined
+    const body: unknown = JSON.parse(text)
+    const age =
+      typeof body === 'object' && body !== null && 'idade' in body ? body.idade : undefined
 
-    if (idade === undefined) return IDADE_PADRAO
-    return typeof idade === 'string' && IDADE_VALIDA.test(idade) ? idade : null
+    if (age === undefined) return DEFAULT_AGE
+    if (typeof age !== 'string') return null
+
+    const seconds = toSeconds(age)
+
+    return seconds !== null && seconds >= MIN_AGE_SECONDS ? age : null
   } catch {
     return null
   }
 }
 
 Deno.serve(async (req) => {
-  const segredo = Deno.env.get('LIMPEZA_SEGREDO')
+  const secret = Deno.env.get('LIMPEZA_SEGREDO')
 
   // Sem segredo configurado, a função não roda: melhor parar do que ficar aberta.
-  if (!segredo || req.headers.get('x-limpeza-segredo') !== segredo) {
-    return resposta(401, { erro: 'Chamada sem o segredo da limpeza.' })
+  if (!secret || !isSameSecret(req.headers.get(SECRET_HEADER) ?? '', secret)) {
+    return respond(401, { error: 'Chamada sem o segredo da limpeza.' })
   }
 
-  const idade = await lerIdade(req)
+  const age = await readAge(req)
 
-  if (!idade) return resposta(400, { erro: 'Idade inválida. Use, por exemplo, "1 hour".' })
+  if (!age) {
+    return respond(400, {
+      error: 'Idade inválida. Use, por exemplo, "1 hour". O mínimo é "1 minute".',
+    })
+  }
 
   const url = Deno.env.get('SUPABASE_URL')
-  const chave = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
-  if (!url || !chave) return resposta(500, { erro: 'Ambiente da função sem URL ou chave.' })
+  if (!url || !key) return respond(500, { error: 'Ambiente da função sem URL ou chave.' })
 
-  const db = createClient(url, chave, { auth: { persistSession: false } })
-  let apagados = 0
+  const db = createClient(url, key, { auth: { persistSession: false } })
+  let deleted = 0
 
-  for (let lote = 0; lote < MAXIMO_DE_LOTES; lote++) {
-    const { data: caminhos, error } = await db.rpc('comprovantes_orfaos', {
-      idade,
-      limite: LOTE,
+  for (let batch = 0; batch < MAX_BATCHES; batch++) {
+    const { data: paths, error } = await db.rpc('comprovantes_orfaos', {
+      idade: age,
+      limite: BATCH_SIZE,
     })
 
-    if (error) return resposta(500, { erro: error.message, apagados })
-    if (!Array.isArray(caminhos) || caminhos.length === 0) break
+    if (error) return respond(500, { error: error.message, deleted })
+    if (!Array.isArray(paths) || paths.length === 0) break
 
-    const removidos = await db.storage.from(BUCKET).remove(caminhos as string[])
+    const removed = await db.storage.from(BUCKET).remove(paths as string[])
 
-    if (removidos.error) return resposta(500, { erro: removidos.error.message, apagados })
-    apagados += removidos.data.length
-    if (caminhos.length < LOTE) break
+    if (removed.error) return respond(500, { error: removed.error.message, deleted })
+    deleted += removed.data.length
+    if (paths.length < BATCH_SIZE) break
   }
 
-  return resposta(200, { apagados })
+  return respond(200, { deleted })
 })

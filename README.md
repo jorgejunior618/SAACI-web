@@ -194,14 +194,17 @@ toda chamada.
    select vault.create_secret('<o mesmo valor do .env>', 'limpeza_segredo');
    ```
 
-4. Para testar sem esperar a hora cheia, chame a função com uma idade menor:
+4. Para testar sem esperar a hora cheia, chame a função com uma idade menor. O mínimo é 1 minuto:
+   abaixo disso, um registro em andamento poderia perder o arquivo. Espere 1 minuto depois do upload
+   e chame:
 
    ```bash
    curl -X POST http://127.0.0.1:54321/functions/v1/limpa-comprovantes \
-     -H "x-limpeza-segredo: <o segredo>" -d '{"idade":"0 seconds"}'
+     -H "x-limpeza-segredo: <o segredo>" -d '{"idade":"1 minute"}'
    ```
 
-   A resposta diz quantos arquivos foram apagados: `{"apagados":1}`.
+   A resposta diz quantos arquivos foram apagados: `{"deleted":1}`. Idade abaixo do mínimo ou fora do
+   formato "número unidade" volta 400.
 
 **No projeto remoto** (junto do passo de produção, #40):
 
