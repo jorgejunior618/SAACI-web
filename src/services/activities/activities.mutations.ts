@@ -94,6 +94,7 @@ function isDatabaseRejection(error: { code?: string }): boolean {
  * não pode vir antes da de início.
  * @returns A atividade gravada, já com `countedHours`, `status` e `reason` do cálculo único.
  * @throws {InvalidActivityDatesError} O banco recusou as datas.
+ * @throws {InvalidActivityItemError} O item não existe nas regras do curso do aluno.
  * @throws Error quando não há sessão, quando o upload falha ou quando o banco recusa por outro motivo.
  */
 export async function createActivity(input: NewActivity): Promise<Activity> {
@@ -174,6 +175,7 @@ export async function createActivity(input: NewActivity): Promise<Activity> {
  * @throws {ActivityNotFoundError} A atividade não existe.
  * @throws {StaleActivityError} `updatedAt` não bate com o atual.
  * @throws {InvalidActivityDatesError} A correção deixaria o fim antes do início.
+ * @throws {InvalidActivityItemError} O item novo não existe nas regras do curso do aluno.
  */
 export async function updateActivity(
   id: string,

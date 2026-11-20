@@ -10,6 +10,7 @@ import {
   getProofFile,
   getProofUrl,
   InvalidActivityDatesError,
+  InvalidActivityItemError,
   removeActivity,
   StaleActivityError,
   updateActivity,
@@ -99,7 +100,7 @@ describe('atividades', () => {
 
     await expect(
       createActivity({ ...NEW_ACTIVITY, itemNumber: 999, proof: pdf('item-errado.pdf') }),
-    ).rejects.toMatchObject({ code: '23503' })
+    ).rejects.toBeInstanceOf(InvalidActivityItemError)
     expect(await getActivities()).toHaveLength(1)
     expect(await listOwnProofs()).toHaveLength(1)
   })

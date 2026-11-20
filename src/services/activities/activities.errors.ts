@@ -31,6 +31,17 @@ export class InvalidActivityDatesError extends Error {
 }
 
 /**
+ * O item escolhido não existe nas regras do curso do aluno (FK composta para `itens_curso`). Só
+ * acontece se a tela oferecer um item fora da matriz. A tela mostra a mensagem junto ao item.
+ */
+export class InvalidActivityItemError extends Error {
+  constructor() {
+    super('Este item não está nas regras do seu curso. Escolha um item da lista.')
+    this.name = 'ItemDaAtividadeInvalidoError'
+  }
+}
+
+/**
  * O arquivo do comprovante não chegou (rede caiu ou o Storage recusou). A tela diz que nada foi
  * salvo e deixa tentar de novo.
  */
@@ -48,6 +59,12 @@ export class ProofDownloadError extends Error {
 const DATES_CHECK = 'atividades_datas_check'
 
 /**
+ * Nome da FK composta `(curso_id, item_numero)` na migration `atividades`, o padrão do Postgres. O
+ * SQLSTATE `23503` vale para toda FK (há também a de `aluno_id`), então é o nome que diz que é o item.
+ */
+const ITEM_FOREIGN_KEY = 'atividades_curso_id_item_numero_fkey'
+
+/**
  * Traduz o erro do banco para o erro de domínio das atividades, quando conhece a causa.
  *
  * @remarks
@@ -55,17 +72,22 @@ const DATES_CHECK = 'atividades_datas_check'
  * nunca virar "corrija as datas" na tela.
  *
  * @param error Erro devolvido pelo `supabase-js`.
- * @returns `InvalidActivityDatesError` para o `check` de datas, ou o próprio `error` nos demais casos.
+ * @returns `InvalidActivityDatesError` para o `check` de datas, `InvalidActivityItemError` para o
+ * item fora da matriz do curso, ou o próprio `error` nos demais casos.
  *
  * @example
  * if (error) throw toActivityError(error)
  */
 export function toActivityError<E extends { code?: string; message?: string }>(
   error: E,
-): InvalidActivityDatesError | E {
-  return error.code === '23514' && error.message?.includes(DATES_CHECK)
-    ? new InvalidActivityDatesError()
-    : error
+): InvalidActivityDatesError | InvalidActivityItemError | E {
+  if (error.code === '23514' && error.message?.includes(DATES_CHECK)) {
+    return new InvalidActivityDatesError()
+  }
+  if (error.code === '23503' && error.message?.includes(ITEM_FOREIGN_KEY)) {
+    return new InvalidActivityItemError()
+  }
+  return error
 }
 
 /** O serviço de leitura não conseguiu ler o comprovante. A tela deixa preencher à mão. */

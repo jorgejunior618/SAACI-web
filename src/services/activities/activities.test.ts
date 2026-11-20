@@ -6,6 +6,7 @@ import { getActivities, getActivity, getProofFile, getProofUrl, readProof } from
 import {
   ActivityNotFoundError,
   InvalidActivityDatesError,
+  InvalidActivityItemError,
   ProofDownloadError,
   StaleActivityError,
   UnreadableProofError,
@@ -16,6 +17,10 @@ const USER_ID = '00000000-0000-4000-8000-0000000000a1'
 const ID_1 = '00000000-0000-4000-8000-000000000001'
 const ID_2 = '00000000-0000-4000-8000-000000000002'
 const NEW_ID = '00000000-0000-4000-8000-000000000099'
+
+// Mensagem do Postgres para o item fora da matriz do curso (FK composta da migration `atividades`).
+const ITEM_FK_MESSAGE =
+  'insert or update on table "atividades" violates foreign key constraint "atividades_curso_id_item_numero_fkey"'
 
 // Os itens que os testes usam, com a razão e o máximo da migration `regras_dos_cursos`.
 const rules = vi.hoisted(() => ({
@@ -351,6 +356,19 @@ describe('createActivity', () => {
     )
   })
 
+  it('traduz o item fora da matriz do curso e apaga o arquivo', async () => {
+    queue(ok(ROWS))
+    db.rpcSingle.mockResolvedValue({
+      data: null,
+      error: { code: '23503', message: ITEM_FK_MESSAGE },
+    })
+
+    await expect(createActivity({ ...NEW_ACTIVITY, proof: pdf() })).rejects.toBeInstanceOf(
+      InvalidActivityItemError,
+    )
+    expect(db.storage.remove).toHaveBeenCalled()
+  })
+
   it('não chama a RPC quando o upload falha', async () => {
     const failure = new Error('upload recusado')
 
@@ -473,6 +491,25 @@ describe('updateActivity', () => {
 
   it('repassa outro check sem traduzir', async () => {
     const failure = { code: '23514', message: 'violates check constraint "atividades_nome_check"' }
+
+    queue(ok(ROWS), { data: null, error: failure })
+
+    await expect(updateActivity(ID_1, READ_AT, { name: 'x' })).rejects.toBe(failure)
+  })
+
+  it('traduz o item que não existe nas regras do curso', async () => {
+    queue(ok(ROWS), { data: null, error: { code: '23503', message: ITEM_FK_MESSAGE } })
+
+    await expect(updateActivity(ID_1, READ_AT, { itemNumber: 99 })).rejects.toBeInstanceOf(
+      InvalidActivityItemError,
+    )
+  })
+
+  it('repassa outra FK sem traduzir', async () => {
+    const failure = {
+      code: '23503',
+      message: 'violates foreign key constraint "atividades_aluno_id_fkey"',
+    }
 
     queue(ok(ROWS), { data: null, error: failure })
 
