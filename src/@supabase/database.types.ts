@@ -3,6 +3,69 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      atividades: {
+        Row: {
+          aluno_id: string
+          comprovante_caminho: string
+          comprovante_hash: string
+          comprovante_nome: string
+          comprovante_tamanho: number
+          comprovante_tipo: string
+          created_at: string
+          curso_id: string
+          data_fim: string
+          data_inicio: string
+          id: string
+          item_numero: number
+          nome: string
+          quantidade: number
+          updated_at: string
+        }
+        ComputedFields: never
+        Insert: {
+          aluno_id?: string
+          comprovante_caminho: string
+          comprovante_hash: string
+          comprovante_nome: string
+          comprovante_tamanho: number
+          comprovante_tipo: string
+          created_at?: string
+          curso_id: string
+          data_fim: string
+          data_inicio: string
+          id?: string
+          item_numero: number
+          nome: string
+          quantidade: number
+          updated_at?: string
+        }
+        Update: {
+          aluno_id?: string
+          comprovante_caminho?: string
+          comprovante_hash?: string
+          comprovante_nome?: string
+          comprovante_tamanho?: number
+          comprovante_tipo?: string
+          created_at?: string
+          curso_id?: string
+          data_fim?: string
+          data_inicio?: string
+          id?: string
+          item_numero?: number
+          nome?: string
+          quantidade?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'atividades_curso_id_item_numero_fkey'
+            columns: ['curso_id', 'item_numero']
+            isOneToOne: false
+            referencedRelation: 'itens_curso'
+            referencedColumns: ['curso_id', 'numero']
+          },
+        ]
+      }
       cursos: {
         Row: {
           campus: string
@@ -139,7 +202,27 @@ export type Database = {
       apagar_contas_nao_confirmadas: { Args: { prazo?: string }; Returns: number }
       apagar_minha_conta: { Args: Record<PropertyKey, never>; Returns: number }
       barrar_email_externo: { Args: { event: Json }; Returns: Json }
+      comprovantes_orfaos: { Args: { idade?: string; limite?: number }; Returns: string[] }
       email_institucional: { Args: { email: string }; Returns: boolean }
+      registrar_atividade: {
+        Args: {
+          comprovante_caminho: string
+          comprovante_hash: string
+          comprovante_nome: string
+          data_fim: string
+          data_inicio: string
+          item_numero: number
+          nome: string
+          quantidade: number
+        }
+        Returns: {
+          comprovante_tamanho: number
+          comprovante_tipo: string
+          created_at: string
+          id: string
+          updated_at: string
+        }[]
+      }
       sem_acento: { Args: { texto: string }; Returns: string }
     }
     Enums: {

@@ -30,6 +30,8 @@ const eslintConfig = [
       'src/styled-system/**',
       // Gerado por `pnpm db:types`.
       'src/@supabase/database.types.ts',
+      // Edge Functions rodam em Deno (`npm:`, `Deno.serve`), fora das regras e dos tipos do app.
+      'supabase/functions/**',
     ],
   },
   ...nextCoreWebVitals,

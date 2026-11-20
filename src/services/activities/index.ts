@@ -3,6 +3,7 @@ export {
   StaleActivityError,
   ActivityNotFoundError,
   InvalidActivityDatesError,
+  InvalidActivityItemError,
   ProofDownloadError,
   UnreadableProofError,
 } from './activities.errors'

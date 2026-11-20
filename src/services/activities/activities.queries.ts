@@ -10,7 +10,8 @@ export const activitiesQueries = {
   list: () =>
     queryOptions({
       queryKey: activitiesKeys.list(),
-      queryFn: getActivities,
+      // Em arrow: o TanStack passa o contexto da query como 1º argumento, que viraria o `db`.
+      queryFn: () => getActivities(),
       staleTime: STALE_TIME.operacional,
     }),
   detail: (id: string) =>

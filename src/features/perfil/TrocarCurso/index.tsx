@@ -39,9 +39,6 @@ import * as S from './styles'
 export function TrocarCurso(): ReactNode {
   const removeSheetRef = useRef<BottomSheetHandle>(null)
 
-  // TODO [#20]: o "travado" sai da contagem de `activitiesQueries.list()` (mock), e o banco decide por
-  // `aluno_tem_atividades`. Quando as atividades vierem do banco, as duas fontes passam a ser uma só
-  // (ADR 0009).
   const [{ data: profile }, { data: activities }] = useSuspenseQueries({
     queries: [profileQueries.detail(), activitiesQueries.list()],
   })

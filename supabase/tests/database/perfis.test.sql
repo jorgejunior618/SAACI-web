@@ -110,15 +110,25 @@ select throws_ok(
   'o aluno não apaga perfil'
 );
 
--- RF10: com atividades, a troca de curso é recusada. A tabela de atividades ainda não existe (#20),
--- então o teste troca o stub por `true` dentro da transação, que o rollback desfaz.
+-- RF10: com atividades, a troca de curso é recusada. O aluno A está no curso de teste: o fixture dá
+-- um item a esse curso, um arquivo no bucket e uma atividade real, gravados pelo dono do banco.
 reset role;
-create or replace function public.aluno_tem_atividades(aluno uuid)
-returns boolean
-language sql
-stable
-set search_path = ''
-as $$ select true; $$;
+insert into public.itens_curso
+  (curso_id, numero, nome, regra, tipo_regra, horas, a_cada, unidade, maximo_horas)
+values
+  ('00000000-0000-0000-0000-0000000000f2', 1, 'Item de teste', '1h por hora', 'razao', 1, 1, 'hora', 10);
+insert into storage.objects (bucket_id, name, owner_id, metadata)
+values (
+  'comprovantes', '00000000-0000-0000-0000-0000000000e1/rf10.pdf', '00000000-0000-0000-0000-0000000000e1',
+  '{"size": 1000, "mimetype": "application/pdf"}'
+);
+insert into public.atividades (
+  aluno_id, nome, item_numero, quantidade, data_inicio, data_fim,
+  comprovante_caminho, comprovante_nome, comprovante_hash
+) values (
+  '00000000-0000-0000-0000-0000000000e1', 'Atividade de teste', 1, 2, '2025-01-01', '2025-01-02',
+  '00000000-0000-0000-0000-0000000000e1/rf10.pdf', 'rf10.pdf', repeat('f', 64)
+);
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000e1', true);

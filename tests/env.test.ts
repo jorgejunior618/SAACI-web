@@ -36,10 +36,12 @@ describe('.env.example', () => {
 })
 
 describe('arquivos versionados', () => {
-  it('nenhum .env além do .env.example está no git', () => {
+  it('nenhum .env além dos .env.example está no git', () => {
+    // O `.env.example` é modelo sem segredo: o da raiz e o das Edge Functions
+    // (`supabase/functions/.env.example`). Qualquer outro `.env*` versionado é segredo vazando.
     const tracked = execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' })
       .split('\n')
-      .filter((file) => /(^|\/)\.env(\.|$)/.test(file) && file !== '.env.example')
+      .filter((file) => /(^|\/)\.env(\.|$)/.test(file) && !/(^|\/)\.env\.example$/.test(file))
 
     expect(tracked).toEqual([])
   })

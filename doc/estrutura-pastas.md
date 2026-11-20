@@ -7,8 +7,10 @@ SAACI-web/
 ├── .claude/CLAUDE.md
 ├── doc/                          documentação técnica; adr/ tem o modelo de ADR
 ├── scripts/                      check-adr.mjs, chamado pelo hook de commit
-├── supabase/                     alvo
-│   └── migrations/               DDL, RLS e RPCs, versionado
+├── supabase/                     banco local (config.toml, seed.sql)
+│   ├── migrations/               DDL, RLS e RPCs, versionado
+│   ├── tests/database/           testes pgTAP
+│   └── functions/<nome>/index.ts Edge Function em Deno, chamada pelo pg_cron (ADR 0011)
 ├── tests/                        testes de regra do repositório inteiro
 ├── panda.config.ts
 └── src/
@@ -54,7 +56,8 @@ Não existe `SupabaseProvider`: os clientes são funções de `@supabase/`, não
 | Dado de exemplo de um domínio            | `services/<dominio>/<dominio>.mock.ts`                 |
 | Schema Valibot de formulário             | `schema.ts` ao lado do `index.tsx`                     |
 | Schema Valibot do domínio                | `services/<dominio>/<dominio>.types.ts`                |
-| Migration ou função SQL (alvo)           | `supabase/migrations/`                                 |
+| Migration ou função SQL                  | `supabase/migrations/`                                 |
+| Rotina agendada que usa a API do Storage | `supabase/functions/<nome>/index.ts` (Deno)            |
 | Helper puro de uma tela                  | `utils.ts` ao lado do `index.tsx`                      |
 | Helper puro usado em 2+ lugares          | `src/utils/`                                           |
 

@@ -23,6 +23,46 @@ export const ProofSchema = v.object({
 
 export type Proof = v.InferOutput<typeof ProofSchema>
 
+/** Um dos tipos de arquivo de {@link PROOF_MIME_TYPES}. */
+type ProofMimeType = (typeof PROOF_MIME_TYPES)[number]
+
+/**
+ * Tipo curto de cada tipo de arquivo aceito, que também é a extensão do arquivo no bucket.
+ *
+ * @remarks
+ * O `satisfies` faz o compilador cobrar uma entrada nova quando {@link PROOF_MIME_TYPES} crescer.
+ * Sem ele, um tipo novo subiria com extensão errada sem aviso.
+ */
+export const PROOF_TYPE_BY_MIME = {
+  'application/pdf': 'pdf',
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+} as const satisfies Record<ProofMimeType, Proof['type']>
+
+function isProofMimeType(mime: string): mime is ProofMimeType {
+  return (PROOF_MIME_TYPES as readonly string[]).includes(mime)
+}
+
+/**
+ * Traduz o tipo do arquivo para o tipo curto do comprovante (`pdf`, `jpg` ou `png`).
+ *
+ * @remarks
+ * Uso interno do domínio: a leitura traduz a coluna `comprovante_tipo`, e o registro monta a extensão
+ * do caminho no bucket. O schema e o `check` do banco já barram outros tipos, então o erro só aparece
+ * se a lista de tipos e o banco divergirem.
+ *
+ * @param mime Tipo do arquivo, como `application/pdf`.
+ * @returns O tipo curto do comprovante.
+ * @throws Error quando o tipo não está em {@link PROOF_MIME_TYPES}.
+ *
+ * @example
+ * toProofType('image/jpeg') // 'jpg'
+ */
+export function toProofType(mime: string): Proof['type'] {
+  if (!isProofMimeType(mime)) throw new Error(`Tipo de comprovante não aceito: ${mime}.`)
+  return PROOF_TYPE_BY_MIME[mime]
+}
+
 /** Mensagem de quando o fim vem antes do início. Diz ao aluno o que fazer a seguir. */
 export const END_BEFORE_START_MESSAGE =
   'A data de fim é anterior à de início. Corrija uma das duas datas.'
