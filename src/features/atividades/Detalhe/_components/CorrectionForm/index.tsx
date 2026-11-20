@@ -53,7 +53,8 @@ type Variables = { updatedAt: string; changes: ActivityCorrection }
  * A prévia usa o `buildPreview` em modo correção, que tira a própria atividade da conta (RNF20).
  * Grava só os campos alterados, com o `updatedAt` lido. Se outra tela mudou a atividade antes
  * (`StaleActivityError`), pede para abrir de novo: busca a atividade outra vez sem limpar o que foi
- * digitado, e o próximo envio usa o `updatedAt` novo. Datas e item recusados viram erro no campo;
+ * digitado, e o próximo envio usa o `updatedAt` novo. Se a atividade não chega (falha ou sem
+ * internet), o aviso fica e diz para tentar de novo. Datas e item recusados viram erro no campo;
  * falha de rede mantém tudo e pede para tentar de novo. Sucesso chama `invalidateAfterActivityWrite`.
  */
 export function CorrectionForm({
@@ -71,6 +72,7 @@ export function CorrectionForm({
   const [isChangingItem, setIsChangingItem] = useState(false)
   const [query, setQuery] = useState('')
   const [isReloading, setIsReloading] = useState(false)
+  const [reloadFailed, setReloadFailed] = useState(false)
   const form = useForm<ActivityFormInput, unknown, ActivityFormOutput>({
     resolver: valibotResolver(ActivityFormSchema),
     defaultValues: before,
@@ -108,18 +110,30 @@ export function CorrectionForm({
   })
   const hints = getPreviousHints(before, current)
 
-  // Busca a atividade de novo. O formulário não muda: o que foi digitado continua nos campos.
+  // Busca a atividade de novo. O formulário não muda: o que foi digitado continua nos campos. O aviso
+  // só sai quando o detalhe chegou de fato: o `refetchQueries` não rejeita na falha nem na pausa sem
+  // internet, então o desfecho vem do estado da query. A lista não decide: a gravação só precisa do
+  // `updatedAt` do detalhe.
   async function reload(): Promise<void> {
+    const startedAt = Date.now()
+    const detailKey = activitiesKeys.detail(activity.id)
+
     setIsReloading(true)
-    try {
-      await Promise.all([
-        queryClient.refetchQueries({ queryKey: activitiesKeys.detail(activity.id) }),
-        queryClient.refetchQueries({ queryKey: activitiesKeys.lists() }),
-      ])
-      saving.reset()
-    } finally {
-      setIsReloading(false)
-    }
+    setReloadFailed(false)
+    await Promise.all([
+      queryClient.refetchQueries({ queryKey: detailKey }),
+      queryClient.refetchQueries({ queryKey: activitiesKeys.lists() }),
+    ])
+
+    const state = queryClient.getQueryState(detailKey)
+    const isFresh =
+      state?.status === 'success' &&
+      state.fetchStatus === 'idle' &&
+      state.dataUpdatedAt >= startedAt
+
+    setIsReloading(false)
+    if (isFresh) saving.reset()
+    else setReloadFailed(true)
   }
 
   function handleValid(values: ActivityFormOutput): void {
@@ -129,6 +143,7 @@ export function CorrectionForm({
       onSaved()
       return
     }
+    setReloadFailed(false)
     saving.mutate({ updatedAt: activity.updatedAt, changes })
   }
 
@@ -158,6 +173,7 @@ export function CorrectionForm({
           <SaveError
             error={saving.error}
             isReloading={isReloading}
+            reloadFailed={reloadFailed}
             onReload={() => void reload()}
           />
 
@@ -213,11 +229,13 @@ export function CorrectionForm({
 type SaveErrorProps = {
   error: Error | null
   isReloading: boolean
+  /** "Abrir de novo" não trouxe a atividade (falha ou sem internet). */
+  reloadFailed: boolean
   onReload: () => void
 }
 
 // O aviso de quando a gravação falha. Cada caso diz o que aconteceu e o que fazer.
-function SaveError({ error, isReloading, onReload }: SaveErrorProps): ReactNode {
+function SaveError({ error, isReloading, reloadFailed, onReload }: SaveErrorProps): ReactNode {
   if (error === null || error instanceof InvalidActivityDatesError) return null
 
   if (error instanceof StaleActivityError) {
@@ -233,8 +251,9 @@ function SaveError({ error, isReloading, onReload }: SaveErrorProps): ReactNode 
           </Link>
         }
       >
-        O que você digitou continua aqui. Abra a atividade de novo para ver como ela está e toque em
-        Salvar correção.
+        {reloadFailed
+          ? 'Não deu para abrir a atividade de novo. Confira a internet e toque em Abrir de novo.'
+          : 'O que você digitou continua aqui. Abra a atividade de novo para ver como ela está e toque em Salvar correção.'}
       </Notice>
     )
   }

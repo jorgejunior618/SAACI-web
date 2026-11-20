@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { onlineManager, QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Suspense } from 'react'
@@ -35,7 +35,8 @@ vi.mock('next/navigation', () => ({
 vi.mock('@supabase/client', () => ({ createClient: vi.fn() }))
 // A lista e o total que a tela busca de novo depois de remover. O mock fica na fronteira do domínio:
 // só a `queryFn` muda, e a chave continua a da factory. Cada teste decide quando a busca termina.
-const { listFetch, progressFetch } = vi.hoisted(() => ({
+const { detailFetch, listFetch, progressFetch } = vi.hoisted(() => ({
+  detailFetch: vi.fn<() => Promise<Activity | null>>(),
   listFetch: vi.fn<() => Promise<Activity[]>>(),
   progressFetch: vi.fn<() => Promise<Progress>>(),
 }))
@@ -50,6 +51,10 @@ vi.mock('@/services/activities', async (importOriginal) => {
     activitiesQueries: {
       ...original.activitiesQueries,
       list: () => ({ ...original.activitiesQueries.list(), queryFn: () => listFetch() }),
+      detail: (id: string) => ({
+        ...original.activitiesQueries.detail(id),
+        queryFn: () => detailFetch(),
+      }),
     },
   }
 })
@@ -164,6 +169,7 @@ describe('Detalhe', () => {
     vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined)
     vi.mocked(removeActivity).mockReset()
     vi.mocked(updateActivity).mockReset()
+    detailFetch.mockReset().mockResolvedValue(PARTIAL)
     listFetch.mockReset().mockResolvedValue([EARLIER])
     progressFetch.mockReset().mockResolvedValue(PROGRESS)
   })
@@ -319,7 +325,7 @@ describe('Detalhe', () => {
     it('pede para abrir de novo quando a atividade mudou, sem perder o que foi digitado', async () => {
       vi.mocked(updateActivity).mockRejectedValueOnce(new StaleActivityError())
       vi.mocked(updateActivity).mockResolvedValueOnce({ ...PARTIAL, quantity: 3 })
-      const queryClient = renderDetalhe(PARTIAL)
+      renderDetalhe(PARTIAL)
       const newer = '2026-11-01T12:00:00.000Z'
 
       await openCorrection()
@@ -331,11 +337,7 @@ describe('Detalhe', () => {
       ).toBeInTheDocument()
 
       // Outra aba gravou antes: a busca de novo traz o `updatedAt` atual.
-      const updated: Activity = { ...PARTIAL, updatedAt: newer }
-
-      act(() => {
-        queryClient.setQueryData(activitiesQueries.detail(ID).queryKey, updated)
-      })
+      detailFetch.mockResolvedValue({ ...PARTIAL, updatedAt: newer })
       await userEvent.click(screen.getByRole('button', { name: 'Abrir de novo' }))
 
       await waitFor(() =>
@@ -350,6 +352,51 @@ describe('Detalhe', () => {
       await waitFor(() =>
         expect(updateActivity).toHaveBeenLastCalledWith(ID, newer, { quantity: 3 }),
       )
+    })
+
+    // Chega até o aviso de atividade desatualizada, com a quantidade 3 digitada.
+    async function reachStaleNotice(): Promise<void> {
+      vi.mocked(updateActivity).mockRejectedValue(new StaleActivityError())
+      renderDetalhe(PARTIAL)
+
+      await openCorrection()
+      await typeQuantity('3')
+      await userEvent.click(screen.getByRole('button', { name: 'Salvar correção' }))
+      await screen.findByText('Esta atividade mudou desde que você a abriu')
+    }
+
+    const RELOAD_FAILED =
+      'Não deu para abrir a atividade de novo. Confira a internet e toque em Abrir de novo.'
+
+    it('mantém o aviso e diz o que fazer quando abrir de novo falha', async () => {
+      await reachStaleNotice()
+      detailFetch.mockRejectedValue(new Error('rede caiu'))
+
+      await userEvent.click(screen.getByRole('button', { name: 'Abrir de novo' }))
+
+      expect(await screen.findByText(RELOAD_FAILED)).toBeInTheDocument()
+      expect(screen.getByText('Esta atividade mudou desde que você a abriu')).toBeInTheDocument()
+
+      // O próximo envio continua com o `updatedAt` que a tela tinha, porque nada novo chegou.
+      await userEvent.click(screen.getByRole('button', { name: 'Salvar correção' }))
+
+      await waitFor(() =>
+        expect(updateActivity).toHaveBeenLastCalledWith(ID, PARTIAL.updatedAt, { quantity: 3 }),
+      )
+    })
+
+    it('mantém o aviso quando abrir de novo fica parado sem internet', async () => {
+      await reachStaleNotice()
+      onlineManager.setOnline(false)
+
+      try {
+        await userEvent.click(screen.getByRole('button', { name: 'Abrir de novo' }))
+
+        expect(await screen.findByText(RELOAD_FAILED)).toBeInTheDocument()
+        expect(screen.getByText('Esta atividade mudou desde que você a abriu')).toBeInTheDocument()
+      } finally {
+        onlineManager.setOnline(true)
+      }
     })
 
     it('mostra a recusa das datas no campo do fim', async () => {
