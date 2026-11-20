@@ -9,6 +9,7 @@ import {
   ActivityFormSchema,
   buildPreview,
   describeCalc,
+  describeQuantity,
   formatBrDate,
   getQuantityText,
   maskBrDate,
@@ -211,6 +212,13 @@ describe('describeCalc', () => {
   it('escreve a conta da razão sem o resultado', () => {
     expect(describeCalc(40, { hours: 1, per: 4, unit: 'hora' })).toBe('40h ÷ 4')
     expect(describeCalc(1, { hours: 2, per: 1, unit: 'palestra' })).toBe('1 palestra × 2,0h')
+  })
+})
+
+describe('describeQuantity', () => {
+  it('usa o rótulo da unidade e põe "h" só nas horas', () => {
+    expect(describeQuantity(40, 'hora')).toEqual({ label: 'Horas do certificado', value: '40h' })
+    expect(describeQuantity(1, 'palestra')).toEqual({ label: 'Palestras', value: '1' })
   })
 })
 

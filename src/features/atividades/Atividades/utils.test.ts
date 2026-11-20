@@ -5,13 +5,14 @@ import type { ProgressCategory } from '@/services/progress'
 import type { RuleItem } from '@/services/rules'
 
 import {
-  formatDate,
+  describeRemoved,
   formatProofsSummary,
   formatReason,
   getCountingIds,
   groupActivitiesByItem,
   isItemFullySelected,
   parseItemParam,
+  parseRemovedParam,
   toggleItemSelection,
 } from './utils'
 
@@ -163,13 +164,27 @@ describe('isItemFullySelected', () => {
   })
 })
 
-describe('formatDate', () => {
-  it('escreve a data ISO como dia, mês e ano', () => {
-    expect(formatDate('2025-05-03')).toBe('03/05/2025')
+describe('describeRemoved', () => {
+  it('diz o total novo e quanto falta', () => {
+    expect(describeRemoved('Curso de React', 59, 61)).toBe(
+      'Curso de React saiu do seu total, que agora é 59h. Faltam 61h para completar suas horas.',
+    )
   })
 
-  it('não muda o dia na virada do ano', () => {
-    expect(formatDate('2025-12-31')).toBe('31/12/2025')
-    expect(formatDate('2026-01-01')).toBe('01/01/2026')
+  it('não fala em falta quando as horas estão completas', () => {
+    expect(describeRemoved('Curso de React', 130, 0)).toBe(
+      'Curso de React saiu do seu total, que agora é 130h. Suas horas continuam completas.',
+    )
+  })
+})
+
+describe('parseRemovedParam', () => {
+  it('lê o nome da atividade removida', () => {
+    expect(parseRemovedParam('Curso de React')).toBe('Curso de React')
+    expect(parseRemovedParam(['Curso de React', 'outro'])).toBe('Curso de React')
+  })
+
+  it.each([undefined, '', '   '])('devolve null para %j', (value) => {
+    expect(parseRemovedParam(value)).toBeNull()
   })
 })

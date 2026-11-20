@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatFileSize, validateFile } from './utils'
+import { validateFile } from './utils'
 
 const ACCEPT = ['application/pdf', 'image/jpeg', 'image/png']
 
@@ -12,14 +12,6 @@ function makeFile(type: string, size: number): File {
 
   return file
 }
-
-describe('formatFileSize', () => {
-  it('escreve em B, KB e MB com vírgula decimal', () => {
-    expect(formatFileSize(512)).toBe('512 B')
-    expect(formatFileSize(2048)).toBe('2 KB')
-    expect(formatFileSize(1.2 * 1024 * 1024)).toBe('1,2 MB')
-  })
-})
 
 describe('validateFile', () => {
   it('aceita tipo e tamanho dentro do limite', () => {

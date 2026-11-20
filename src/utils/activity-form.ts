@@ -138,6 +138,8 @@ export const EMPTY_FORM: ActivityFormInput = { name: '', quantity: '', startDate
 type UnitText = {
   /** Rótulo do campo de quantidade. */
   label: string
+  /** Rótulo da quantidade nos dados da atividade já registrada ("Palestras"). */
+  dataLabel: string
   /** Frase do campo não lido, dizendo o que digitar. */
   unreadMessage: string
   /** Como a quantidade aparece na linha do cálculo ("40h", "3 palestras"). */
@@ -155,52 +157,62 @@ function formatNumber(value: number): string {
 const UNIT_TEXT: Record<RatioUnit, UnitText> = {
   hora: {
     label: 'Horas do certificado',
+    dataLabel: 'Horas do certificado',
     unreadMessage: 'Não conseguimos ler as horas. Digite as horas que aparecem no certificado.',
     describe: (quantity) => `${formatNumber(quantity)}h`,
   },
   periodo_letivo: {
     label: 'Quantos períodos letivos',
+    dataLabel: 'Períodos letivos',
     unreadMessage: 'Não conseguimos ler os períodos. Digite quantos períodos letivos durou.',
     describe: plural('período letivo', 'períodos letivos'),
   },
   disciplina: {
     label: 'Quantas disciplinas',
+    dataLabel: 'Disciplinas',
     unreadMessage: 'Não conseguimos ler as disciplinas. Digite em quantas você foi monitor.',
     describe: plural('disciplina', 'disciplinas'),
   },
   projeto: {
     label: 'Quantos projetos',
+    dataLabel: 'Projetos',
     unreadMessage: 'Não conseguimos ler os projetos. Digite quantos projetos o comprovante cobre.',
     describe: plural('projeto', 'projetos'),
   },
   certificacao: {
     label: 'Quantas certificações',
+    dataLabel: 'Certificações',
     unreadMessage: 'Não conseguimos ler as certificações. Digite quantas o comprovante cobre.',
     describe: plural('certificação', 'certificações'),
   },
   evento: {
     label: 'Quantos eventos',
+    dataLabel: 'Eventos',
     unreadMessage: 'Não conseguimos ler os eventos. Digite quantos eventos o comprovante cobre.',
     describe: plural('evento', 'eventos'),
   },
   dia_evento: {
     label: 'Quantos dias de evento',
+    dataLabel: 'Dias de evento',
     unreadMessage: 'Não conseguimos ler os dias. Digite quantos dias o evento durou.',
     describe: plural('dia de evento', 'dias de evento'),
   },
   palestra: {
     label: 'Quantas palestras',
+    dataLabel: 'Palestras',
     unreadMessage:
       'Não conseguimos ler as palestras. Digite quantas palestras o certificado cobre.',
     describe: plural('palestra', 'palestras'),
   },
   pagina: {
     label: 'Quantas páginas',
+    dataLabel: 'Páginas',
     unreadMessage: 'Não conseguimos ler as páginas. Digite quantas páginas tem o relatório.',
     describe: plural('página', 'páginas'),
   },
   publicacao: {
     label: 'Fator Qualis da publicação',
+    dataLabel: 'Fator Qualis',
     unreadMessage: 'Não conseguimos ler o fator. Digite o fator Qualis da publicação.',
     describe: (quantity) => `Fator ${formatNumber(quantity)}`,
   },
@@ -217,6 +229,27 @@ export function getQuantityText(unit: RatioUnit): Pick<UnitText, 'label' | 'unre
   const { label, unreadMessage } = UNIT_TEXT[unit]
 
   return { label, unreadMessage }
+}
+
+/**
+ * Escreve a quantidade da atividade registrada, com o rótulo da unidade do item.
+ *
+ * @param quantity Quantidade da atividade.
+ * @param unit Unidade da razão do item.
+ * @returns O rótulo ("Horas do certificado", "Palestras") e o valor ("40h", "1").
+ *
+ * @example
+ * ```ts
+ * describeQuantity(40, 'hora') // { label: 'Horas do certificado', value: '40h' }
+ * ```
+ */
+export function describeQuantity(
+  quantity: number,
+  unit: RatioUnit,
+): { label: string; value: string } {
+  const value = unit === 'hora' ? `${formatNumber(quantity)}h` : formatNumber(quantity)
+
+  return { label: UNIT_TEXT[unit].dataLabel, value }
 }
 
 /**
