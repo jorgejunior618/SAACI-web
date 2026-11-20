@@ -9,10 +9,7 @@ import {
   buildPreview,
   describeCalc,
   describeQuantity,
-  formatBrDate,
   getQuantityText,
-  maskBrDate,
-  parseBrDate,
   parseQuantity,
 } from './activity-form'
 import type { ActivityFormInput, PreviewInput } from './activity-form'
@@ -141,6 +138,15 @@ describe('buildPreview', () => {
     expect(preview.willCount).toBe(10)
   })
 
+  it('soma o espaço usado em décimos, sem erro de ponto flutuante', () => {
+    // Três cursos de 0,4h valem 0,1h cada. Em ponto flutuante, 0,1 + 0,1 + 0,1 dá 0,30000000000000004.
+    const tiny = ['p1', 'p2', 'p3'].map((id) => activity({ id, itemNumber: 7, quantity: 0.4 }))
+    const preview = buildPreview(input({ activities: tiny, quantity: null }))
+
+    expect(preview.usedHours).toBe(0.3)
+    expect(preview.calcRows).toEqual([{ label: 'Cabem neste item', value: 59.7 }])
+  })
+
   it('mostra só quanto cabe enquanto a quantidade não é um número', () => {
     // 72h de curso ÷ 4 = 18h já usadas de 60h no item 7.
     const preview = buildPreview(
@@ -232,27 +238,6 @@ describe('describeQuantity', () => {
   })
 })
 
-describe('parseBrDate', () => {
-  it('converte dd/mm/aaaa para ISO', () => {
-    expect(parseBrDate('12/09/2026')).toBe('2026-09-12')
-  })
-
-  it.each(['31/02/2026', '12/9/2026', '2026-09-12', '', '99/99/9999'])('recusa "%s"', (text) => {
-    expect(parseBrDate(text)).toBeNull()
-  })
-})
-
-describe('maskBrDate', () => {
-  it.each([
-    ['12092026', '12/09/2026'],
-    ['120', '12/0'],
-    ['12/09/2026x', '12/09/2026'],
-    ['1209202612', '12/09/2026'],
-  ])('escreve "%s" como "%s"', (text, expected) => {
-    expect(maskBrDate(text)).toBe(expected)
-  })
-})
-
 describe('parseQuantity', () => {
   it.each([
     ['40', 40],
@@ -272,12 +257,6 @@ describe('parseQuantity', () => {
 
   it.each(['1.000', '1.500', '12.345', '1.000.000'])('recusa "%s", que parece milhar', (text) => {
     expect(parseQuantity(text)).toBeNull()
-  })
-})
-
-describe('formatBrDate', () => {
-  it('escreve a data ISO como dd/mm/aaaa', () => {
-    expect(formatBrDate('2026-09-12')).toBe('12/09/2026')
   })
 })
 

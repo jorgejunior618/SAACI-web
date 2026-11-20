@@ -21,8 +21,9 @@ import {
 } from '@/services/activities'
 import type { Activity, ActivityCorrection } from '@/services/activities'
 import type { RuleItem } from '@/services/rules'
-import { ActivityFormSchema, buildPreview, parseBrDate, parseQuantity } from '@/utils/activity-form'
+import { ActivityFormSchema, buildPreview, parseQuantity } from '@/utils/activity-form'
 import type { ActivityFormInput, ActivityFormOutput } from '@/utils/activity-form'
+import { parseBrDate } from '@/utils/br-date'
 
 import { activityToForm, getCorrection, getPreviousHints } from '../../utils'
 import { CorrectionBar } from '../CorrectionBar'

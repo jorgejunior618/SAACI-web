@@ -25,14 +25,9 @@ import {
 import { profileQueries } from '@/services/profile'
 import { progressQueries } from '@/services/progress'
 import { rulesQueries } from '@/services/rules'
-import {
-  ActivityFormSchema,
-  buildPreview,
-  EMPTY_FORM,
-  parseBrDate,
-  parseQuantity,
-} from '@/utils/activity-form'
+import { ActivityFormSchema, buildPreview, EMPTY_FORM, parseQuantity } from '@/utils/activity-form'
 import type { ActivityFormInput, ActivityFormOutput } from '@/utils/activity-form'
+import { parseBrDate } from '@/utils/br-date'
 
 import { ErrorSummary } from './_components/ErrorSummary'
 import type { ErrorSummaryItem } from './_components/ErrorSummary'

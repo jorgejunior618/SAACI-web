@@ -24,7 +24,8 @@ import {
 import { profileQueries } from '@/services/profile'
 import { progressQueries } from '@/services/progress'
 import { rulesQueries } from '@/services/rules'
-import { describeQuantity, formatBrDate } from '@/utils/activity-form'
+import { describeQuantity } from '@/utils/activity-form'
+import { formatBrDate } from '@/utils/br-date'
 
 import { CorrectionForm } from './_components/CorrectionForm'
 import { HoursSummary } from './_components/HoursSummary'

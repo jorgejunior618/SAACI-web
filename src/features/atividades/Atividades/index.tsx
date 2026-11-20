@@ -16,7 +16,7 @@ import type { Activity } from '@/services/activities'
 import { profileQueries } from '@/services/profile'
 import { progressQueries } from '@/services/progress'
 import { rulesQueries } from '@/services/rules'
-import { formatBrDate } from '@/utils/activity-form'
+import { formatBrDate } from '@/utils/br-date'
 import { formatHours } from '@/utils/format-hours'
 import { isCounting } from '@/utils/is-counting'
 

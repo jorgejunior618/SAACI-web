@@ -8,8 +8,9 @@ import type { TextFieldStatusProps } from '@design-system'
 
 import type { ProofSuggestion } from '@/services/activities'
 import type { RatioUnit } from '@/services/rules'
-import { getQuantityText, maskBrDate } from '@/utils/activity-form'
+import { getQuantityText } from '@/utils/activity-form'
 import type { ActivityFormInput, ActivityFormOutput } from '@/utils/activity-form'
+import { maskBrDate } from '@/utils/br-date'
 
 import * as S from './styles'
 

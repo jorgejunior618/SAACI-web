@@ -1,6 +1,6 @@
 import type { ProofSuggestion } from '@/services/activities'
-import { formatBrDate } from '@/utils/activity-form'
 import type { ActivityFormInput } from '@/utils/activity-form'
+import { formatBrDate } from '@/utils/br-date'
 
 /**
  * Transforma a sugestão da leitura nos valores do formulário. Campo não lido fica em branco.
