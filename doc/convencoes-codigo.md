@@ -145,7 +145,8 @@ telas. Envolver uma única query em hook não é motivo.
 
 ## Formulário
 
-- React Hook Form com resolver Valibot, schema em `schema.ts` ao lado da tela.
+- React Hook Form com resolver Valibot, schema em `schema.ts` ao lado da tela. Schema usado por
+  telas de domínios diferentes fica em `src/utils/<nome>.ts`, com teste (ADR 0014).
 - Rótulo sempre visível. Regra fica em texto junto ao campo, nunca no placeholder.
 - Erro aparece no próprio campo, no momento em que ocorre, e diz o que fazer a seguir (RNF13).
 - Enquanto envia, o botão fica desabilitado e visível. Nunca some.

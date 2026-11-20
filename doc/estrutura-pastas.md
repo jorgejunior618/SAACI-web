@@ -55,6 +55,7 @@ Não existe `SupabaseProvider`: os clientes são funções de `@supabase/`, não
 | Escrita de dado (alvo: chamada de RPC)   | `services/<dominio>/<dominio>.mutations.ts`            |
 | Dado de exemplo de um domínio            | `services/<dominio>/<dominio>.mock.ts`                 |
 | Schema Valibot de formulário             | `schema.ts` ao lado do `index.tsx`                     |
+| Schema de formulário de 2+ domínios      | `src/utils/<nome>.ts`, com teste (ADR 0014)            |
 | Schema Valibot do domínio                | `services/<dominio>/<dominio>.types.ts`                |
 | Migration ou função SQL                  | `supabase/migrations/`                                 |
 | Rotina agendada que usa a API do Storage | `supabase/functions/<nome>/index.ts` (Deno)            |
