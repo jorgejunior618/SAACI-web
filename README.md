@@ -26,10 +26,12 @@ cp .env.example .env.development.local
 pnpm dev
 ```
 
-Preencha o `.env.development.local` antes de rodar, como mostra a seção [Supabase](#supabase). A conta e o login
-já falam com o Supabase Auth: para abrir as telas de Acesso, suba o banco local com `pnpm db:start`
-(precisa do Docker aberto) e preencha o `.env.development.local` com a URL e a chave que `pnpm db:status` mostra. O `.env.production.local` guarda o projeto remoto e só vale para `pnpm build` e `pnpm start`.
-Os outros domínios ainda leem dados de mock. O backend entra por domínio, em issues separadas.
+Preencha o `.env.development.local` antes de rodar, como mostra a seção [Supabase](#supabase). Conta,
+regras do curso, perfil e atividades com comprovantes já falam com o Supabase: antes do `pnpm dev`,
+suba o banco local com `pnpm db:start` (precisa do Docker aberto) e preencha o
+`.env.development.local` com a URL e a chave que `pnpm db:status` mostra. O `.env.production.local`
+guarda o projeto remoto e só vale para `pnpm build` e `pnpm start`. Ainda não vêm do banco o
+progresso, calculado no app até a #21, e a leitura do comprovante por IA, fingida até a #22.
 
 ## Supabase
 
@@ -82,8 +84,8 @@ valem para o mesmo papel de cada chave.
 
 Todo mundo sobe o mesmo Postgres no próprio computador e versiona as mudanças de tabela em
 `supabase/migrations/`. A CLI do Supabase já vem no `pnpm install`, então não há nada para instalar
-à parte. Só quem for mexer no banco precisa do [Docker](https://www.docker.com/products/docker-desktop/)
-aberto; o app com mock roda sem ele.
+à parte. O app inteiro depende do banco local, então o [Docker](https://www.docker.com/products/docker-desktop/)
+precisa estar aberto e o banco no ar (`pnpm db:start`) para rodar o app, não só para mexer no banco.
 
 | Comando          | O que faz                                                         |
 | ---------------- | ----------------------------------------------------------------- |
@@ -224,8 +226,8 @@ Se esquecer, o service cai no cliente do navegador, que não enxerga o cookie de
 volta vazia, sem erro. Detalhes em [`doc/camada-servicos.md`](doc/camada-servicos.md).
 
 Os clientes leem `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (seção
-[Supabase](#supabase)). Sem elas, o app com mock abre normalmente, e só a criação de um cliente
-falha, com a mensagem do que preencher.
+[Supabase](#supabase)). Sem elas, a criação do cliente falha com a mensagem do que preencher, e o app
+não passa do Acesso.
 
 ### Levar o Auth para produção
 
