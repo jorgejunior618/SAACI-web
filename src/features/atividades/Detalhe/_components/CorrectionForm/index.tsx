@@ -7,7 +7,7 @@ import { useId, useState } from 'react'
 import type { ReactNode } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 
-import { AppFrame, ItemPicker, Link, Notice, RulePanel, TopBar } from '@design-system'
+import { AppFrame, ItemPicker, Link, Notice, RulePanel, SubmitBar, TopBar } from '@design-system'
 
 import { ActivityFields } from '@/components/ActivityFields'
 import {
@@ -24,9 +24,9 @@ import type { RuleItem } from '@/services/rules'
 import { ActivityFormSchema, buildPreview, parseQuantity } from '@/utils/activity-form'
 import type { ActivityFormInput, ActivityFormOutput } from '@/utils/activity-form'
 import { parseBrDate } from '@/utils/br-date'
+import { formatHours } from '@/utils/format-hours'
 
 import { activityToForm, getCorrection, getPreviousHints } from '../../utils'
-import { CorrectionBar } from '../CorrectionBar'
 import * as S from './styles'
 
 type CorrectionFormProps = {
@@ -141,13 +141,16 @@ export function CorrectionForm({
     <AppFrame
       topBar={<TopBar variant="inner" title="Corrigir atividade" onBack={onCancel} />}
       bottomNav={
-        <CorrectionBar
+        <SubmitBar
           formId={formId}
+          summaryLabel={`Vai contar (antes ${formatHours(activity.countedHours)})`}
           willCount={preview.willCount}
-          countedBefore={activity.countedHours}
           isWarning={preview.hours !== null && preview.hours.status !== 'conta'}
-          isBusy={saving.isPending}
-        />
+          busy={saving.isPending}
+          busyLabel="Salvando"
+        >
+          Salvar correção
+        </SubmitBar>
       }
     >
       <FormProvider {...form}>

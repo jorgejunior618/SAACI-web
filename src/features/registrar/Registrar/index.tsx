@@ -13,7 +13,7 @@ import type { ReactNode } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import type { FieldErrors } from 'react-hook-form'
 
-import { AppFrame, Link, Notice, RulePanel, TopBar } from '@design-system'
+import { AppFrame, Link, Notice, RulePanel, SubmitBar, TopBar } from '@design-system'
 
 import { ActivityFields } from '@/components/ActivityFields'
 import {
@@ -34,7 +34,6 @@ import type { ErrorSummaryItem } from './_components/ErrorSummary'
 import { ItemStep } from './_components/ItemStep'
 import { ProofStep } from './_components/ProofStep'
 import { Registered } from './_components/Registered'
-import { SubmitBar } from './_components/SubmitBar'
 import { Empty } from './Empty'
 import { suggestionToForm } from './utils'
 import * as S from './styles'
@@ -178,10 +177,14 @@ export function Registrar(): ReactNode {
         preview === null ? undefined : (
           <SubmitBar
             formId={formId}
+            summaryLabel="Vai contar"
             willCount={preview.willCount}
-            isWarning={preview.hours?.status === 'nao_conta'}
-            isBusy={registering.isPending}
-          />
+            isWarning={preview.hours !== null && preview.hours.status !== 'conta'}
+            busy={registering.isPending}
+            busyLabel="Registrando"
+          >
+            Registrar
+          </SubmitBar>
         )
       }
     >
