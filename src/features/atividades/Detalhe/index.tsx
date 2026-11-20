@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-query'
 import NextLink from 'next/link'
 import { notFound, useRouter } from 'next/navigation'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 
 import { AppFrame, Badge, BottomSheet, Button, Card, Notice, TopBar } from '@design-system'
@@ -26,6 +26,7 @@ import { progressQueries } from '@/services/progress'
 import { rulesQueries } from '@/services/rules'
 import { describeQuantity, formatBrDate } from '@/utils/activity-form'
 
+import { CorrectionForm } from './_components/CorrectionForm'
 import { HoursSummary } from './_components/HoursSummary'
 import { ProofCard } from './_components/ProofCard'
 import {
@@ -49,7 +50,8 @@ export type DetalheProps = {
  *
  * @remarks
  * Não recalcula horas (RNF20): o número e o status vêm do service, e o "Cabia no item" soma o que as
- * atividades registradas antes já contam. Atividade que não existe (ou é de outro aluno) chama
+ * atividades registradas antes já contam. "Corrigir dados" troca a tela pelo `CorrectionForm`; ao
+ * salvar, volta ao detalhe com o aviso de correção salva. Atividade que não existe (ou é de outro aluno) chama
  * `notFound()`. Remover pede confirmação no `BottomSheet`, apaga o comprovante junto e chama
  * `invalidateAfterActivityRemoval`, que não derruba este detalhe: com a outra rotina, o `notFound()`
  * dispararia antes da volta à lista. Espera a lista e o total novos antes de voltar, para Atividades
@@ -67,6 +69,8 @@ export function Detalhe({ id }: DetalheProps): ReactNode {
   const router = useRouter()
   const queryClient = useQueryClient()
   const removeSheetRef = useRef<BottomSheetHandle>(null)
+  const [isCorrecting, setIsCorrecting] = useState(false)
+  const [isSaved, setIsSaved] = useState(false)
   const [{ data: activity }, { data: activities }, { data: progress }, { data: profile }] =
     useSuspenseQueries({
       queries: [
@@ -112,13 +116,39 @@ export function Detalhe({ id }: DetalheProps): ReactNode {
     router.replace(`/atividades?removida=${encodeURIComponent(name)}`)
   }
 
+  function startCorrecting(): void {
+    setIsSaved(false)
+    removing.reset()
+    setIsCorrecting(true)
+  }
+
+  function finishCorrecting(): void {
+    setIsCorrecting(false)
+    setIsSaved(true)
+    window.scrollTo(0, 0)
+  }
+
   function closeSheet(): void {
     removeSheetRef.current?.close()
   }
 
   function openSheet(): void {
     removing.reset()
+    setIsSaved(false)
     removeSheetRef.current?.open()
+  }
+
+  if (isCorrecting) {
+    return (
+      <CorrectionForm
+        activity={activity}
+        activities={activities}
+        ruleItems={ruleItems}
+        startSemester={profile.startSemester}
+        onCancel={() => setIsCorrecting(false)}
+        onSaved={finishCorrecting}
+      />
+    )
   }
 
   return (
@@ -127,6 +157,12 @@ export function Detalhe({ id }: DetalheProps): ReactNode {
       bottomNav={<MainNav />}
     >
       <S.Page>
+        {isSaved ? (
+          <Notice format="block" tone="success" title="Correção salva" role="status">
+            As horas abaixo já contam com os dados novos.
+          </Notice>
+        ) : null}
+
         {removing.isError ? (
           <Notice format="block" tone="danger" title="A atividade não foi removida" role="alert">
             Ela e o comprovante continuam aqui. Confira a internet e toque em Remover atividade de
@@ -174,6 +210,9 @@ export function Detalhe({ id }: DetalheProps): ReactNode {
         </S.Section>
 
         <S.Actions>
+          <Button variant="secondary" block onClick={startCorrecting}>
+            Corrigir dados
+          </Button>
           <Button variant="tertiary" block onClick={openSheet}>
             Remover atividade
           </Button>
@@ -183,7 +222,7 @@ export function Detalhe({ id }: DetalheProps): ReactNode {
       <BottomSheet
         ref={removeSheetRef}
         title="Remover esta atividade?"
-        description={describeRemoval(activity, progress.totalHours)}
+        description={`${describeRemoval(activity, progress.totalHours)} Se só um dado está errado, use Corrigir dados.`}
         actions={
           <>
             <Button

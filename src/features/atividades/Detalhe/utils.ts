@@ -1,8 +1,9 @@
 import type { BadgeTone } from '@design-system'
 
-import type { Activity } from '@/services/activities'
+import type { Activity, ActivityCorrection } from '@/services/activities'
 import type { RuleItem } from '@/services/rules'
 import { describeCalc, formatBrDate } from '@/utils/activity-form'
+import type { ActivityFormInput, ActivityFormOutput } from '@/utils/activity-form'
 import { formatHours } from '@/utils/format-hours'
 import { formatSemester } from '@/utils/start-semester'
 
@@ -143,4 +144,63 @@ const REGISTERED_DATE = new Intl.DateTimeFormat('pt-BR', {
  */
 export function formatRegisteredDate(timestamp: string): string {
   return REGISTERED_DATE.format(new Date(timestamp))
+}
+
+/**
+ * Escreve a atividade nos campos do formulário, como a pessoa digitaria: quantidade com vírgula e
+ * datas em dd/mm/aaaa.
+ *
+ * @param activity A atividade que a correção abre.
+ * @returns Os valores iniciais do formulário de correção.
+ */
+export function activityToForm(activity: Activity): ActivityFormInput {
+  return {
+    name: activity.name,
+    quantity: String(activity.quantity).replace('.', ','),
+    startDate: formatBrDate(activity.startDate),
+    endDate: formatBrDate(activity.endDate),
+  }
+}
+
+/**
+ * Monta o "Antes: …" dos campos que o aluno já mudou.
+ *
+ * @param before Os valores de antes, de {@link activityToForm}.
+ * @param current O que está nos campos agora.
+ * @returns Um texto por campo alterado. Campo igual ao de antes (sem contar espaços) fica de fora.
+ */
+export function getPreviousHints(
+  before: ActivityFormInput,
+  current: ActivityFormInput,
+): Partial<Record<keyof ActivityFormInput, string>> {
+  const fields = Object.keys(before) as (keyof ActivityFormInput)[]
+
+  return Object.fromEntries(
+    fields
+      .filter((field) => current[field].trim() !== before[field])
+      .map((field) => [field, `Antes: ${before[field]}`]),
+  )
+}
+
+/**
+ * Separa o que a correção muda de fato, para o `updateActivity` gravar só isso.
+ *
+ * @param activity A atividade como a tela leu.
+ * @param values Os campos já validados.
+ * @param itemNumber O item escolhido.
+ * @returns Os campos diferentes do que está gravado. Vazio quando nada mudou.
+ */
+export function getCorrection(
+  activity: Activity,
+  values: ActivityFormOutput,
+  itemNumber: number,
+): ActivityCorrection {
+  const correction: ActivityCorrection = {}
+
+  if (values.name !== activity.name) correction.name = values.name
+  if (itemNumber !== activity.itemNumber) correction.itemNumber = itemNumber
+  if (values.quantity !== activity.quantity) correction.quantity = values.quantity
+  if (values.startDate !== activity.startDate) correction.startDate = values.startDate
+  if (values.endDate !== activity.endDate) correction.endDate = values.endDate
+  return correction
 }

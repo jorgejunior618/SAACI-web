@@ -1,10 +1,17 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Suspense } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { activitiesQueries, ActivityNotFoundError, removeActivity } from '@/services/activities'
+import {
+  activitiesQueries,
+  ActivityNotFoundError,
+  InvalidActivityDatesError,
+  removeActivity,
+  StaleActivityError,
+  updateActivity,
+} from '@/services/activities'
 import type { Activity } from '@/services/activities'
 import { profileQueries } from '@/services/profile'
 import type { Profile } from '@/services/profile'
@@ -29,6 +36,7 @@ vi.mock('@supabase/client', () => ({ createClient: vi.fn() }))
 vi.mock('@/services/activities', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/services/activities')>()),
   removeActivity: vi.fn(),
+  updateActivity: vi.fn(),
 }))
 
 const ID = '00000000-0000-4000-8000-000000000001'
@@ -126,7 +134,10 @@ async function confirmRemoval(): Promise<void> {
 describe('Detalhe', () => {
   beforeEach(() => {
     replace.mockReset()
+    // O jsdom não rola a página; a volta ao topo depois de salvar não é o que se testa aqui.
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined)
     vi.mocked(removeActivity).mockReset()
+    vi.mocked(updateActivity).mockReset()
   })
 
   it('mostra quanto conta, por quê e como foi calculado', () => {
@@ -194,5 +205,120 @@ describe('Detalhe', () => {
     expect(await screen.findByText('A atividade não foi removida')).toBeInTheDocument()
     expect(replace).not.toHaveBeenCalled()
     expect(screen.getByText('Palestra sobre segurança em redes')).toBeInTheDocument()
+  })
+
+  describe('Corrigir dados', () => {
+    async function openCorrection(): Promise<void> {
+      await userEvent.click(screen.getByRole('button', { name: 'Corrigir dados' }))
+    }
+
+    async function typeQuantity(text: string): Promise<void> {
+      const field = screen.getByLabelText(/Palestras|Quantas palestras/)
+
+      await userEvent.clear(field)
+      await userEvent.type(field, text)
+    }
+
+    it('mostra o antes e a prévia, grava só o que mudou e volta com o aviso', async () => {
+      vi.mocked(updateActivity).mockResolvedValue({ ...PARTIAL, quantity: 2 })
+      const queryClient = renderDetalhe(PARTIAL)
+      const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
+
+      await openCorrection()
+      await typeQuantity('2')
+
+      expect(screen.getByText('Antes: 1')).toBeInTheDocument()
+      expect(screen.getByText('Vai contar (antes 1,0h)')).toBeInTheDocument()
+
+      await userEvent.click(screen.getByRole('button', { name: 'Salvar correção' }))
+
+      expect(await screen.findByText('Correção salva')).toBeInTheDocument()
+      expect(updateActivity).toHaveBeenCalledWith(ID, PARTIAL.updatedAt, { quantity: 2 })
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: ['activities'] })
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: ['progress'] })
+    })
+
+    it('não grava quando nada mudou', async () => {
+      renderDetalhe(PARTIAL)
+
+      await openCorrection()
+      await userEvent.click(screen.getByRole('button', { name: 'Salvar correção' }))
+
+      expect(await screen.findByText('Correção salva')).toBeInTheDocument()
+      expect(updateActivity).not.toHaveBeenCalled()
+    })
+
+    it('pede para abrir de novo quando a atividade mudou, sem perder o que foi digitado', async () => {
+      vi.mocked(updateActivity).mockRejectedValueOnce(new StaleActivityError())
+      vi.mocked(updateActivity).mockResolvedValueOnce({ ...PARTIAL, quantity: 3 })
+      const queryClient = renderDetalhe(PARTIAL)
+      const newer = '2026-11-01T12:00:00.000Z'
+
+      await openCorrection()
+      await typeQuantity('3')
+      await userEvent.click(screen.getByRole('button', { name: 'Salvar correção' }))
+
+      expect(
+        await screen.findByText('Esta atividade mudou desde que você a abriu'),
+      ).toBeInTheDocument()
+
+      // Outra aba gravou antes: a busca de novo traz o `updatedAt` atual.
+      const updated: Activity = { ...PARTIAL, updatedAt: newer }
+
+      act(() => {
+        queryClient.setQueryData(activitiesQueries.detail(ID).queryKey, updated)
+      })
+      await userEvent.click(screen.getByRole('button', { name: 'Abrir de novo' }))
+
+      await waitFor(() =>
+        expect(
+          screen.queryByText('Esta atividade mudou desde que você a abriu'),
+        ).not.toBeInTheDocument(),
+      )
+      expect(screen.getByLabelText(/Palestras|Quantas palestras/)).toHaveValue('3')
+
+      await userEvent.click(screen.getByRole('button', { name: 'Salvar correção' }))
+
+      await waitFor(() =>
+        expect(updateActivity).toHaveBeenLastCalledWith(ID, newer, { quantity: 3 }),
+      )
+    })
+
+    it('mostra a recusa das datas no campo do fim', async () => {
+      vi.mocked(updateActivity).mockRejectedValue(new InvalidActivityDatesError())
+      renderDetalhe(PARTIAL)
+
+      await openCorrection()
+      await typeQuantity('2')
+      await userEvent.click(screen.getByRole('button', { name: 'Salvar correção' }))
+
+      expect(
+        await screen.findByText(
+          'A data de fim é anterior à de início. Corrija uma das duas datas.',
+        ),
+      ).toBeInTheDocument()
+    })
+
+    it('mantém o que foi digitado e diz o que fazer quando a gravação falha', async () => {
+      vi.mocked(updateActivity).mockRejectedValue(new Error('rede caiu'))
+      renderDetalhe(PARTIAL)
+
+      await openCorrection()
+      await typeQuantity('2')
+      await userEvent.click(screen.getByRole('button', { name: 'Salvar correção' }))
+
+      expect(await screen.findByText('A correção não foi salva')).toBeInTheDocument()
+      expect(screen.getByLabelText(/Palestras|Quantas palestras/)).toHaveValue('2')
+    })
+
+    it('volta ao detalhe sem gravar ao tocar em Voltar', async () => {
+      renderDetalhe(PARTIAL)
+
+      await openCorrection()
+      await userEvent.click(screen.getByRole('button', { name: /Voltar/ }))
+
+      expect(screen.getByRole('button', { name: 'Corrigir dados' })).toBeInTheDocument()
+      expect(updateActivity).not.toHaveBeenCalled()
+    })
   })
 })

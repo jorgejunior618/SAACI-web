@@ -4,10 +4,13 @@ import type { Activity } from '@/services/activities'
 import type { RuleItem } from '@/services/rules'
 
 import {
+  activityToForm,
   describeRemoval,
   describeWhy,
   formatRegisteredDate,
   getCalcRows,
+  getCorrection,
+  getPreviousHints,
   getRoomHours,
   getStatusBadge,
 } from './utils'
@@ -172,5 +175,46 @@ describe('formatRegisteredDate', () => {
   it('usa o dia no fuso do IFCE, não o de UTC', () => {
     // 02h de 1º/11 em UTC ainda é 31/10 em Fortaleza (UTC-3).
     expect(formatRegisteredDate('2026-11-01T02:00:00.000Z')).toBe('31/10/2026')
+  })
+})
+
+describe('activityToForm', () => {
+  it('escreve a atividade como a pessoa digitaria', () => {
+    expect(activityToForm(activity({ quantity: 2.5 }))).toEqual({
+      name: 'Curso de React com TypeScript',
+      quantity: '2,5',
+      startDate: '03/08/2026',
+      endDate: '12/09/2026',
+    })
+  })
+})
+
+describe('getPreviousHints', () => {
+  it('mostra o antes só nos campos alterados, sem contar espaços', () => {
+    const before = activityToForm(activity({}))
+
+    expect(
+      getPreviousHints(before, { ...before, quantity: '300', name: ` ${before.name} ` }),
+    ).toEqual({ quantity: 'Antes: 40' })
+  })
+})
+
+describe('getCorrection', () => {
+  const values = {
+    name: 'Curso de React com TypeScript',
+    quantity: 40,
+    startDate: '2026-08-03',
+    endDate: '2026-09-12',
+  }
+
+  it('fica vazio quando nada mudou', () => {
+    expect(getCorrection(activity({}), values, 7)).toEqual({})
+  })
+
+  it('leva só o que mudou, inclusive o item', () => {
+    expect(getCorrection(activity({}), { ...values, quantity: 300 }, 13)).toEqual({
+      quantity: 300,
+      itemNumber: 13,
+    })
   })
 })

@@ -13,6 +13,9 @@ import type { ActivityFormInput, ActivityFormOutput } from '@/utils/activity-for
 
 import * as S from './styles'
 
+/** Campo de texto da atividade, como o formulário o nomeia. */
+export type ActivityFieldName = keyof ActivityFormInput
+
 type ActivityFieldsProps = {
   /** Unidade da razão do item escolhido. Decide o rótulo da quantidade. */
   unit: RatioUnit
@@ -21,6 +24,11 @@ type ActivityFieldsProps = {
    * preencher à mão.
    */
   suggestion: ProofSuggestion | null
+  /**
+   * Frase curta abaixo do rótulo de cada campo, como o "Antes: 40" da correção. Campo sem entrada
+   * fica sem frase.
+   */
+  hints?: Partial<Record<ActivityFieldName, string>>
 }
 
 // Lido: pede conferência. Não lido: pede para digitar. Leitura falha: sem selo.
@@ -40,9 +48,10 @@ function statusOf(
  * Usado no registro e na correção. Lê o formulário pelo `useFormContext`, então precisa estar dentro
  * do `FormProvider` da tela, com o `ActivityFormSchema` de `@/utils/activity-form`. O que
  * veio da leitura ganha o selo "Lido do certificado, confira"; o que não veio ganha a frase do que
- * digitar. As datas recebem as barras enquanto a pessoa digita.
+ * digitar. As datas recebem as barras enquanto a pessoa digita. Na correção, `hints` mostra o valor
+ * de antes nos campos alterados.
  */
-export function ActivityFields({ unit, suggestion }: ActivityFieldsProps): ReactNode {
+export function ActivityFields({ unit, suggestion, hints = {} }: ActivityFieldsProps): ReactNode {
   const {
     register,
     formState: { errors },
@@ -66,6 +75,7 @@ export function ActivityFields({ unit, suggestion }: ActivityFieldsProps): React
     <S.Root>
       <TextField
         id="name"
+        hint={hints.name}
         label="Nome da atividade"
         error={errors.name?.message}
         {...statusOf(
@@ -77,6 +87,7 @@ export function ActivityFields({ unit, suggestion }: ActivityFieldsProps): React
       />
       <TextField
         id="quantity"
+        hint={hints.quantity}
         label={quantityText.label}
         inputMode="decimal"
         error={errors.quantity?.message}
@@ -85,6 +96,7 @@ export function ActivityFields({ unit, suggestion }: ActivityFieldsProps): React
       />
       <TextField
         id="startDate"
+        hint={hints.startDate}
         label="Data em que a atividade começou"
         inputMode="numeric"
         placeholder="dd/mm/aaaa"
@@ -98,6 +110,7 @@ export function ActivityFields({ unit, suggestion }: ActivityFieldsProps): React
       />
       <TextField
         id="endDate"
+        hint={hints.endDate}
         label="Data em que a atividade terminou"
         inputMode="numeric"
         placeholder="dd/mm/aaaa"
