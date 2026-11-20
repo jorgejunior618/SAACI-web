@@ -55,7 +55,8 @@ export type DetalheProps = {
  * salvar, volta ao detalhe com o aviso de correção salva. Atividade que não existe (ou é de outro aluno) chama
  * `notFound()`. Remover pede confirmação no `BottomSheet`, apaga o comprovante junto e chama
  * `invalidateAfterActivityRemoval`, que não derruba este detalhe: com a outra rotina, o `notFound()`
- * dispararia antes da volta à lista. Espera a lista e o total novos antes de voltar, para Atividades
+ * dispararia antes da volta à lista. Atividade que já não existia (removida em outra aba) conta como
+ * remoção concluída. Espera a lista e o total novos antes de voltar, para Atividades
  * já abrir certa, com o aviso de remoção pelo `?removida=`. A página envolve este componente em
  * `Suspense`, com `Loading` como fallback.
  *
@@ -82,10 +83,17 @@ export function Detalhe({ id }: DetalheProps): ReactNode {
       ],
     })
   const removing = useMutation({
-    mutationFn: () => removeActivity(id),
+    mutationFn: async () => {
+      try {
+        await removeActivity(id)
+      } catch (error) {
+        // Já removida (em outra aba, por exemplo): o desfecho que o aluno pediu já aconteceu. Vira
+        // sucesso aqui, e não no `onError`, para a tela nunca mostrar "não foi removida" enquanto volta.
+        if (!(error instanceof ActivityNotFoundError)) throw error
+      }
+    },
     onSuccess: () => finishRemoval(),
-    // Já removida (em outra aba, por exemplo): o desfecho que o aluno pediu já aconteceu.
-    onError: (error) => (error instanceof ActivityNotFoundError ? finishRemoval() : closeSheet()),
+    onError: () => closeSheet(),
   })
 
   // O SessionGate leva quem não tem curso para Seu curso, então aqui o curso sempre existe.

@@ -33,11 +33,37 @@ vi.mock('next/navigation', () => ({
   },
 }))
 vi.mock('@supabase/client', () => ({ createClient: vi.fn() }))
-vi.mock('@/services/activities', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@/services/activities')>()),
-  removeActivity: vi.fn(),
-  updateActivity: vi.fn(),
+// A lista e o total que a tela busca de novo depois de remover. O mock fica na fronteira do domínio:
+// só a `queryFn` muda, e a chave continua a da factory. Cada teste decide quando a busca termina.
+const { listFetch, progressFetch } = vi.hoisted(() => ({
+  listFetch: vi.fn<() => Promise<Activity[]>>(),
+  progressFetch: vi.fn<() => Promise<Progress>>(),
 }))
+
+vi.mock('@/services/activities', async (importOriginal) => {
+  const original = await importOriginal<typeof import('@/services/activities')>()
+
+  return {
+    ...original,
+    removeActivity: vi.fn(),
+    updateActivity: vi.fn(),
+    activitiesQueries: {
+      ...original.activitiesQueries,
+      list: () => ({ ...original.activitiesQueries.list(), queryFn: () => listFetch() }),
+    },
+  }
+})
+vi.mock('@/services/progress', async (importOriginal) => {
+  const original = await importOriginal<typeof import('@/services/progress')>()
+
+  return {
+    ...original,
+    progressQueries: {
+      ...original.progressQueries,
+      summary: () => ({ ...original.progressQueries.summary(), queryFn: () => progressFetch() }),
+    },
+  }
+})
 
 const ID = '00000000-0000-4000-8000-000000000001'
 const PROFILE: Profile = {
@@ -138,6 +164,8 @@ describe('Detalhe', () => {
     vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined)
     vi.mocked(removeActivity).mockReset()
     vi.mocked(updateActivity).mockReset()
+    listFetch.mockReset().mockResolvedValue([EARLIER])
+    progressFetch.mockReset().mockResolvedValue(PROGRESS)
   })
 
   it('mostra quanto conta, por quê e como foi calculado', () => {
@@ -187,13 +215,32 @@ describe('Detalhe', () => {
     expect(invalidate).not.toHaveBeenCalledWith({ queryKey: ['activities'] })
   })
 
-  it('volta para a lista quando a atividade já tinha sido removida', async () => {
+  it('trata a atividade já removida como removida, sem aviso de falha na volta', async () => {
     vi.mocked(removeActivity).mockRejectedValue(new ActivityNotFoundError())
+    let finishRefetch: (activities: Activity[]) => void = () => undefined
+
+    // A lista nova só chega quando o teste mandar: é a janela entre a remoção e a volta.
+    listFetch.mockReturnValue(
+      new Promise<Activity[]>((resolve) => {
+        finishRefetch = resolve
+      }),
+    )
     renderDetalhe(PARTIAL)
 
     await confirmRemoval()
+    await waitFor(() => expect(listFetch).toHaveBeenCalled())
 
-    await waitFor(() => expect(replace).toHaveBeenCalled())
+    expect(screen.queryByText('A atividade não foi removida')).not.toBeInTheDocument()
+    expect(replace).not.toHaveBeenCalled()
+
+    act(() => finishRefetch([EARLIER]))
+
+    await waitFor(() =>
+      expect(replace).toHaveBeenCalledWith(
+        `/atividades?removida=${encodeURIComponent('Palestra sobre segurança em redes')}`,
+      ),
+    )
+    expect(screen.queryByText('A atividade não foi removida')).not.toBeInTheDocument()
   })
 
   it('diz que nada foi removido e o que fazer quando a remoção falha', async () => {
