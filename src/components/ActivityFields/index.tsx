@@ -8,9 +8,9 @@ import type { TextFieldStatusProps } from '@design-system'
 
 import type { ProofSuggestion } from '@/services/activities'
 import type { RatioUnit } from '@/services/rules'
+import { getQuantityText, maskBrDate } from '@/utils/activity-form'
+import type { ActivityFormInput, ActivityFormOutput } from '@/utils/activity-form'
 
-import type { ActivityFormInput, ActivityFormOutput } from '../../schema'
-import { getQuantityText, maskBrDate } from '../../utils'
 import * as S from './styles'
 
 type ActivityFieldsProps = {
@@ -34,10 +34,11 @@ function statusOf(
 }
 
 /**
- * Mostra os campos de texto do registro: nome, quantidade e as datas de início e fim.
+ * Mostra os campos de texto da atividade: nome, quantidade e as datas de início e fim.
  *
  * @remarks
- * Lê o formulário pelo `useFormContext`, então precisa estar dentro do `FormProvider` da tela. O que
+ * Usado no registro e na correção. Lê o formulário pelo `useFormContext`, então precisa estar dentro
+ * do `FormProvider` da tela, com o `ActivityFormSchema` de `@/utils/activity-form`. O que
  * veio da leitura ganha o selo "Lido do certificado, confira"; o que não veio ganha a frase do que
  * digitar. As datas recebem as barras enquanto a pessoa digita.
  */
