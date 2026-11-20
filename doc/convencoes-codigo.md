@@ -55,11 +55,12 @@ Duas exceções, e só essas:
 O nome é fixo, sem prefixo nem sufixo com o nome da tela (nada de `LoadingAtividades.tsx`). Dado de
 exemplo não é arquivo da tela: vem de `services/<dominio>/<dominio>.mock.ts`.
 
-| Situação                              | Obrigatório                                                      |
-| ------------------------------------- | ---------------------------------------------------------------- |
-| Tela que busca dado                   | `Loading.tsx` e `Empty.tsx`; a falha cai no `error.tsx` do grupo |
-| Componente que recebe dado assíncrono | `Skeleton.tsx`                                                   |
-| Tela estática                         | nenhum                                                           |
+| Situação                                 | Obrigatório                                                      |
+| ---------------------------------------- | ---------------------------------------------------------------- |
+| Tela que busca dado                      | `Loading.tsx` e `Empty.tsx`; a falha cai no `error.tsx` do grupo |
+| Tela de detalhe de uma entidade (`[id]`) | `Loading.tsx`; o vazio é o `not-found.tsx` da rota (ADR 0013)    |
+| Componente que recebe dado assíncrono    | `Skeleton.tsx`                                                   |
+| Tela estática                            | nenhum                                                           |
 
 `Empty.tsx` cobre todo caso em que a busca teve sucesso mas devolveu zero resultados úteis. Vazio de
 cadastro e vazio de filtro são textos **diferentes**: um convida a criar o primeiro registro, o outro
