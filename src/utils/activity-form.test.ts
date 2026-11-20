@@ -248,11 +248,19 @@ describe('parseQuantity', () => {
     ['40', 40],
     ['2,5', 2.5],
     [' 3 ', 3],
+    ['2.5', 2.5],
+    ['10.25', 10.25],
+    ['0.500', 0.5],
+    ['1000', 1000],
   ])('lê "%s" como %d', (text, expected) => {
     expect(parseQuantity(text)).toBe(expected)
   })
 
-  it.each(['', 'quarenta', '4,0,1', '-2'])('recusa "%s"', (text) => {
+  it.each(['', 'quarenta', '4,0,1', '-2', '1.000,5'])('recusa "%s"', (text) => {
+    expect(parseQuantity(text)).toBeNull()
+  })
+
+  it.each(['1.000', '1.500', '12.345', '1.000.000'])('recusa "%s", que parece milhar', (text) => {
     expect(parseQuantity(text)).toBeNull()
   })
 })
@@ -304,6 +312,8 @@ describe('ActivityFormSchema', () => {
     ['', 'Digite a quantidade que aparece no certificado, por exemplo 40.'],
     ['quarenta', 'Digite só o número, por exemplo 40 ou 2,5.'],
     ['0', 'Digite um número maior que zero, por exemplo 40.'],
+    ['1.000', 'Para mil, digite 1000. Para decimal, use vírgula, por exemplo 1,5.'],
+    ['1.500', 'Para mil, digite 1000. Para decimal, use vírgula, por exemplo 1,5.'],
   ])('recusa a quantidade "%s" dizendo o que digitar', (quantity, message) => {
     expect(messagesFor({ quantity }).quantity).toBe(message)
   })

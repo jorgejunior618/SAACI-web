@@ -65,16 +65,39 @@ export function maskBrDate(text: string): string {
   return [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4, 8)].filter(Boolean).join('/')
 }
 
+// "1.000" e "1.500": em português, ponto seguido de grupos de três dígitos é milhar. Começar por zero
+// ("0.500") não é milhar, então segue como decimal.
+const THOUSANDS_PATTERN = /^[1-9]\d{0,2}(\.\d{3})+$/
+
+const THOUSANDS_MESSAGE = 'Para mil, digite 1000. Para decimal, use vírgula, por exemplo 1,5.'
+
+function looksLikeThousands(text: string): boolean {
+  return THOUSANDS_PATTERN.test(text.trim())
+}
+
 /**
  * Lê a quantidade digitada, aceitando vírgula ou ponto como separador decimal.
  *
+ * @remarks
+ * O ponto vale como decimal porque alguns teclados numéricos só têm ponto ("2.5" → 2,5). O formato
+ * que parece milhar ("1.000", "1.500") é recusado: ler como mil ou como decimal seria adivinhar, e o
+ * erro passaria calado para a atividade gravada.
+ *
  * @param text Quantidade como a pessoa digitou ("40", "2,5").
- * @returns O número, ou `null` quando o texto não é um número.
+ * @returns O número, ou `null` quando o texto não é um número ou parece milhar.
+ *
+ * @example
+ * ```ts
+ * parseQuantity('2,5') // 2.5
+ * parseQuantity('10.25') // 10.25
+ * parseQuantity('1.000') // null
+ * ```
  */
 export function parseQuantity(text: string): number | null {
   const normalized = text.trim().replace(',', '.')
 
   if (normalized === '' || !/^\d+(\.\d+)?$/.test(normalized)) return null
+  if (looksLikeThousands(normalized)) return null
   return Number(normalized)
 }
 
@@ -110,6 +133,8 @@ export const ActivityFormSchema = v.pipe(
       v.string(),
       v.trim(),
       v.nonEmpty('Digite a quantidade que aparece no certificado, por exemplo 40.'),
+      // Vem antes do check genérico para a mensagem dizer por que "1.000" foi recusado.
+      v.check((text) => !looksLikeThousands(text), THOUSANDS_MESSAGE),
       v.check((text) => parseQuantity(text) !== null, 'Digite só o número, por exemplo 40 ou 2,5.'),
       v.transform((text) => parseQuantity(text) ?? 0),
       v.minValue(0.1, 'Digite um número maior que zero, por exemplo 40.'),
