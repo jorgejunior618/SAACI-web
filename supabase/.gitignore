@@ -6,3 +6,6 @@
 .env.keys
 .env.local
 .env.*.local
+
+# Consultas salvas pelo Studio: são locais e podem ter segredo do Vault
+snippets/
