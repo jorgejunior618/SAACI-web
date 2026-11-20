@@ -24,11 +24,16 @@ export const accountQueries = {
   session: () =>
     queryOptions({
       queryKey: accountKeys.session(),
-      queryFn: getSession,
+      // Função de seta: o `queryFn` recebe o contexto da query, que não pode cair no parâmetro `db`.
+      queryFn: () => getSession(),
       staleTime: STALE_TIME.cadastro,
     }),
 }
 ```
+
+O `queryFn` vem embrulhado numa função de seta sempre que o service aceita o cliente `db` por
+parâmetro. Passada direto, a função recebe o contexto da query no 1º argumento
+(`camada-servicos.md`, "Função passada direto ao TanStack").
 
 ## Primeira carga
 

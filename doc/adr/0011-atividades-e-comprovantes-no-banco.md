@@ -75,6 +75,9 @@ hash não é `unique` (RF42) e o arquivo que sobra é limpo por rotina agendada.
 - `arquitetura.md` troca "Route Handler + Cron" por "Edge Function + `pg_cron`" para agendamento que
   apaga arquivo, e ganha as três exceções. `modelagem-dados.md`, `rls-e-permissoes.md`,
   `estrutura-pastas.md` e `camada-servicos.md` mudam neste commit.
+- A regra de embrulhar a função passada ao TanStack (`camada-servicos.md`) vale para todo service que
+  aceita o cliente `db`. O exemplo de `react-query.md`, que mostrava `queryFn: getSession` passado
+  direto, passa a mostrar a função de seta, como o código real já faz.
 - O teste de integração usa o `File`, o `Blob` e o `FormData` do Node. O `fetch` do Node não
   reconhece os do jsdom.
 - As horas continuam no cálculo em TS até a #21, que leva a conta para o banco.
