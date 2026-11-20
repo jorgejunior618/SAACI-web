@@ -1,7 +1,6 @@
 import * as v from 'valibot'
 
 import { END_BEFORE_START_MESSAGE } from '@/services/activities'
-import type { ProgressCategory } from '@/services/progress'
 import type { Ratio, RatioUnit, RuleItem } from '@/services/rules'
 
 import { compareByRegistration, computeActivities } from './compute-hours'
@@ -304,8 +303,9 @@ export type PreviewCalcRow = { label: string; value: number }
 export type ActivityPreview = {
   rule: RuleItem
   /**
-   * Horas que outras atividades já ocupam no item. No registro, todas as do item. Na correção, só as
-   * registradas antes da corrigida, porque elas ocupam o máximo primeiro.
+   * Horas que as atividades registradas antes do rascunho já contam no item, pela lista de
+   * atividades. No registro, todas as do item. Na correção, só as registradas antes da corrigida,
+   * porque elas ocupam o máximo primeiro.
    */
   usedHours: number
   calcRows: PreviewCalcRow[]
@@ -324,8 +324,6 @@ export type PreviewInput = {
   /** Todas as atividades do aluno, de `activitiesQueries.list`. */
   activities: HoursActivityInput[]
   ruleItems: RuleItem[]
-  /** Horas por item, de `progressQueries.summary`. A correção não usa. */
-  categories: ProgressCategory[]
   /** Semestre de ingresso do perfil. */
   startSemester: string | null
   itemNumber: number
@@ -354,19 +352,20 @@ const DRAFT_START_FALLBACK = '9999-12-31'
  * Roda o `computeActivities` sobre todas as atividades mais o rascunho, como manda a ADR 0003: o
  * máximo do item é dividido entre as atividades, então calcular só o rascunho daria número errado.
  * Na correção (`replacing`), o rascunho toma o lugar da atividade corrigida, com o mesmo `id` e
- * `registeredAt`, então fica na mesma ordem: senão ela contaria duas vezes. Ali o "Cabem neste item"
- * desconta só quem foi registrado antes dela, como o cálculo faz, e não o total do progresso. O
+ * `registeredAt`, então fica na mesma ordem: senão ela contaria duas vezes. No registro, o rascunho
+ * é o último registrado. Nos dois casos, o "Cabem neste item" desconta quem foi registrado antes do
+ * rascunho, calculado sobre a mesma lista do "Vai contar", para as duas linhas nunca divergirem. O
  * valor gravado é o do service; a prévia só informa. O aviso segue a ordem de gravidade: antes do
  * ingresso, item cheio, depois parcial.
  *
- * @param input Atividades, regras, progresso, ingresso e o que o aluno digitou.
+ * @param input Atividades, regras, ingresso e o que o aluno digitou.
  * @returns A prévia para o `RulePanel`.
  * @throws {Error} O item não está em `ruleItems`.
  *
  * @example
  * ```ts
- * const preview = buildPreview({ activities, ruleItems, categories: progress.categories,
- *   startSemester: profile.startSemester, itemNumber: 7, quantity: 40, startDate: '2026-08-03' })
+ * const preview = buildPreview({ activities, ruleItems, startSemester: profile.startSemester,
+ *   itemNumber: 7, quantity: 40, startDate: '2026-08-03' })
  * // preview.willCount → 10
  * ```
  */
@@ -379,10 +378,11 @@ export function buildPreview(input: PreviewInput): ActivityPreview {
   const others = replacing
     ? input.activities.filter((activity) => activity.id !== replacing.id)
     : input.activities
-  const usedHours = replacing
-    ? hoursBefore(replacing, others, input)
-    : (input.categories.find((category) => category.itemNumber === input.itemNumber)
-        ?.countedHours ?? 0)
+  const position: ReplacedActivity = replacing ?? {
+    id: DRAFT_ID,
+    registeredAt: DRAFT_REGISTERED_AT,
+  }
+  const usedHours = hoursBefore(position, others, input)
   const remaining = Math.max(0, rule.maxHours - usedHours)
   const fitsRow: PreviewCalcRow = { label: 'Cabem neste item', value: remaining }
 
@@ -397,16 +397,14 @@ export function buildPreview(input: PreviewInput): ActivityPreview {
     }
   }
 
-  const draftId = replacing?.id ?? DRAFT_ID
   const draft = {
-    id: draftId,
+    ...position,
     itemNumber: input.itemNumber,
     quantity: input.quantity,
     startDate: input.startDate ?? DRAFT_START_FALLBACK,
-    registeredAt: replacing?.registeredAt ?? DRAFT_REGISTERED_AT,
   }
   const results = computeActivities([...others, draft], input.ruleItems, input.startSemester)
-  const hours = results.find((result) => result.id === draftId) ?? null
+  const hours = results.find((result) => result.id === position.id) ?? null
 
   if (hours === null) throw new Error('O cálculo não devolveu a prévia do rascunho.')
 
@@ -423,10 +421,10 @@ export function buildPreview(input: PreviewInput): ActivityPreview {
   }
 }
 
-// Horas que as atividades do item registradas antes da corrigida contam. Quem vem depois não muda o
+// Horas que as atividades do item registradas antes do rascunho contam. Quem vem depois não muda o
 // que vem antes, então calcular sem o rascunho dá o mesmo número.
 function hoursBefore(
-  replacing: ReplacedActivity,
+  position: ReplacedActivity,
   others: HoursActivityInput[],
   input: PreviewInput,
 ): number {
@@ -434,8 +432,7 @@ function hoursBefore(
     others
       .filter(
         (activity) =>
-          activity.itemNumber === input.itemNumber &&
-          compareByRegistration(activity, replacing) < 0,
+          activity.itemNumber === input.itemNumber && compareByRegistration(activity, position) < 0,
       )
       .map((activity) => activity.id),
   )

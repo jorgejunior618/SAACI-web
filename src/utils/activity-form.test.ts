@@ -2,7 +2,6 @@ import * as v from 'valibot'
 import { describe, expect, it } from 'vitest'
 
 import { END_BEFORE_START_MESSAGE } from '@/services/activities'
-import type { ProgressCategory } from '@/services/progress'
 import type { RuleItem } from '@/services/rules'
 
 import {
@@ -49,23 +48,10 @@ function activity(over: Partial<HoursActivityInput>): HoursActivityInput {
   }
 }
 
-function category(itemNumber: number, countedHours: number): ProgressCategory {
-  const rule = RULES.find((item) => item.itemNumber === itemNumber)
-
-  return {
-    itemNumber,
-    name: rule?.name ?? '',
-    countedHours,
-    maxHours: rule?.maxHours ?? 0,
-    hoursOverLimit: 0,
-  }
-}
-
 function input(over: Partial<PreviewInput>): PreviewInput {
   return {
     activities: [],
     ruleItems: RULES,
-    categories: [],
     startSemester: INGRESSO,
     itemNumber: 7,
     quantity: 40,
@@ -91,7 +77,6 @@ describe('buildPreview', () => {
     const preview = buildPreview(
       input({
         activities: [activity({})],
-        categories: [category(13, 26)],
         itemNumber: 13,
         quantity: 3,
       }),
@@ -108,7 +93,6 @@ describe('buildPreview', () => {
     const preview = buildPreview(
       input({
         activities: [activity({ quantity: 15 })],
-        categories: [category(13, 30)],
         itemNumber: 13,
         quantity: 3,
       }),
@@ -131,8 +115,37 @@ describe('buildPreview', () => {
     )
   })
 
+  it('não desconta do espaço a atividade do item que começou antes do ingresso', () => {
+    const preview = buildPreview(
+      input({
+        activities: [
+          activity({ id: 'antiga', quantity: 10, startDate: '2022-02-01' }),
+          activity({ id: 'conta', quantity: 5 }),
+        ],
+        itemNumber: 13,
+        quantity: 3,
+      }),
+    )
+
+    expect(preview.usedHours).toBe(10)
+    expect(preview.calcRows[1]).toEqual({ label: 'Cabem neste item', value: 20 })
+    expect(preview.willCount).toBe(6)
+  })
+
+  it('desconta só o item escolhido, e não as atividades de outros itens', () => {
+    const preview = buildPreview(
+      input({ activities: [activity({ quantity: 15 })], itemNumber: 7, quantity: 40 }),
+    )
+
+    expect(preview.usedHours).toBe(0)
+    expect(preview.willCount).toBe(10)
+  })
+
   it('mostra só quanto cabe enquanto a quantidade não é um número', () => {
-    const preview = buildPreview(input({ quantity: null, categories: [category(7, 18)] }))
+    // 72h de curso ÷ 4 = 18h já usadas de 60h no item 7.
+    const preview = buildPreview(
+      input({ activities: [activity({ itemNumber: 7, quantity: 72 })], quantity: null }),
+    )
 
     expect(preview.willCount).toBeNull()
     expect(preview.calcRows).toEqual([{ label: 'Cabem neste item', value: 42 }])
@@ -151,7 +164,6 @@ describe('buildPreview', () => {
       const preview = buildPreview(
         input({
           activities: [corrected],
-          categories: [category(13, 26)],
           itemNumber: 13,
           quantity: 3,
           replacing: corrected,
@@ -171,7 +183,6 @@ describe('buildPreview', () => {
       const preview = buildPreview(
         input({
           activities: [earlier, corrected, later],
-          categories: [category(13, 30)],
           itemNumber: 13,
           quantity: 12,
           replacing: corrected,
@@ -194,7 +205,6 @@ describe('buildPreview', () => {
       const preview = buildPreview(
         input({
           activities: [other, corrected],
-          categories: [category(7, 18), category(13, 26)],
           itemNumber: 7,
           quantity: 300,
           replacing: corrected,

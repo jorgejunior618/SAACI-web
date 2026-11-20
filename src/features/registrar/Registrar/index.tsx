@@ -164,7 +164,6 @@ export function Registrar(): ReactNode {
       ? buildPreview({
           activities,
           ruleItems,
-          categories: progress.categories,
           startSemester: profile.startSemester,
           itemNumber,
           quantity: parseQuantity(quantityText),

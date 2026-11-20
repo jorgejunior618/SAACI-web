@@ -99,7 +99,6 @@ export function CorrectionForm({
   const preview = buildPreview({
     activities,
     ruleItems,
-    categories: [],
     startSemester,
     itemNumber,
     quantity: parseQuantity(current.quantity ?? ''),
