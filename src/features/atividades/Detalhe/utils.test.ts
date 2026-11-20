@@ -13,6 +13,7 @@ import {
   getPreviousHints,
   getRoomHours,
   getStatusBadge,
+  getTotalAfterRemoval,
 } from './utils'
 
 const COURSE: RuleItem = {
@@ -159,15 +160,67 @@ describe('describeWhy', () => {
 
 describe('describeRemoval', () => {
   it('diz de quanto para quanto o total vai', () => {
-    expect(describeRemoval(activity({}), 69)).toBe(
+    expect(describeRemoval('Curso de React com TypeScript', 69, 59)).toBe(
       'Curso de React com TypeScript sai do seu total, que volta de 69h para 59h. O comprovante também é apagado e isso não dá para desfazer.',
     )
   })
 
-  it('diz que o total não muda quando a atividade não soma horas', () => {
-    expect(describeRemoval(activity({ countedHours: 0, status: 'nao_conta' }), 69)).toBe(
-      'Curso de React com TypeScript não soma horas, então seu total continua em 69h. O comprovante também é apagado e isso não dá para desfazer.',
+  it('diz que o total continua igual quando ele não muda', () => {
+    expect(describeRemoval('Curso de React com TypeScript', 69, 69)).toBe(
+      'Curso de React com TypeScript sai da lista, e seu total continua em 69h. O comprovante também é apagado e isso não dá para desfazer.',
     )
+  })
+})
+
+describe('getTotalAfterRemoval', () => {
+  const INGRESSO = '2023-07-01'
+
+  function removal(removed: Activity, others: Activity[], targetHours = 120): number {
+    return getTotalAfterRemoval({
+      activity: removed,
+      activities: [...others, removed],
+      ruleItems: [COURSE, TALK],
+      startSemester: INGRESSO,
+      targetHours,
+    })
+  }
+
+  it('não cai abaixo da meta quando a soma passa dela', () => {
+    // 40h no item 7 + 10h no item 13 = 50h, mas a meta é 20h. Sem as 10h, a soma (40h) ainda passa.
+    const course = activity({ id: 'a1', quantity: 160, countedHours: 40 })
+    const talks = activity({ id: 'a2', itemNumber: 13, quantity: 5, countedHours: 10 })
+
+    expect(removal(talks, [course], 20)).toBe(20)
+  })
+
+  it('segue o truncamento em horas inteiras do total', () => {
+    // 59h + 0,5h = 59,5h, que o total mostra como 59h. Sem a de 0,5h, continua 59h.
+    const course = activity({ id: 'a1', quantity: 236, countedHours: 59 })
+    const short = activity({ id: 'a2', quantity: 2, activityHours: 0.5, countedHours: 0.5 })
+
+    expect(removal(short, [course])).toBe(59)
+  })
+
+  it('devolve ao total a atividade que estava fora por falta de espaço no item', () => {
+    // A primeira enche as 30h do item 13; a segunda (10h) não conta. Sem a primeira, a segunda conta.
+    const first = activity({
+      id: 'a1',
+      itemNumber: 13,
+      quantity: 15,
+      registeredAt: '2026-01-01T12:00:00.000Z',
+      countedHours: 30,
+    })
+    const second = activity({
+      id: 'a2',
+      itemNumber: 13,
+      quantity: 5,
+      registeredAt: '2026-02-01T12:00:00.000Z',
+      countedHours: 0,
+      status: 'nao_conta',
+      reason: 'item_cheio',
+    })
+
+    expect(removal(first, [second])).toBe(10)
   })
 })
 

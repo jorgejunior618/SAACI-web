@@ -36,6 +36,7 @@ import {
   getCalcRows,
   getRoomHours,
   getStatusBadge,
+  getTotalAfterRemoval,
 } from './utils'
 import * as S from './styles'
 
@@ -104,6 +105,13 @@ export function Detalhe({ id }: DetalheProps): ReactNode {
   const badge = getStatusBadge(activity.status)
   const quantity = describeQuantity(activity.quantity, rule.ratio.unit)
   const roomHours = getRoomHours(activity, activities, rule.maxHours)
+  const totalAfterRemoval = getTotalAfterRemoval({
+    activity,
+    activities,
+    ruleItems,
+    startSemester: profile.startSemester,
+    targetHours: progress.targetHours,
+  })
 
   // Espera lista e total novos, para Atividades abrir sem a atividade removida e com o total certo.
   // Se a busca falhar, a remoção já aconteceu: volta mesmo assim, nunca vira erro.
@@ -222,7 +230,7 @@ export function Detalhe({ id }: DetalheProps): ReactNode {
       <BottomSheet
         ref={removeSheetRef}
         title="Remover esta atividade?"
-        description={`${describeRemoval(activity, progress.totalHours)} Se só um dado está errado, use Corrigir dados.`}
+        description={`${describeRemoval(name, progress.totalHours, totalAfterRemoval)} Se só um dado está errado, use Corrigir dados.`}
         actions={
           <>
             <Button

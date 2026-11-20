@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { computeActivities, computeProgress } from './compute-hours'
+import { compareByRegistration, computeActivities, computeProgress } from './compute-hours'
 import type { HoursActivityInput, HoursRuleInput } from './compute-hours'
 
 const RULES: HoursRuleInput[] = [
@@ -35,6 +35,27 @@ function activity(over: Partial<HoursActivityInput>): HoursActivityInput {
     ...over,
   }
 }
+
+describe('compareByRegistration', () => {
+  const at = (id: string, registeredAt: string) => ({ id, registeredAt })
+
+  it('põe primeiro quem foi registrado antes', () => {
+    expect(
+      compareByRegistration(
+        at('b', '2025-01-01T12:00:00.000Z'),
+        at('a', '2025-02-01T12:00:00.000Z'),
+      ),
+    ).toBeLessThan(0)
+  })
+
+  it('desempata pelo id quando o registro é o mesmo', () => {
+    const same = '2025-01-01T12:00:00.000Z'
+
+    expect(compareByRegistration(at('a', same), at('b', same))).toBeLessThan(0)
+    expect(compareByRegistration(at('b', same), at('a', same))).toBeGreaterThan(0)
+    expect(compareByRegistration(at('a', same), at('a', same))).toBe(0)
+  })
+})
 
 describe('computeActivities', () => {
   it('converte a quantidade pela razão do item', () => {

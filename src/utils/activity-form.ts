@@ -4,7 +4,7 @@ import { END_BEFORE_START_MESSAGE } from '@/services/activities'
 import type { ProgressCategory } from '@/services/progress'
 import type { Ratio, RatioUnit, RuleItem } from '@/services/rules'
 
-import { computeActivities } from './compute-hours'
+import { compareByRegistration, computeActivities } from './compute-hours'
 import type { ActivityHours, HoursActivityInput } from './compute-hours'
 import { formatHours } from './format-hours'
 
@@ -398,11 +398,6 @@ export function buildPreview(input: PreviewInput): ActivityPreview {
   }
 }
 
-// Mesma ordem do `computeActivities`: registro e, no empate, `id`.
-function isBefore(a: ReplacedActivity, b: ReplacedActivity): boolean {
-  return (a.registeredAt.localeCompare(b.registeredAt) || a.id.localeCompare(b.id)) < 0
-}
-
 // Horas que as atividades do item registradas antes da corrigida contam. Quem vem depois não muda o
 // que vem antes, então calcular sem o rascunho dá o mesmo número.
 function hoursBefore(
@@ -413,7 +408,9 @@ function hoursBefore(
   const earlier = new Set(
     others
       .filter(
-        (activity) => activity.itemNumber === input.itemNumber && isBefore(activity, replacing),
+        (activity) =>
+          activity.itemNumber === input.itemNumber &&
+          compareByRegistration(activity, replacing) < 0,
       )
       .map((activity) => activity.id),
   )

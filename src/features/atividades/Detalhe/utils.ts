@@ -4,6 +4,7 @@ import type { Activity, ActivityCorrection } from '@/services/activities'
 import type { RuleItem } from '@/services/rules'
 import { describeCalc, formatBrDate } from '@/utils/activity-form'
 import type { ActivityFormInput, ActivityFormOutput } from '@/utils/activity-form'
+import { compareByRegistration, computeProgress } from '@/utils/compute-hours'
 import { formatHours } from '@/utils/format-hours'
 import { formatSemester } from '@/utils/start-semester'
 
@@ -26,18 +27,13 @@ export function getStatusBadge(status: Activity['status']): { tone: BadgeTone; l
   return STATUS_BADGE[status]
 }
 
-// Mesma ordem do cálculo único: registro e, no empate, `id`. Quem vem antes ocupa o máximo primeiro.
-function isBefore(a: Activity, b: Activity): boolean {
-  return (a.registeredAt.localeCompare(b.registeredAt) || a.id.localeCompare(b.id)) < 0
-}
-
 /**
  * Diz quanto cabia no item para esta atividade: o máximo menos o que as atividades registradas antes
  * dela já contam.
  *
  * @remarks
- * Não recalcula nada: soma o `countedHours` que o service já devolveu (RNF20). As atividades
- * registradas depois não entram, porque o cálculo dá a vez a quem foi registrado antes.
+ * Não recalcula nada: soma o `countedHours` que o service já devolveu (RNF20). Quem vem antes sai
+ * do `compareByRegistration`, a ordem do próprio cálculo único: as registradas depois não entram.
  *
  * @param activity A atividade do detalhe.
  * @param activities Todas as atividades do aluno, de `activitiesQueries.list`.
@@ -50,7 +46,7 @@ export function getRoomHours(activity: Activity, activities: Activity[], maxHour
       (other) =>
         other.id !== activity.id &&
         other.itemNumber === activity.itemNumber &&
-        isBefore(other, activity),
+        compareByRegistration(other, activity) < 0,
     )
     .reduce((sum, other) => sum + other.countedHours, 0)
 
@@ -108,25 +104,59 @@ export function describeWhy(
   return `Conta inteira: o item ${rule.itemNumber} ainda tinha espaço para ela.`
 }
 
+/** Entrada de {@link getTotalAfterRemoval}. */
+export type RemovalInput = {
+  /** A atividade que sai. */
+  activity: Activity
+  /** Todas as atividades do aluno, de `activitiesQueries.list`. */
+  activities: Activity[]
+  ruleItems: RuleItem[]
+  /** Semestre de ingresso do perfil. */
+  startSemester: string | null
+  /** Carga total que o curso pede, de `progressQueries.summary`. */
+  targetHours: number
+}
+
 /**
- * Escreve a consequência de remover, para o `BottomSheet`: quanto o total perde e que o comprovante
- * vai junto.
+ * Calcula o total do aluno sem a atividade, com o cálculo único, para a confirmação de remover.
  *
- * @param activity A atividade do detalhe.
- * @param totalHours Total atual, de `progressQueries.summary`.
- * @returns A frase da confirmação.
+ * @remarks
+ * Não subtrai: roda o `computeProgress` sobre a lista sem a atividade (RNF20). Tirar uma atividade
+ * pode liberar espaço no item para outra registrada depois, e o total é truncado em horas inteiras e
+ * limitado à meta. Por isso "total menos as horas dela" erra.
+ *
+ * @param input A atividade, a lista inteira, as regras, o ingresso e a meta.
+ * @returns O total, em horas inteiras, como `getProgress` devolveria depois da remoção.
  */
-export function describeRemoval(activity: Activity, totalHours: number): string {
+export function getTotalAfterRemoval(input: RemovalInput): number {
+  return computeProgress({
+    activities: input.activities.filter((other) => other.id !== input.activity.id),
+    ruleItems: input.ruleItems,
+    startSemester: input.startSemester,
+    targetHours: input.targetHours,
+  }).totalHours
+}
+
+/**
+ * Escreve a consequência de remover, para o `BottomSheet`: o que acontece com o total e que o
+ * comprovante vai junto.
+ *
+ * @remarks
+ * Só escreve: os dois totais vêm prontos, o de depois de {@link getTotalAfterRemoval}.
+ *
+ * @param name Nome da atividade.
+ * @param totalBefore Total atual, de `progressQueries.summary`.
+ * @param totalAfter Total sem a atividade.
+ * @returns A frase da confirmação. Total igual vira "continua em".
+ */
+export function describeRemoval(name: string, totalBefore: number, totalAfter: number): string {
   const format = (hours: number): string => formatHours(hours, { fractionDigits: 'auto' })
   const proof = 'O comprovante também é apagado e isso não dá para desfazer.'
 
-  if (activity.countedHours === 0) {
-    return `${activity.name} não soma horas, então seu total continua em ${format(totalHours)}. ${proof}`
+  if (totalAfter === totalBefore) {
+    return `${name} sai da lista, e seu total continua em ${format(totalBefore)}. ${proof}`
   }
-
-  const after = Math.max(0, totalHours - activity.countedHours)
-
-  return `${activity.name} sai do seu total, que volta de ${format(totalHours)} para ${format(after)}. ${proof}`
+  return `${name} sai do seu total, que volta de ${format(totalBefore)} para ${format(totalAfter)}. ${proof}`
 }
 
 const REGISTERED_DATE = new Intl.DateTimeFormat('pt-BR', {
