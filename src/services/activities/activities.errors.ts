@@ -90,6 +90,28 @@ export function toActivityError<E extends { code?: string; message?: string }>(
   return error
 }
 
+/**
+ * Diz se o erro é uma recusa do banco, e não uma falha de rede.
+ *
+ * @remarks
+ * Uso interno do domínio. Recusa traz código: SQLSTATE do Postgres (`23503`, `SA024`) ou do PostgREST
+ * (`PGRST…`). Falha de rede, cancelamento e resposta que não é JSON chegam sem código no
+ * `supabase-js` (conferido no postgrest-js 2.119). Numa escrita, sem código não se sabe se o commit
+ * aconteceu: a requisição pode ter chegado e só a resposta se perdido.
+ *
+ * @param error Qualquer valor lançado ou devolvido pelo `supabase-js`.
+ * @returns `true` quando o erro traz um código não vazio.
+ */
+export function isDatabaseRejection(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    typeof error.code === 'string' &&
+    error.code !== ''
+  )
+}
+
 /** O serviço de leitura não conseguiu ler o comprovante. A tela deixa preencher à mão. */
 export class UnreadableProofError extends Error {
   constructor() {

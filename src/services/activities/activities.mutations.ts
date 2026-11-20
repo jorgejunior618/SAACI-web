@@ -15,18 +15,17 @@ import {
   readActivityContext,
   toStoredActivity,
 } from './activities.api'
-import { ActivityNotFoundError, StaleActivityError, toActivityError } from './activities.errors'
+import {
+  ActivityNotFoundError,
+  isDatabaseRejection,
+  StaleActivityError,
+  toActivityError,
+} from './activities.errors'
 import { activitiesKeys } from './activities.keys'
-import { ActivityCorrectionSchema, NewActivitySchema } from './activities.types'
+import { ActivityCorrectionSchema, NewActivitySchema, toProofType } from './activities.types'
 import type { Activity, ActivityCorrection, NewActivity } from './activities.types'
 
 const SESSION_ENDED_MESSAGE = 'Sua sessão acabou. Entre de novo para salvar a atividade.'
-
-const PROOF_EXTENSIONS: Record<string, string> = {
-  'application/pdf': 'pdf',
-  'image/jpeg': 'jpg',
-  'image/png': 'png',
-}
 
 // Devolve a atividade gravada já com as horas, calculadas sobre a lista inteira.
 async function withHours(id: string, db: DbClient): Promise<Activity> {
@@ -66,13 +65,6 @@ const RegisteredRowSchema = v.object({
   comprovante_tipo: v.string(),
 })
 
-// O banco recusou de verdade quando o erro traz um código: SQLSTATE do Postgres (`23503`, `SA024`)
-// ou do PostgREST (`PGRST…`). Erro de rede chega sem código, e aí não se sabe se o commit aconteceu:
-// a requisição pode ter chegado e só a resposta se perdido.
-function isDatabaseRejection(error: { code?: string }): boolean {
-  return typeof error.code === 'string' && error.code !== ''
-}
-
 /**
  * Registra uma atividade com o comprovante, completa ou nada (RNF24).
  *
@@ -107,7 +99,8 @@ export async function createActivity(input: NewActivity): Promise<Activity> {
   // Antes do upload: se falhar aqui, nada foi gravado, e "não registrada" é verdade.
   const context = await readActivityContext(db)
   const { proof } = activity
-  const path = `${user.id}/${crypto.randomUUID()}.${PROOF_EXTENSIONS[proof.type] ?? 'pdf'}`
+  // O tipo curto do comprovante é também a extensão do arquivo no bucket.
+  const path = `${user.id}/${crypto.randomUUID()}.${toProofType(proof.type)}`
   const hash = await hashFile(proof)
   const upload = await db.storage
     .from(PROOF_BUCKET)

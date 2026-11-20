@@ -9,10 +9,10 @@ import { simulateLatency } from '@/utils/simulate-latency'
 import { getProfile } from '../profile/profile.api'
 import { getRuleItems } from '../rules/rules.api'
 import type { RuleItem } from '../rules/rules.types'
-import { ActivityNotFoundError, ProofDownloadError } from './activities.errors'
+import { ActivityNotFoundError, isDatabaseRejection, ProofDownloadError } from './activities.errors'
 import { suggestFromFile } from './activities.proof-reading.mock'
-import { ActivitySchema, ProofSuggestionSchema } from './activities.types'
-import type { Activity, Proof, ProofSuggestion } from './activities.types'
+import { ActivitySchema, ProofSuggestionSchema, toProofType } from './activities.types'
+import type { Activity, ProofSuggestion } from './activities.types'
 
 /** Bucket privado dos comprovantes, com uma pasta por aluno (ADR 0004). */
 export const PROOF_BUCKET = 'comprovantes'
@@ -59,12 +59,6 @@ export type ActivityContext = {
   startSemester: string | null
 }
 
-const PROOF_TYPES: Record<string, Proof['type']> = {
-  'application/pdf': 'pdf',
-  'image/jpeg': 'jpg',
-  'image/png': 'png',
-}
-
 const UuidSchema = v.pipe(v.string(), v.uuid())
 
 /**
@@ -105,8 +99,8 @@ export function toStoredActivity(row: ActivityRow): StoredActivity {
     proof: {
       fileName: row.comprovante_nome,
       sizeBytes: row.comprovante_tamanho,
-      // Tipo fora da lista é recusado pelo `v.parse` da leitura, como o `check` do banco recusaria.
-      type: PROOF_TYPES[row.comprovante_tipo] ?? (row.comprovante_tipo as Proof['type']),
+      // Tipo fora da lista lança, como o `check` do banco recusaria.
+      type: toProofType(row.comprovante_tipo),
     },
   }
 }
@@ -230,17 +224,19 @@ export async function readProof(proof: File): Promise<ProofSuggestion> {
  *
  * @param id Identificador da atividade.
  * @param db Cliente do Supabase.
+ * @param signal Cancela a leitura, quando quem chama já pode ser cancelado (o download em lote).
  * @returns O caminho `<aluno>/<arquivo>` dentro do bucket `comprovantes`.
  * @throws {ActivityNotFoundError} A atividade não existe ou não é do aluno.
  */
-export async function readProofPath(id: string, db: DbClient): Promise<string> {
+export async function readProofPath(
+  id: string,
+  db: DbClient,
+  signal?: AbortSignal,
+): Promise<string> {
   if (!isActivityId(id)) throw new ActivityNotFoundError()
 
-  const { data, error } = await db
-    .from('atividades')
-    .select('comprovante_caminho')
-    .eq('id', id)
-    .maybeSingle()
+  const query = db.from('atividades').select('comprovante_caminho').eq('id', id)
+  const { data, error } = await (signal ? query.abortSignal(signal) : query).maybeSingle()
 
   if (error) throw error
   if (!data) throw new ActivityNotFoundError()
@@ -270,7 +266,9 @@ export async function getProofUrl(id: string, db: DbClient = createClient()): Pr
  *
  * @remarks
  * Usa `storage.download` do bucket `comprovantes`, que só entrega o arquivo da pasta do próprio aluno
- * (ADR 0004). Para abrir um comprovante só, use `getProofUrl`.
+ * (ADR 0004). Para abrir um comprovante só, use `getProofUrl`. O cancelamento vale também para a
+ * leitura do caminho. Falha de rede, na leitura do caminho ou no download, vira `ProofDownloadError`;
+ * recusa do banco (erro com código) passa como está.
  *
  * @param id Identificador da atividade.
  * @param signal Cancela o download. Cancelado, a promessa rejeita com o motivo do `abort`.
@@ -285,7 +283,12 @@ export async function getProofFile(
   db: DbClient = createClient(),
 ): Promise<Blob> {
   signal?.throwIfAborted()
-  const path = await readProofPath(id, db)
+  const path = await readProofPath(id, db, signal).catch((error: unknown) => {
+    // Cancelado, rejeita com o motivo do `abort`, como o download.
+    signal?.throwIfAborted()
+    if (error instanceof ActivityNotFoundError || isDatabaseRejection(error)) throw error
+    throw new ProofDownloadError()
+  })
   const { data, error } = await db.storage
     .from(PROOF_BUCKET)
     .download(path, {}, signal ? { signal } : undefined)

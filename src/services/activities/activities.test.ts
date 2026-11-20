@@ -12,6 +12,7 @@ import {
   UnreadableProofError,
 } from './activities.errors'
 import { createActivity, removeActivity, updateActivity } from './activities.mutations'
+import { PROOF_MIME_TYPES, toProofType } from './activities.types'
 
 const USER_ID = '00000000-0000-4000-8000-0000000000a1'
 const ID_1 = '00000000-0000-4000-8000-000000000001'
@@ -88,6 +89,9 @@ const db = vi.hoisted(() => {
     }
     maybeSingle(): this {
       return this.record('maybeSingle', [])
+    }
+    abortSignal(...args: unknown[]): this {
+      return this.record('abortSignal', args)
     }
 
     then<T1 = DbResponse, T2 = never>(
@@ -254,6 +258,21 @@ describe('createActivity', () => {
     comprovante_tamanho: 8,
     comprovante_tipo: 'application/pdf',
   }
+
+  it('usa o tipo curto do comprovante como extensão do arquivo no bucket', async () => {
+    queue(ok(ROWS))
+    db.rpcSingle.mockResolvedValue(
+      ok({ ...REGISTERED, comprovante_tipo: 'image/png', comprovante_tamanho: 3 }),
+    )
+
+    const created = await createActivity({
+      ...NEW_ACTIVITY,
+      proof: new File(['png'], 'foto.png', { type: 'image/png' }),
+    })
+
+    expect(db.storage.upload.mock.calls[0]?.[0]).toMatch(/\.png$/)
+    expect(created.proof.type).toBe('png')
+  })
 
   it('sobe o arquivo na pasta do aluno e registra pela RPC com o hash do arquivo', async () => {
     // Leitura antes do upload: a lista atual. Depois da RPC, nenhuma consulta mais.
@@ -587,9 +606,52 @@ describe('comprovante', () => {
     expect(db.storage.download).not.toHaveBeenCalled()
   })
 
+  it('getProofFile passa o cancelamento também à leitura do caminho', async () => {
+    const controller = new AbortController()
+
+    queue(ok({ comprovante_caminho: `${USER_ID}/a.pdf` }))
+    db.storage.download.mockResolvedValue({ data: new Blob(['%PDF']), error: null })
+
+    await getProofFile(ID_1, controller.signal)
+
+    expect(db.state.calls).toContainEqual(['atividades.abortSignal', controller.signal])
+  })
+
+  it('getProofFile traduz a falha de rede ao ler o caminho, sem baixar nada', async () => {
+    // Formato do erro do postgrest-js quando o `fetch` falha: sem código.
+    queue({ data: null, error: { code: '', message: 'TypeError: fetch failed' } })
+
+    await expect(getProofFile(ID_1)).rejects.toBeInstanceOf(ProofDownloadError)
+    expect(db.storage.download).not.toHaveBeenCalled()
+  })
+
+  it('getProofFile repassa a recusa do banco ao ler o caminho', async () => {
+    const failure = { code: 'PGRST301', message: 'JWT expired' }
+
+    queue({ data: null, error: failure })
+
+    await expect(getProofFile(ID_1)).rejects.toBe(failure)
+  })
+
+  it('getProofFile de atividade que não existe continua sendo não encontrada', async () => {
+    queue(ok(null))
+
+    await expect(getProofFile(ID_1)).rejects.toBeInstanceOf(ActivityNotFoundError)
+  })
+
   it('readProof cobre os três caminhos da leitura fingida', async () => {
     expect(await readProof(pdf())).toMatchObject({ itemNumber: 7, quantity: 40 })
     expect(await readProof(pdf('sem-item.pdf'))).toMatchObject({ itemNumber: null })
     await expect(readProof(pdf('ilegivel.pdf'))).rejects.toBeInstanceOf(UnreadableProofError)
+  })
+})
+
+describe('toProofType', () => {
+  it('traduz cada tipo aceito para o tipo curto, que é também a extensão', () => {
+    expect(PROOF_MIME_TYPES.map(toProofType)).toEqual(['pdf', 'jpg', 'png'])
+  })
+
+  it('recusa tipo fora da lista em vez de cair num padrão', () => {
+    expect(() => toProofType('image/webp')).toThrow('image/webp')
   })
 })
