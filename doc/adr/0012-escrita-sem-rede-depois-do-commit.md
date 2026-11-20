@@ -25,12 +25,23 @@ O motivo não depende de comprovante. Vale para toda escrita cujo resultado a te
   é lido antes da escrita. Se essa leitura falhar, nada foi gravado, e o erro diz a verdade.
 - Leitura depois de uma escrita que **não** gravou continua permitida. Exemplo: o `update` que pegou
   zero linhas relê a linha para separar "mudou" de "sumiu".
-- Hoje seguem a regra `createActivity`, `updateActivity` e `updateProfile`.
+- **Commit incerto se reconcilia pela marca única da tentativa.** Quando a escrita falha sem código
+  (rede), a requisição pode ter chegado e só a resposta se perdido. O service relê pelo que só esta
+  tentativa tem: no registro, o `comprovante_caminho` (um `uuid` novo por envio, `unique` no banco);
+  na correção, o id com `updated_at` diferente do lido **e** os valores pedidos já gravados. Achou,
+  é sucesso, montado como na escrita confirmada. Não achou, ou a releitura falhou, sobe o erro
+  original. A releitura não cria erro falso: sem ela, o desfecho já era o erro.
+- Hoje seguem a regra `createActivity`, `updateActivity` e `updateProfile`. A reconciliação vale para
+  `createActivity` e `updateActivity`; o `updateProfile` não tem trava de `updated_at`, então a nova
+  tentativa dele regrava os mesmos valores sem conflito.
 
 ## Consequências
 
 - O resultado da mutation reflete só o que o banco decidiu. Um erro na tela sempre quer dizer "não
-  gravou", ou um commit incerto por falha de rede na própria escrita (ADR 0011).
+  gravou", ou um commit incerto que nem a releitura conseguiu esclarecer (a rede seguiu fora).
+- Nesse último caso, a nova tentativa do registro ainda pode duplicar a atividade. Fechar isso pede
+  procurar uma atividade idêntica antes do upload, com uma janela de tempo a decidir: fica para uma
+  issue própria.
 - A leitura de antes custa idas ao banco mesmo quando a escrita é recusada. É o preço aceito.
 - A resposta usa a lista lida antes da escrita. Uma escrita concorrente de outra aba no meio do
   caminho não aparece nela; aparece no refetch da invalidação, que a tela já chama no `onSuccess`.
@@ -42,6 +53,10 @@ O motivo não depende de comprovante. Vale para toda escrita cujo resultado a te
 
 - **Manter a regra só para a escrita com comprovante.** A correção já repetia o defeito, e cada
   mutation nova o reabriria.
+- **Tratar o commit incerto como "não gravou".** Era o comportamento anterior: o registro duplicava
+  na nova tentativa, e a correção virava `StaleActivityError` sobre ela mesma.
+- **Reconciliar por semelhança ("existe atividade parecida?").** Sem uma marca única, a releitura
+  vira palpite e pode confundir duas atividades legítimas iguais (RF42 só avisa).
 - **Erro próprio para "gravou, mas não carregou".** A tela teria de tratar um terceiro estado, e o
   aluno ainda não saberia o que aconteceu com as horas.
 - **Tentar a releitura de novo antes de desistir.** Reduz a chance da falha, mas não a elimina, e

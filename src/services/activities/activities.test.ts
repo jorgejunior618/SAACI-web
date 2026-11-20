@@ -349,15 +349,41 @@ describe('createActivity', () => {
     expect(db.storage.remove).toHaveBeenCalledWith([db.storage.upload.mock.calls[0]?.[0]])
   })
 
-  it('mantém o arquivo quando a RPC falha sem código (rede): a atividade pode ter sido gravada', async () => {
+  describe('commit incerto (a RPC falha sem código, por rede)', () => {
     // Formato do erro do postgrest-js quando o `fetch` falha: sem SQLSTATE.
     const failure = { code: '', message: 'TypeError: fetch failed', details: '', hint: '' }
 
-    queue(ok(ROWS))
-    db.rpcSingle.mockResolvedValue({ data: null, error: failure })
+    it('a resposta se perdeu mas a RPC gravou: acha pelo caminho e devolve como sucesso', async () => {
+      // Antes do upload, a lista atual. Depois do erro, a releitura pelo caminho acha a linha.
+      queue(ok(ROWS), ok(row(NEW_ID, { nome: NEW_ACTIVITY.name, quantidade: 40 })))
+      db.rpcSingle.mockResolvedValue({ data: null, error: failure })
 
-    await expect(createActivity({ ...NEW_ACTIVITY, proof: pdf() })).rejects.toBe(failure)
-    expect(db.storage.remove).not.toHaveBeenCalled()
+      const created = await createActivity({ ...NEW_ACTIVITY, proof: pdf() })
+
+      expect(created).toMatchObject({ id: NEW_ID, countedHours: 10, status: 'conta' })
+      expect(db.state.calls).toContainEqual([
+        'atividades.eq',
+        'comprovante_caminho',
+        db.storage.upload.mock.calls[0]?.[0],
+      ])
+      expect(db.storage.remove).not.toHaveBeenCalled()
+    })
+
+    it('a RPC não gravou: lança o erro original e mantém o arquivo para a limpeza', async () => {
+      queue(ok(ROWS), ok(null))
+      db.rpcSingle.mockResolvedValue({ data: null, error: failure })
+
+      await expect(createActivity({ ...NEW_ACTIVITY, proof: pdf() })).rejects.toBe(failure)
+      expect(db.storage.remove).not.toHaveBeenCalled()
+    })
+
+    it('a releitura também falha: lança o erro original, sem apagar o arquivo', async () => {
+      queue(ok(ROWS), { data: null, error: { code: '', message: 'TypeError: fetch failed' } })
+      db.rpcSingle.mockResolvedValue({ data: null, error: failure })
+
+      await expect(createActivity({ ...NEW_ACTIVITY, proof: pdf() })).rejects.toBe(failure)
+      expect(db.storage.remove).not.toHaveBeenCalled()
+    })
   })
 
   it('traduz o check de datas do banco', async () => {
@@ -533,6 +559,49 @@ describe('updateActivity', () => {
     queue(ok(ROWS), { data: null, error: failure })
 
     await expect(updateActivity(ID_1, READ_AT, { name: 'x' })).rejects.toBe(failure)
+  })
+
+  describe('commit incerto (o update falha sem código, por rede)', () => {
+    const failure = { code: '', message: 'TypeError: fetch failed', details: '', hint: '' }
+    const changes = { name: 'Novo nome', quantity: 80 }
+
+    it('a correção foi gravada: devolve como sucesso, sem virar StaleActivityError', async () => {
+      // Antes do update, a lista. Depois do erro, a releitura acha a linha já corrigida.
+      queue(ok(ROWS), { data: null, error: failure }, ok(CORRECTED))
+
+      const corrected = await updateActivity(ID_1, READ_AT, changes)
+
+      expect(corrected).toMatchObject({
+        id: ID_1,
+        name: 'Novo nome',
+        updatedAt: CORRECTED.updated_at,
+        countedHours: 20,
+      })
+    })
+
+    it('a correção não foi gravada (updated_at igual): lança o erro original', async () => {
+      queue(ok(ROWS), { data: null, error: failure }, ok(row(ID_1)))
+
+      await expect(updateActivity(ID_1, READ_AT, changes)).rejects.toBe(failure)
+    })
+
+    it('outra escrita mudou a linha com outros valores: lança o erro original', async () => {
+      const otherWrite = row(ID_1, { nome: 'Outro nome', updated_at: CORRECTED.updated_at })
+
+      queue(ok(ROWS), { data: null, error: failure }, ok(otherWrite))
+
+      await expect(updateActivity(ID_1, READ_AT, changes)).rejects.toBe(failure)
+    })
+
+    it('a releitura também falha: lança o erro original', async () => {
+      queue(
+        ok(ROWS),
+        { data: null, error: failure },
+        { data: null, error: { code: '', message: 'TypeError: fetch failed' } },
+      )
+
+      await expect(updateActivity(ID_1, READ_AT, changes)).rejects.toBe(failure)
+    })
   })
 })
 

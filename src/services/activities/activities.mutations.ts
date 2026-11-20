@@ -1,6 +1,5 @@
 import { createClient } from '@supabase/client'
 import type { DbClient } from '@supabase/client'
-import type { TablesUpdate } from '@supabase/database.types'
 import type { QueryClient } from '@tanstack/react-query'
 import * as v from 'valibot'
 
@@ -15,6 +14,7 @@ import {
   readActivityContext,
   toStoredActivity,
 } from './activities.api'
+import type { ActivityContext, ActivityRow } from './activities.api'
 import {
   ActivityNotFoundError,
   isDatabaseRejection,
@@ -27,7 +27,8 @@ import type { Activity, ActivityCorrection, NewActivity } from './activities.typ
 
 const SESSION_ENDED_MESSAGE = 'Sua sessão acabou. Entre de novo para salvar a atividade.'
 
-// Devolve a atividade gravada já com as horas, calculadas sobre a lista inteira.
+// Relê a lista e devolve a atividade com as horas. Só para quando nada foi gravado (a correção sem
+// campo): depois de uma escrita confirmada, ler de novo é proibido (ADR 0012).
 async function withHours(id: string, db: DbClient): Promise<Activity> {
   const activity = (await readActivitiesWithHours(db)).find((item) => item.id === id)
 
@@ -43,9 +44,14 @@ async function hashFile(file: File): Promise<string> {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('')
 }
 
-// Só os campos enviados viram coluna. O comprovante não se troca (ADR 0001).
-function toCorrectionRow(changes: ActivityCorrection): TablesUpdate<'atividades'> {
-  const row: TablesUpdate<'atividades'> = {}
+// As colunas que o aluno corrige, só as enviadas. O comprovante não se troca (ADR 0001).
+type CorrectionRow = Partial<
+  Pick<ActivityRow, 'nome' | 'item_numero' | 'quantidade' | 'data_inicio' | 'data_fim'>
+>
+
+// Só os campos enviados viram coluna.
+function toCorrectionRow(changes: ActivityCorrection): CorrectionRow {
+  const row: CorrectionRow = {}
 
   if (changes.name !== undefined) row.nome = changes.name
   if (changes.itemNumber !== undefined) row.item_numero = changes.itemNumber
@@ -53,6 +59,46 @@ function toCorrectionRow(changes: ActivityCorrection): TablesUpdate<'atividades'
   if (changes.startDate !== undefined) row.data_inicio = changes.startDate
   if (changes.endDate !== undefined) row.data_fim = changes.endDate
   return row
+}
+
+// A linha já tem todos os valores pedidos na correção.
+function hasCorrection(current: ActivityRow, row: CorrectionRow): boolean {
+  return (
+    (row.nome === undefined || row.nome === current.nome) &&
+    (row.item_numero === undefined || row.item_numero === current.item_numero) &&
+    (row.quantidade === undefined || row.quantidade === current.quantidade) &&
+    (row.data_inicio === undefined || row.data_inicio === current.data_inicio) &&
+    (row.data_fim === undefined || row.data_fim === current.data_fim)
+  )
+}
+
+// Monta a resposta de uma escrita com o contexto lido antes dela e a linha gravada, sem ir à rede
+// (ADR 0012). A linha substitui a de mesmo id; a ordem do array não pesa, porque o cálculo ordena
+// pelo registro.
+function answerFromRow(context: ActivityContext, row: ActivityRow): Activity {
+  const written = toStoredActivity(row)
+  const others = context.stored.filter((item) => item.id !== written.id)
+  const result = attachHours({ ...context, stored: [...others, written] }).find(
+    (item) => item.id === written.id,
+  )
+
+  // O cálculo devolve uma entrada por atividade enviada, então a gravada sempre está na lista.
+  if (!result) throw new Error('A atividade foi gravada, mas o cálculo não a encontrou.')
+  return result
+}
+
+// Releitura da reconciliação de um commit incerto. Falha nela não muda nada: quem chama sobe o erro
+// original, que já era o desfecho sem a releitura.
+async function readQuietly<T>(
+  query: PromiseLike<{ data: T | null; error: unknown }>,
+): Promise<T | null> {
+  try {
+    const { data, error } = await query
+
+    return error ? null : data
+  } catch {
+    return null
+  }
 }
 
 // O que a RPC `registrar_atividade` devolve da linha criada. O gerador de tipos marca toda coluna de
@@ -74,9 +120,10 @@ const RegisteredRowSchema = v.object({
  * sobe para a pasta do aluno, e a RPC `registrar_atividade` grava a atividade numa transação só e
  * devolve a linha criada. O banco recusa a atividade cujo arquivo não está no bucket.
  *
- * Se o banco recusar (erro com código), o arquivo é apagado na hora. Se a falha for de rede, o
- * arquivo fica: a atividade pode ter sido gravada, e apagá-lo a deixaria sem comprovante. Se não foi,
- * a rotina de limpeza apaga o arquivo depois de 1 hora. O que o aluno preencheu continua na tela.
+ * Se o banco recusar (erro com código), o arquivo é apagado na hora. Se a falha for de rede, o commit
+ * é incerto: a função procura a atividade pelo caminho do arquivo, que é único por tentativa. Achou,
+ * devolve como sucesso, e a nova tentativa não duplica. Não achou, ou a procura falhou, lança o erro
+ * original, e o arquivo fica para a rotina de limpeza. O que o aluno preencheu continua na tela.
  * Chame `invalidateAfterActivityWrite` no `onSuccess`.
  *
  * Sem parâmetro `db`, ao contrário das outras: o upload do `File` só acontece no navegador, e a tela
@@ -122,14 +169,28 @@ export async function createActivity(input: NewActivity): Promise<Activity> {
     .single()
 
   if (error) {
-    // Só com recusa certa. Melhor esforço: se o remove falhar, a rotina de limpeza apaga o arquivo.
-    if (isDatabaseRejection(error)) await db.storage.from(PROOF_BUCKET).remove([path])
-    throw toActivityError(error)
+    if (isDatabaseRejection(error)) {
+      // Recusa certa. Melhor esforço: se o remove falhar, a rotina de limpeza apaga o arquivo.
+      await db.storage.from(PROOF_BUCKET).remove([path])
+      throw toActivityError(error)
+    }
+
+    // Commit incerto (erro de rede): a resposta pode ter se perdido depois do commit. O caminho é
+    // único por tentativa e `unique` no banco, então ele diz se a RPC gravou. Gravou: é sucesso, e a
+    // nova tentativa não duplica. Não gravou, ou a releitura falhou: sobe o erro original, e o
+    // arquivo fica para a rotina de limpeza.
+    const committed = await readQuietly<ActivityRow>(
+      db.from('atividades').select(ACTIVITY_COLUMNS).eq('comprovante_caminho', path).maybeSingle(),
+    )
+
+    if (committed) return answerFromRow(context, committed)
+    throw error
   }
 
   // Daqui em diante, só conta local: a lista lida antes mais a linha que a RPC devolveu.
   const registered = v.parse(RegisteredRowSchema, data)
-  const created = toStoredActivity({
+
+  return answerFromRow(context, {
     ...registered,
     nome: activity.name,
     item_numero: activity.itemNumber,
@@ -138,12 +199,6 @@ export async function createActivity(input: NewActivity): Promise<Activity> {
     data_fim: activity.endDate,
     comprovante_nome: proof.name,
   })
-  const withNew = attachHours({ ...context, stored: [...context.stored, created] })
-  const result = withNew.find((item) => item.id === registered.id)
-
-  // O cálculo devolve uma entrada por atividade enviada, então a nova sempre está na lista.
-  if (!result) throw new Error('A atividade foi registrada, mas o cálculo não a encontrou.')
-  return result
 }
 
 /**
@@ -156,8 +211,10 @@ export async function createActivity(input: NewActivity): Promise<Activity> {
  *
  * O `update` só pega a linha se o `updated_at` ainda for o que a tela leu, e devolve a linha
  * corrigida. Zero linhas quer dizer que a atividade mudou ou sumiu, e uma segunda leitura diz qual
- * dos dois (nada foi gravado, então ler é seguro). As horas são recalculadas pelo cálculo único,
- * sobre a lista lida antes com a linha trocada. Chame `invalidateAfterActivityWrite`.
+ * dos dois (nada foi gravado, então ler é seguro). Se o `update` falhar por rede, o commit é incerto:
+ * a função relê a linha e, se o `updated_at` mudou e os valores pedidos já estão lá, devolve como
+ * sucesso. Senão, lança o erro original. As horas são recalculadas pelo cálculo único, sobre a lista
+ * lida antes com a linha trocada. Chame `invalidateAfterActivityWrite`.
  *
  * @param id Identificador da atividade.
  * @param updatedAt O `updatedAt` que a tela leu, sem mexer no texto. Se a atividade mudou desde
@@ -192,7 +249,21 @@ export async function updateActivity(
     .select(ACTIVITY_COLUMNS)
     .maybeSingle()
 
-  if (error) throw toActivityError(error)
+  if (error) {
+    if (isDatabaseRejection(error)) throw toActivityError(error)
+
+    // Commit incerto (erro de rede): a correção pode ter sido gravada. Gravou se o `updated_at`
+    // mudou e a linha já tem os valores pedidos: é sucesso, e a nova tentativa não vira
+    // `StaleActivityError`. Senão, ou se a releitura falhar, sobe o erro original.
+    const current = await readQuietly<ActivityRow>(
+      db.from('atividades').select(ACTIVITY_COLUMNS).eq('id', id).maybeSingle(),
+    )
+
+    if (current && current.updated_at !== updatedAt && hasCorrection(current, row)) {
+      return answerFromRow(context, current)
+    }
+    throw error
+  }
   if (!data) {
     const current = await db.from('atividades').select('id').eq('id', id).maybeSingle()
 
@@ -200,16 +271,8 @@ export async function updateActivity(
     throw current.data ? new StaleActivityError() : new ActivityNotFoundError()
   }
 
-  // Daqui em diante, só conta local. A ordem do array não pesa: o cálculo ordena pelo registro.
-  const corrected = toStoredActivity(data)
-  const others = context.stored.filter((item) => item.id !== id)
-  const result = attachHours({ ...context, stored: [...others, corrected] }).find(
-    (item) => item.id === id,
-  )
-
-  // O cálculo devolve uma entrada por atividade enviada, então a corrigida sempre está na lista.
-  if (!result) throw new Error('A atividade foi corrigida, mas o cálculo não a encontrou.')
-  return result
+  // Daqui em diante, só conta local: a lista lida antes com a linha corrigida no lugar.
+  return answerFromRow(context, data)
 }
 
 /**

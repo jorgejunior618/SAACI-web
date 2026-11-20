@@ -91,7 +91,10 @@ export async function signIn(email: string, password: string): Promise<Session> 
 (`.select(colunas)` no `update`, `returning` na RPC) somado ao que foi lido **antes** dela. Uma
 leitura que falhasse depois do commit faria a tela dizer "não salva" para o que foi gravado, e a nova
 tentativa duplicaria o registro ou bateria na trava de `updated_at`. Reler depois de uma escrita que
-não gravou (zero linhas) continua permitido.
+não gravou (zero linhas) continua permitido. Quando a escrita falha sem código (rede), o commit é
+incerto: o service relê pela marca única da tentativa (o caminho do comprovante no registro; o id,
+o `updated_at` novo e os valores pedidos na correção). Achou, é sucesso; não achou, ou a releitura
+falhou, sobe o erro original.
 
 ## Tradução de erro
 
