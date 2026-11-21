@@ -122,8 +122,8 @@ pode ser um registro em andamento.
 - **Apagar a conta (RF33)** apaga o usuário, e `on delete cascade` leva perfil e atividades. Aqui o
   cascade é proposital: o dono dos dados pede para apagá-los (LGPD), e linha órfã seria o defeito. Os
   arquivos do Storage **não** saem por cascade: a rotina `limpa-comprovantes` os apaga, na primeira
-  hora cheia depois da folga de 1 hora (ADR 0011). `[PRAZO DO RNF05]` diz em quanto tempo tudo some,
-  cópias de segurança inclusas.
+  hora cheia depois da folga de 1 hora (ADR 0011). Em até 7 dias tudo some, cópias de segurança
+  inclusas (RNF05, ADR 0017).
 - **Conta não confirmada (RNF27)** é apagada por rotina agendada depois de 7 dias (ADR 0003).
 - Antes de apagar, o aluno pode baixar os comprovantes (RF34). A lista de registros não é exportada
   no MVP.

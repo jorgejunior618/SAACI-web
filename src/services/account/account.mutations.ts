@@ -157,8 +157,8 @@ export function invalidateAfterPasswordUpdate(queryClient: QueryClient, token: s
  * @remarks
  * Confere a senha entrando de novo, depois chama a função `apagar_minha_conta` do banco e encerra
  * só a sessão local, porque a sessão no servidor já foi apagada junto com o usuário. O perfil e as
- * atividades saem em cascata. TODO [PRAZO DO RNF05]: os arquivos do Storage saem por uma rotina
- * agendada (RF33), ainda não criada.
+ * atividades saem em cascata. Os arquivos do Storage saem pela rotina agendada `limpa-comprovantes`
+ * (ADR 0011), dentro do prazo de 7 dias do RNF05 (ADR 0017).
  *
  * @param password Senha da conta, pedida de novo para confirmar.
  * @throws {InvalidCredentialsError} Não há sessão ou a senha não confere.
