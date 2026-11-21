@@ -227,8 +227,7 @@ export function DeliverySteps({
       detail: (
         <>
           <S.DetailText>A resposta chega por e-mail. Olhe também a caixa de spam.</S.DetailText>
-          {/* TODO: provisório. Trocar o marcador pelo prazo real. */}
-          <S.DetailText>[PRAZO DE RESPOSTA DA COORDENAÇÃO]</S.DetailText>
+          <S.DetailText>A resposta pode levar alguns dias úteis.</S.DetailText>
           <Toggle
             isChecked={checked.has('followup')}
             checkedLabel="Desmarcar resposta recebida"

@@ -4,12 +4,12 @@ import { describe, expect, it } from 'vitest'
 import { ContaApagada } from './index'
 
 describe('ContaApagada', () => {
-  it('confirma a exclusão, diz o prazo de 7 dias e mostra o marcador do e-mail, que ainda não existe', () => {
+  it('confirma a exclusão, diz o prazo de 7 dias e não promete e-mail', () => {
     render(<ContaApagada />)
 
     expect(screen.getByText('Sua conta foi apagada')).toBeInTheDocument()
     expect(screen.getByText(/em até 7 dias/)).toBeInTheDocument()
-    expect(screen.getByText(/\[E-MAIL DE CONFIRMAÇÃO DA EXCLUSÃO\]/)).toBeInTheDocument()
+    expect(screen.queryByText(/e-mail/)).not.toBeInTheDocument()
   })
 
   it('leva a Entrar em "Voltar ao início"', () => {
