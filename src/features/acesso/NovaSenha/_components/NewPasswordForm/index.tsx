@@ -58,7 +58,7 @@ export function NewPasswordForm({ token, email }: NewPasswordFormProps): ReactNo
   const password = useWatch({ control, name: 'password' })
 
   const mutation = useMutation({
-    mutationFn: ({ password: value }: NewPasswordOutput) => updatePassword(token, value),
+    mutationFn: ({ password: value }: NewPasswordOutput) => updatePassword(value),
     onSuccess: (session) => {
       invalidateAfterPasswordUpdate(queryClient, token)
       queryClient.setQueryData(accountKeys.session(), session)

@@ -224,7 +224,7 @@ describe('nova senha', () => {
     auth.getUser.mockResolvedValue(ok())
     auth.updateUser.mockResolvedValue(ok())
 
-    await expect(updatePassword('abc', 'outrasenha9')).resolves.toEqual({
+    await expect(updatePassword('outrasenha9')).resolves.toEqual({
       email: EMAIL,
       emailConfirmed: true,
     })
@@ -234,7 +234,7 @@ describe('nova senha', () => {
   it('trata a falta de sessão de nova senha como link vencido', async () => {
     auth.getUser.mockResolvedValue(fail(new AuthSessionMissingError()))
 
-    await expect(updatePassword('abc', 'outrasenha9')).rejects.toBeInstanceOf(ExpiredLinkError)
+    await expect(updatePassword('outrasenha9')).rejects.toBeInstanceOf(ExpiredLinkError)
     expect(auth.updateUser).not.toHaveBeenCalled()
   })
 })

@@ -114,17 +114,14 @@ export async function requestPasswordReset(email: string): Promise<void> {
  * Grava a senha nova na sessão que `getPasswordLink` abriu com o link e devolve a sessão.
  *
  * @remarks
- * O token já foi gasto na conferência da tela, então esta função não o envia: quem prova o acesso é
- * a sessão de nova senha. Sem ela, o link venceu.
+ * O token do link já foi gasto na conferência da tela (`getPasswordLink`), então esta função não o
+ * recebe: quem prova o acesso é a sessão de nova senha. Sem ela, o link venceu.
  *
- * @param token Token do link recebido por e-mail. Mantido para a assinatura da tela não mudar.
  * @param password Senha nova.
  * @throws {ExpiredLinkError} O link venceu, já foi usado ou foi trocado por um mais novo.
  */
-export async function updatePassword(token: string, password: string): Promise<Session> {
+export async function updatePassword(password: string): Promise<Session> {
   const db = createClient()
-  // TODO: o `token` fica sem uso até a assinatura poder mudar com a tela (issue de Acesso).
-  void token
 
   if (!(await readCurrentUser(db))) throw new ExpiredLinkError()
 
