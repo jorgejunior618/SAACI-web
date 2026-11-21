@@ -22,26 +22,26 @@ select ok(
 -- Fixture: Ana e Bia no curso-piloto e Carla sem curso. O gatilho de `auth.users` cria os perfis.
 insert into auth.users (id, email, email_confirmed_at)
 values
-  ('00000000-0000-0000-0000-0000000000e1', 'ana@aluno.ifce.edu.br', now()),
-  ('00000000-0000-0000-0000-0000000000e2', 'bia@aluno.ifce.edu.br', now()),
-  ('00000000-0000-0000-0000-0000000000e3', 'carla@aluno.ifce.edu.br', now());
+  ('00000000-0000-0000-0000-0000000000f4', 'ana@aluno.ifce.edu.br', now()),
+  ('00000000-0000-0000-0000-0000000000f5', 'bia@aluno.ifce.edu.br', now()),
+  ('00000000-0000-0000-0000-0000000000f6', 'carla@aluno.ifce.edu.br', now());
 
 update public.perfis
    set curso_id = '3b1f6d2e-5a47-4c80-9e1b-7d0c2a4f8e11', semestre_inicio = '2023-07-01'
  where aluno_id in (
-   '00000000-0000-0000-0000-0000000000e1',
-   '00000000-0000-0000-0000-0000000000e2'
+   '00000000-0000-0000-0000-0000000000f4',
+   '00000000-0000-0000-0000-0000000000f5'
  );
 
 insert into storage.objects (bucket_id, name, owner_id, metadata)
 values
-  ('comprovantes', '00000000-0000-0000-0000-0000000000e1/a1.pdf', '00000000-0000-0000-0000-0000000000e1',
+  ('comprovantes', '00000000-0000-0000-0000-0000000000f4/a1.pdf', '00000000-0000-0000-0000-0000000000f4',
    '{"size": 700000, "mimetype": "application/pdf"}'),
-  ('comprovantes', '00000000-0000-0000-0000-0000000000e1/a2.pdf', '00000000-0000-0000-0000-0000000000e1',
+  ('comprovantes', '00000000-0000-0000-0000-0000000000f4/a2.pdf', '00000000-0000-0000-0000-0000000000f4',
    '{"size": 700000, "mimetype": "application/pdf"}'),
-  ('comprovantes', '00000000-0000-0000-0000-0000000000e1/a3.pdf', '00000000-0000-0000-0000-0000000000e1',
+  ('comprovantes', '00000000-0000-0000-0000-0000000000f4/a3.pdf', '00000000-0000-0000-0000-0000000000f4',
    '{"size": 700000, "mimetype": "application/pdf"}'),
-  ('comprovantes', '00000000-0000-0000-0000-0000000000e2/b1.pdf', '00000000-0000-0000-0000-0000000000e2',
+  ('comprovantes', '00000000-0000-0000-0000-0000000000f5/b1.pdf', '00000000-0000-0000-0000-0000000000f5',
    '{"size": 500000, "mimetype": "application/pdf"}');
 
 -- Como a Ana: item 7 (1h a cada 4h) com 32h vale 8h; item 13 (2h por palestra) com 1 palestra vale 2h;
@@ -49,21 +49,21 @@ values
 set local role authenticated;
 select set_config(
   'request.jwt.claims',
-  '{"sub":"00000000-0000-0000-0000-0000000000e1","role":"authenticated"}',
+  '{"sub":"00000000-0000-0000-0000-0000000000f4","role":"authenticated"}',
   true
 );
 
 select public.registrar_atividade(
   'Curso de Git e GitHub', 7, 32, '2025-04-07', '2025-05-03',
-  '00000000-0000-0000-0000-0000000000e1/a1.pdf', 'git.pdf', repeat('a', 64)
+  '00000000-0000-0000-0000-0000000000f4/a1.pdf', 'git.pdf', repeat('a', 64)
 );
 select public.registrar_atividade(
   'Palestra sobre computação quântica', 13, 1, '2025-03-12', '2025-03-12',
-  '00000000-0000-0000-0000-0000000000e1/a2.pdf', 'quantica.pdf', repeat('b', 64)
+  '00000000-0000-0000-0000-0000000000f4/a2.pdf', 'quantica.pdf', repeat('b', 64)
 );
 select public.registrar_atividade(
   'Palestra de boas-vindas', 13, 1, '2023-02-10', '2023-02-10',
-  '00000000-0000-0000-0000-0000000000e1/a3.pdf', 'boas-vindas.pdf', repeat('c', 64)
+  '00000000-0000-0000-0000-0000000000f4/a3.pdf', 'boas-vindas.pdf', repeat('c', 64)
 );
 
 select is(
@@ -80,13 +80,13 @@ select is(
 -- Como a Bia: item 6 (1h a cada 4h) com 7h vale 1,7h, e o total é 1h (RF14).
 select set_config(
   'request.jwt.claims',
-  '{"sub":"00000000-0000-0000-0000-0000000000e2","role":"authenticated"}',
+  '{"sub":"00000000-0000-0000-0000-0000000000f5","role":"authenticated"}',
   true
 );
 
 select public.registrar_atividade(
   'Curso de inglês', 6, 7, '2025-02-03', '2025-06-30',
-  '00000000-0000-0000-0000-0000000000e2/b1.pdf', 'ingles.pdf', repeat('d', 64)
+  '00000000-0000-0000-0000-0000000000f5/b1.pdf', 'ingles.pdf', repeat('d', 64)
 );
 
 select is(
@@ -103,7 +103,7 @@ select is(
 -- Como a Carla: sem curso no perfil, não há o que calcular.
 select set_config(
   'request.jwt.claims',
-  '{"sub":"00000000-0000-0000-0000-0000000000e3","role":"authenticated"}',
+  '{"sub":"00000000-0000-0000-0000-0000000000f6","role":"authenticated"}',
   true
 );
 
