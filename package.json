@@ -63,9 +63,9 @@
     "eslint-plugin-perfectionist": "^5.14.0",
     "husky": "^9.1.7",
     "jsdom": "^31.0.1",
-    "lint-staged": "^17.6.0",
+    "lint-staged": "^17.6.1",
     "prettier": "^3.10.1",
-    "supabase": "^3.0.0",
+    "supabase": "^3.2.0",
     "typescript": "^6.0.3",
     "vitest": "^5.1.1"
   },
