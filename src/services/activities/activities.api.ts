@@ -4,13 +4,16 @@ import type { Tables } from '@supabase/database.types'
 import * as v from 'valibot'
 
 import { computeActivities } from '@/utils/compute-hours'
-import { simulateLatency } from '@/utils/simulate-latency'
 
 import { getProfile } from '../profile/profile.api'
 import { getRuleItems } from '../rules/rules.api'
 import type { RuleItem } from '../rules/rules.types'
-import { ActivityNotFoundError, isDatabaseRejection, ProofDownloadError } from './activities.errors'
-import { suggestFromFile } from './activities.proof-reading.mock'
+import {
+  ActivityNotFoundError,
+  isDatabaseRejection,
+  ProofDownloadError,
+  UnreadableProofError,
+} from './activities.errors'
 import { ActivitySchema, ProofSuggestionSchema, toProofType } from './activities.types'
 import type { Activity, ProofSuggestion } from './activities.types'
 
@@ -198,22 +201,43 @@ export async function getActivity(
   return activities.find((activity) => activity.id === id) ?? null
 }
 
+/** Rota do Route Handler que lê o comprovante com IA (RF41). A chave do serviço fica no servidor. */
+const PROOF_READING_PATH = '/api/comprovante/leitura'
+
+/** Prazo da leitura no navegador, em milissegundos. O servidor corta a chamada à IA antes, em 18 s. */
+const PROOF_READING_TIMEOUT_MS = 20_000
+
 /**
- * Pede a leitura do comprovante e devolve o que ela sugere para o formulário.
+ * Pede a leitura do comprovante ao servidor e devolve o que ela sugere para o formulário.
  *
  * @remarks
- * Ainda é a leitura fingida (`activities.proof-reading.mock.ts`): o nome do arquivo escolhe o
- * resultado, `ilegivel` falha e `sem-item` não sugere item. A #22 troca pelo serviço de IA, chamado
- * por um Route Handler para a chave nunca chegar ao navegador.
+ * Envia o arquivo ao Route Handler `/api/comprovante/leitura`, que chama o serviço de IA (ADR 0016).
+ * Só sugere: nada é gravado. Resposta 422, falha de rede e estouro do prazo de 20 s viram
+ * `UnreadableProofError`. Outro status (sem sessão, erro do servidor) rejeita com `Error`, e a tela
+ * trata do mesmo jeito: deixa preencher à mão.
  *
  * @param proof Arquivo escolhido pelo aluno.
  * @returns A sugestão. Campo `null` é o que não foi lido.
- * @throws {UnreadableProofError} A leitura falhou. A tela deixa preencher à mão.
+ * @throws {UnreadableProofError} A leitura não deu. A tela deixa preencher à mão.
+ * @throws Error quando o servidor responde com um status inesperado.
  */
 export async function readProof(proof: File): Promise<ProofSuggestion> {
-  await simulateLatency(1_500)
+  const body = new FormData()
+  body.append('proof', proof)
 
-  return v.parse(ProofSuggestionSchema, suggestFromFile(proof))
+  const response = await fetch(PROOF_READING_PATH, {
+    method: 'POST',
+    body,
+    signal: AbortSignal.timeout(PROOF_READING_TIMEOUT_MS),
+  }).catch(() => {
+    // `fetch` só rejeita por rede caída, cancelamento ou prazo estourado.
+    throw new UnreadableProofError()
+  })
+
+  if (response.status === 422) throw new UnreadableProofError()
+  if (!response.ok) throw new Error(`A leitura do comprovante falhou (HTTP ${response.status}).`)
+
+  return v.parse(ProofSuggestionSchema, await response.json())
 }
 
 /**
