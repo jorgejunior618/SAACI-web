@@ -22,9 +22,13 @@ de aceitar isso foi do dev, a ser confirmada pelo time antes do merge, como pede
 - **O que sai do servidor:** só o arquivo do comprovante. Nome, e-mail e identificador do aluno não
   entram no pedido. O sistema não grava o arquivo nem a resposta da IA: a leitura só sugere, e o
   registro continua passando pelo formulário.
-- **Limite por aluno:** 10 leituras nas últimas 24 h, contadas em `leituras_comprovante` pela função
-  `reservar_leitura_comprovante` (RLS, sem `update` nem `delete`). A leitura é reservada antes da
+- **Limite por aluno:** 10 leituras nas últimas 24 h e 3 no último minuto, contadas em
+  `leituras_comprovante` pela função `reservar_leitura_comprovante` (RLS, sem `update` nem `delete`).
+  O limite do minuto existe porque a cota gratuita do Google vale para o projeto todo: sem ele, um
+  aluno gastaria as 10 leituras de uma vez e esgotaria a cota de todos. A leitura é reservada antes da
   chamada, então a que falha também conta, e isso protege a cota global.
+- **Origem da requisição:** o Route Handler só aceita POST cujo `Origin` é o do próprio site. Route
+  Handler não tem a checagem de origem que o Server Action tem.
 - **Falha, limite ou cota do Google esgotada** viram `UnreadableProofError`. A tela deixa preencher à
   mão, e nenhuma tela muda.
 - **Tempo:** a chamada ao Google tem timeout de cerca de 18 s, dentro dos 20 s da tela.

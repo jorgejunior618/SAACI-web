@@ -52,9 +52,9 @@ declarar. `<dom>.api.ts` e `<dom>.mutations.ts` falam só com esse arquivo.
 
 Na migração, `<dom>.api.ts` e `<dom>.mutations.ts` trocam a chamada ao `<dom>.mock.ts` por
 `supabase-js`, e o mock do domínio é apagado no mesmo commit. Se uma parte do domínio depende de uma
-integração que vem depois, ela fica num mock próprio com `TODO` para a issue que o apaga: em
-`activities`, a leitura do comprovante mora em `activities.proof-reading.mock.ts` até a #22
-(ADR 0011).
+integração que vem depois, ela fica num mock próprio com `TODO` para a issue que o apaga. Foi o caso
+da leitura do comprovante em `activities`, que ficou em `activities.proof-reading.mock.ts` até a #22
+trocá-la por um Route Handler de IA (ADR 0016).
 
 > O código atual (`services/_mock/`, `MockPanel` e o `localStorage` `saaci:mock`) ainda guarda o
 > banco inteiro no navegador. É legado e sai no reset do projeto.

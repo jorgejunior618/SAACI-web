@@ -11,6 +11,12 @@ import type { ProofSuggestion } from './activities.types'
 /** Leituras de comprovante por IA que cada aluno pode fazer nas últimas 24 h (ADR 0016). */
 export const PROOF_READING_DAILY_LIMIT = 10
 
+/**
+ * Leituras por minuto de cada aluno (ADR 0016). Protege a cota do Google, que vale para o projeto todo:
+ * sem ele, um aluno esgotaria a cota de todos em segundos.
+ */
+export const PROOF_READING_PER_MINUTE_LIMIT = 3
+
 /** Tempo máximo da chamada ao Google, em milissegundos. A tela espera cerca de 20 s no total. */
 const PROOF_READING_TIMEOUT_MS = 18_000
 
@@ -94,7 +100,7 @@ async function askGemini(file: File, prompt: string, apiKey: string): Promise<st
  *
  * @remarks
  * Só roda no servidor, dentro do Route Handler: lê `GEMINI_API_KEY`. Confere o arquivo, reserva uma
- * leitura da cota diária (o que também recusa quem não tem sessão), busca os itens do curso do aluno
+ * leitura das cotas do dia e do minuto (o que também recusa quem não tem sessão), busca os itens do curso do aluno
  * e só então chama o Google. A leitura que falha também conta. Não grava o arquivo nem a resposta. O item sugerido que não existe nas regras do
  * curso vira `null`. Falha de rede, timeout, cota do Google esgotada, resposta fora do formato e cota
  * diária do aluno viram `UnreadableProofError`, e a tela deixa preencher à mão.
@@ -119,7 +125,8 @@ export async function readProofWithAi(proof: File, db: DbClient): Promise<ProofS
   // A reserva vem primeiro: é ela que recusa quem não tem sessão (`42501`). Ler o perfil antes
   // falharia sem código e viraria 500 no handler.
   const { data: reserved, error } = await db.rpc('reservar_leitura_comprovante', {
-    limite: PROOF_READING_DAILY_LIMIT,
+    limite_dia: PROOF_READING_DAILY_LIMIT,
+    limite_minuto: PROOF_READING_PER_MINUTE_LIMIT,
   })
   if (error) throw error
   if (!reserved) throw new UnreadableProofError()

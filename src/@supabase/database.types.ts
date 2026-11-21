@@ -244,7 +244,10 @@ export type Database = {
           updated_at: string
         }[]
       }
-      reservar_leitura_comprovante: { Args: { limite: number }; Returns: boolean }
+      reservar_leitura_comprovante: {
+        Args: { limite_dia: number; limite_minuto: number }
+        Returns: boolean
+      }
       sem_acento: { Args: { texto: string }; Returns: string }
     }
     Enums: {

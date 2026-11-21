@@ -3,7 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { RuleItem } from '../rules/rules.types'
 import { UnreadableProofError } from './activities.errors'
-import { PROOF_READING_DAILY_LIMIT, readProofWithAi } from './activities.proof-reading.server'
+import {
+  PROOF_READING_DAILY_LIMIT,
+  PROOF_READING_PER_MINUTE_LIMIT,
+  readProofWithAi,
+} from './activities.proof-reading.server'
 
 const mocks = vi.hoisted(() => ({
   getProfile: vi.fn(),
@@ -62,7 +66,8 @@ describe('readProofWithAi', () => {
     await expect(readProofWithAi(pdf(), db)).resolves.toEqual(READ)
 
     expect(rpc).toHaveBeenCalledWith('reservar_leitura_comprovante', {
-      limite: PROOF_READING_DAILY_LIMIT,
+      limite_dia: PROOF_READING_DAILY_LIMIT,
+      limite_minuto: PROOF_READING_PER_MINUTE_LIMIT,
     })
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
     expect(url).not.toContain('chave-de-teste')
@@ -85,7 +90,7 @@ describe('readProofWithAi', () => {
     await expect(readProofWithAi(pdf(), db)).resolves.toEqual({ ...READ, itemNumber: null })
   })
 
-  it('recusa sem chamar o Google quando a cota do dia acabou', async () => {
+  it('recusa sem chamar o Google quando a cota do dia ou do minuto acabou', async () => {
     rpc.mockResolvedValue({ data: false, error: null })
 
     await expect(readProofWithAi(pdf(), db)).rejects.toBeInstanceOf(UnreadableProofError)

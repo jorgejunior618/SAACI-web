@@ -7,6 +7,17 @@ import { PROOF_MAX_BYTES } from '@/services/activities/activities.types'
 /** Folga do corpo da requisição além do arquivo: o `multipart` leva cabeçalhos e o nome do campo. */
 const BODY_OVERHEAD_BYTES = 64 * 1024
 
+/** Diz se o `Origin` da requisição é o próprio site. `Origin: null` e valor inválido não são. */
+function isSameOrigin(request: Request): boolean {
+  const origin = request.headers.get('origin')
+  if (!origin) return false
+  try {
+    return new URL(origin).host === request.headers.get('host')
+  } catch {
+    return false
+  }
+}
+
 /** Diz se o erro é a recusa do banco por falta de sessão (SQLSTATE `42501`). */
 function isUnauthenticated(error: unknown): boolean {
   return typeof error === 'object' && error !== null && 'code' in error && error.code === '42501'
@@ -17,14 +28,20 @@ function isUnauthenticated(error: unknown): boolean {
  *
  * @remarks
  * Existe para a chave do Gemini nunca chegar ao navegador (RF41). Espera `multipart/form-data` com o
- * campo `proof`. Respostas: 200 com a sugestão, 400 sem arquivo, 401 sem sessão, 413 arquivo grande
- * demais, 422 quando a leitura não deu (inclui a cota diária do aluno). Erro desconhecido sobe e vira
+ * campo `proof`. Respostas: 200 com a sugestão, 400 sem arquivo, 401 sem sessão, 403 origem diferente
+ * do site, 411 sem `Content-Length`, 413 arquivo grande demais, 422 quando a leitura não deu (inclui a cota diária do aluno). Erro desconhecido sobe e vira
  * 500, sem texto do erro para o navegador.
  *
  * @param request Requisição com o arquivo no campo `proof`.
  * @returns A sugestão em JSON, ou `{ error }` com o status acima.
  */
 export async function POST(request: Request): Promise<Response> {
+  // Route Handler não confere a origem sozinho. O navegador sempre manda `Origin` num POST, então a
+  // falta dele ou um site diferente é requisição que não veio da nossa tela.
+  if (!isSameOrigin(request)) {
+    return Response.json({ error: 'forbidden-origin' }, { status: 403 })
+  }
+
   // Sem `Content-Length` não dá para recusar o corpo grande antes de lê-lo inteiro.
   const length = Number(request.headers.get('content-length'))
   if (!Number.isFinite(length) || length <= 0) {
