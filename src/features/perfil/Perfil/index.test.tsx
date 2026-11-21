@@ -53,6 +53,7 @@ const COURSE: Course = {
   degree: 'Bacharelado',
   campus: 'Fortaleza',
   targetHours: 120,
+  checkedAt: null,
 }
 
 function renderPerfil(): QueryClient {

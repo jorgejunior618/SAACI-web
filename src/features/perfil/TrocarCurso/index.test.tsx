@@ -32,6 +32,7 @@ const COURSE: Course = {
   degree: 'Bacharelado',
   campus: 'Fortaleza',
   targetHours: 120,
+  checkedAt: null,
 }
 const OTHER_COURSE: Course = {
   id: 'curso-2',
@@ -39,6 +40,7 @@ const OTHER_COURSE: Course = {
   degree: 'Bacharelado',
   campus: 'Fortaleza',
   targetHours: 100,
+  checkedAt: null,
 }
 const PROFILE: Profile = {
   name: 'Ana Beatriz Moura',

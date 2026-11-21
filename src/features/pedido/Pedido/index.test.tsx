@@ -29,6 +29,7 @@ const COURSE: Course = {
   degree: 'Bacharelado',
   campus: 'Fortaleza',
   targetHours: 120,
+  checkedAt: null,
 }
 const RULE_ITEMS: RuleItem[] = [
   [1, 'Programa de iniciação científica'],
@@ -86,16 +87,21 @@ const ACTIVITY: Activity = {
   proof: { fileName: 'comprovante.pdf', sizeBytes: 1000, type: 'pdf' },
 }
 
-type Scenario = { profile: Profile; progress: Progress; activities: Activity[] }
+type Scenario = {
+  profile: Profile
+  progress: Progress
+  activities: Activity[]
+  course?: Course
+}
 
 // Nada aqui fala com o Supabase: tudo entra pelo cache.
-function renderPedido({ profile, progress, activities }: Scenario): void {
+function renderPedido({ profile, progress, activities, course = COURSE }: Scenario): void {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
 
   queryClient.setQueryData(profileQueries.detail().queryKey, profile)
   queryClient.setQueryData(progressQueries.summary().queryKey, progress)
   queryClient.setQueryData(activitiesQueries.list().queryKey, activities)
-  queryClient.setQueryData(rulesQueries.course('curso-1').queryKey, COURSE)
+  queryClient.setQueryData(rulesQueries.course('curso-1').queryKey, course)
   queryClient.setQueryData(rulesQueries.items('curso-1').queryKey, RULE_ITEMS)
   render(
     <QueryClientProvider client={queryClient}>
@@ -129,7 +135,22 @@ describe('Pedido', () => {
       screen.getByText('Seus itens somam 124h. O que passa de 120h não entra no pedido.'),
     ).toBeInTheDocument()
     expect(
-      screen.getByText(/Modelo da coordenação de Engenharia de Computação/),
+      screen.getByText('Modelo da coordenação de Engenharia de Computação.'),
+    ).toBeInTheDocument()
+  })
+
+  it('cita a data de conferência do modelo quando o curso tem uma', () => {
+    renderPedido({
+      profile: COMPLETE_PROFILE,
+      progress: COMPLETE_PROGRESS,
+      activities: [ACTIVITY],
+      course: { ...COURSE, checkedAt: '2026-03-12' },
+    })
+
+    expect(
+      screen.getByText(
+        'Modelo da coordenação de Engenharia de Computação, conferido em 12/03/2026.',
+      ),
     ).toBeInTheDocument()
   })
 

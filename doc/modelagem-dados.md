@@ -29,7 +29,9 @@ A razão de conversão, o máximo por categoria e os tipos de atividade vivem em
 (RNF21). Um curso novo custa uma migration, e evita o `if (curso === …)` espalhado que só quem
 programa consegue alterar. O curso-piloto é Engenharia de Computação; o segundo (Telecomunicações,
 RF15) prova que o modelo aguenta mais de uma matriz. `[MÁXIMO POR CATEGORIA]` e
-`[RAZÕES DE CONVERSÃO]` vêm de `regras-engenharia-computacao.html`.
+`[RAZÕES DE CONVERSÃO]` vêm de `regras-engenharia-computacao.html`. A data em que a coordenação
+conferiu o modelo de formulário do curso é `cursos.modelo_conferido_em` (nula até ser informada,
+ADR 0018).
 
 ## Estado derivado
 

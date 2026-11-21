@@ -8,6 +8,11 @@ export const CourseSchema = v.object({
   campus: v.string(),
   /** Carga total de atividades complementares que o curso pede, em horas. */
   targetHours: v.number(),
+  /**
+   * Data (aaaa-mm-dd) em que a coordenação conferiu o modelo de formulário do curso (ADR 0018).
+   * `null` enquanto nenhuma conferência foi informada.
+   */
+  checkedAt: v.nullable(v.pipe(v.string(), v.isoDate())),
 })
 
 export type Course = v.InferOutput<typeof CourseSchema>
