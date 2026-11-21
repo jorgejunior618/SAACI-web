@@ -10,7 +10,8 @@ export const progressQueries = {
   summary: () =>
     queryOptions({
       queryKey: progressKeys.summary(),
-      queryFn: getProgress,
+      // Em arrow: o TanStack passa o contexto da query como 1º argumento, que viraria o `db`.
+      queryFn: () => getProgress(),
       staleTime: STALE_TIME.calculo,
     }),
 }
