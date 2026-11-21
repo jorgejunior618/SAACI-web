@@ -48,6 +48,9 @@ de aceitar isso foi do dev, a ser confirmada pelo time antes do merge, como pede
   Limpar as antigas fica para quando o volume pedir.
 - O erro de limite não diz "limite do dia": a mensagem é a de leitura que falhou. Uma mensagem própria
   exigiria mexer na tela, fora do escopo da #22.
+- A tabela `leituras_comprovante` não tem `updated_at`, exceção à convenção de auditoria: a linha
+  nunca muda. `doc/modelagem-dados.md`, `doc/estrutura-pastas.md` e `doc/camada-servicos.md` registram
+  a tabela, a pasta `app/api/` e o arquivo `<dom>.<tema>.server.ts`.
 - Quem contribui: `GEMINI_API_KEY` entra no `.env.example` e nunca no navegador (sem `NEXT_PUBLIC_`).
 
 ## Alternativas descartadas

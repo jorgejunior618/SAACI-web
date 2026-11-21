@@ -87,6 +87,17 @@ remoção da atividade não apagou, conta apagada) a rotina
 lista a `comprovantes_orfaos` e apaga pela API do Storage. Arquivo com menos de 1 hora fica, porque
 pode ser um registro em andamento.
 
+## Leituras de comprovante por IA
+
+- **Limite por aluno (ADR 0016).** `leituras_comprovante (id, aluno_id, created_at)` guarda só quem leu
+  e quando, nada do comprovante nem da resposta da IA (RNF26). A função `reservar_leitura_comprovante`
+  confere 10 leituras nas últimas 24 h e 3 no último minuto, e reserva uma linha, com lock por aluno
+  para duas chamadas simultâneas não passarem do limite. É a única forma de gravar: o aluno só tem
+  `insert` na coluna `aluno_id`.
+- **Sem `updated_at`.** Exceção à convenção de auditoria: a linha nunca é alterada (sem `update`), então a
+  coluna seria morta. Sem `delete` também: a leitura gasta não se devolve, e a conta apagada leva as
+  linhas por `on delete cascade`.
+
 ## Perfil
 
 - Tabela `perfis`, com o dono (`aluno_id`) como chave primária e `on delete cascade` para

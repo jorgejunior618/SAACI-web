@@ -66,12 +66,28 @@ async function toBase64(file: File): Promise<string> {
 }
 
 /**
+ * Lê a chave e o modelo do Gemini das variáveis de ambiente do servidor.
+ *
+ * @throws Error quando `GEMINI_API_KEY` está vazia ou ausente, com o que fazer.
+ */
+function getGeminiEnv(): { apiKey: string; model: string } {
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) throw new Error('Preencha GEMINI_API_KEY no ambiente do servidor (.env.example).')
+
+  return { apiKey, model: process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL }
+}
+
+/**
  * Pergunta ao Gemini e devolve o texto da resposta.
  *
  * @throws {UnreadableProofError} Rede, timeout, cota esgotada ou resposta fora do formato.
  */
-async function askGemini(file: File, prompt: string, apiKey: string): Promise<string> {
-  const model = process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL
+async function askGemini(
+  file: File,
+  prompt: string,
+  env: { apiKey: string; model: string },
+): Promise<string> {
+  const { apiKey, model } = env
   const data = await toBase64(file)
 
   const response = await fetch(`${GEMINI_URL}/${model}:generateContent`, {
@@ -113,8 +129,7 @@ async function askGemini(file: File, prompt: string, apiKey: string): Promise<st
  * `GEMINI_API_KEY` não está preenchida.
  */
 export async function readProofWithAi(proof: File, db: DbClient): Promise<ProofSuggestion> {
-  const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) throw new Error('Preencha GEMINI_API_KEY no ambiente do servidor (.env.example).')
+  const env = getGeminiEnv()
 
   const isReadable =
     proof.size > 0 &&
@@ -134,7 +149,7 @@ export async function readProofWithAi(proof: File, db: DbClient): Promise<ProofS
   const profile = await getProfile(db)
   const items = profile.courseId ? await getRuleItems(profile.courseId, db) : []
 
-  const text = await askGemini(proof, buildPrompt(items), apiKey)
+  const text = await askGemini(proof, buildPrompt(items), env)
 
   let raw: unknown
   try {
