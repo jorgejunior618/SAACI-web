@@ -130,8 +130,10 @@ function findRule(ruleItems: HoursRuleInput[], itemNumber: number): HoursRuleInp
  * Calcula quanto cada atividade conta, pela razão do item, pelo ingresso e pelo máximo do item.
  *
  * @remarks
- * É o cálculo único de horas. Hoje é usado pelo mock e, depois, pela prévia do
- * formulário. A tela nunca refaz a conta. As regras:
+ * É o cálculo de horas de cada atividade (lista, detalhe e resposta de registrar e corrigir) e a
+ * prévia do formulário. O total do progresso sai da função SQL `calcula_horas`, e o teste de
+ * paridade (`tests/hours-cases.json`) garante que as duas dão o mesmo resultado (ADR 0015). A tela
+ * nunca refaz a conta. As regras:
  * - Cada atividade conta `quantity × hours / per`, truncado em uma casa decimal. Esse valor sai em
  *   `activityHours`, antes do ingresso e do máximo, para a tela mostrar "1,0h de 2,0h".
  * - Conta só se `startDate >= startSemester`. A que não conta pelo ingresso não ocupa o máximo.

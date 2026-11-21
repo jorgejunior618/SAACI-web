@@ -1,5 +1,5 @@
 {
-  "$comment": "Casos do cálculo único de horas. Rodam contra src/utils/compute-hours.ts e, quando o Supabase entrar, contra a função SQL. Caso novo entra aqui, não só no teste TS.",
+  "$comment": "Casos do cálculo único de horas. Rodam contra src/utils/compute-hours.ts (pnpm test) e contra a função SQL calcula_horas (pnpm test:rls). Caso novo entra aqui, não só no teste TS.",
   "cases": [
     {
       "name": "razão do item com truncamento em uma casa (RF14)",

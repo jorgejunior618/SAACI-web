@@ -30,8 +30,8 @@ Preencha o `.env.development.local` antes de rodar, como mostra a seção [Supab
 regras do curso, perfil e atividades com comprovantes já falam com o Supabase: antes do `pnpm dev`,
 suba o banco local com `pnpm db:start` (precisa do Docker aberto) e preencha o
 `.env.development.local` com a URL e a chave que `pnpm db:status` mostra. O `.env.production.local`
-guarda o projeto remoto e só vale para `pnpm build` e `pnpm start`. Ainda não vêm do banco o
-progresso, calculado no app até a #21, e a leitura do comprovante por IA, fingida até a #22.
+guarda o projeto remoto e só vale para `pnpm build` e `pnpm start`. Ainda não vem do banco a
+leitura do comprovante por IA, fingida até a #22.
 
 ## Supabase
 

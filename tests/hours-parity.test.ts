@@ -6,8 +6,8 @@ import type { ActivityHours, ProgressInput } from '@/utils/compute-hours'
 
 import cases from './hours-cases.json'
 
-// Os casos são o contrato do cálculo único. Hoje rodam contra a função TS. Quando a
-// função SQL existir, um segundo `describe` roda os mesmos casos contra ela, e a prévia do
+// Os casos são o contrato do cálculo único. Aqui rodam contra a função TS. O mesmo arquivo roda
+// contra a função SQL `calcula_horas` em `tests/integration/hours-parity.test.ts`, e a prévia do
 // formulário só continua no navegador enquanto os dois lados passarem.
 type HoursCase = {
   name: string
