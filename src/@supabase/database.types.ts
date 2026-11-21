@@ -154,6 +154,25 @@ export type Database = {
           },
         ]
       }
+      leituras_comprovante: {
+        Row: {
+          aluno_id: string
+          created_at: string
+          id: string
+        }
+        ComputedFields: never
+        Insert: {
+          aluno_id?: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          aluno_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       perfis: {
         Row: {
           aluno_id: string
@@ -225,6 +244,7 @@ export type Database = {
           updated_at: string
         }[]
       }
+      reservar_leitura_comprovante: { Args: { limite: number }; Returns: boolean }
       sem_acento: { Args: { texto: string }; Returns: string }
     }
     Enums: {
