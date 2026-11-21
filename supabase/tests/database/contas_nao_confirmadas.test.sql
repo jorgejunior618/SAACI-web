@@ -7,6 +7,13 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(8);
 
+-- A limpeza age sobre todas as contas do banco, e o banco local pode ter conta antiga sem confirmar
+-- (de uso manual ou de outra suíte). Marca como confirmada, dentro desta transação que dá rollback,
+-- toda conta que não é da fixture, para a contagem abaixo ser só a da fixture.
+update auth.users
+   set email_confirmed_at = now()
+ where email_confirmed_at is null;
+
 insert into auth.users (id, email, email_confirmed_at, created_at)
 values
   ('00000000-0000-0000-0000-0000000000b1', 'velha.sem.confirmar@aluno.ifce.edu.br', null, now() - interval '8 days'),

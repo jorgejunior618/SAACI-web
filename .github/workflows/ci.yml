@@ -83,9 +83,9 @@ jobs:
         run: pnpm test:db
 
       # Cria contas, confirma o e-mail pelo Mailpit e sobe arquivo no Storage, tudo no banco local
-      # deste job, e roda a paridade do cálculo de horas (SQL × TypeScript, ADR 0015). Vem depois
-      # do pgTAP de propósito: o `comprovantes_isolados` espera o bucket vazio, e esta suíte grava
-      # sem rollback. O banco do CI nasce limpo a cada execução, então a ordem basta.
+      # deste job, e roda a paridade do cálculo de horas (SQL × TypeScript, ADR 0015). Esta suíte
+      # grava sem rollback e vem depois do pgTAP, que a esta altura não depende mais de banco
+      # limpo (os testes contam só as linhas da fixture). O banco do CI nasce limpo a cada execução.
       - name: Rodar os testes de integração e a paridade do cálculo de horas
         run: pnpm test:rls
 
