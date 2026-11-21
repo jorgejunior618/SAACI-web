@@ -2,19 +2,29 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Suspense } from 'react'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { activitiesQueries } from '@/services/activities'
 import type { Activity } from '@/services/activities'
-import { profileQueries } from '@/services/profile'
+import { CourseLockedError, profileQueries, updateProfile } from '@/services/profile'
 import type { Profile } from '@/services/profile'
 import { rulesQueries } from '@/services/rules'
 import type { Course } from '@/services/rules'
 
 import { TrocarCurso } from './index'
 
-vi.mock('next/navigation', () => ({ usePathname: () => '/perfil/curso' }))
+const replace = vi.fn()
+
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/perfil/curso',
+  useRouter: () => ({ replace }),
+}))
 vi.mock('@supabase/client', () => ({ createClient: vi.fn() }))
+vi.mock('@/services/profile', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/services/profile')>()
+
+  return { ...actual, updateProfile: vi.fn() }
+})
 
 const COURSE: Course = {
   id: 'curso-1',
@@ -22,6 +32,13 @@ const COURSE: Course = {
   degree: 'Bacharelado',
   campus: 'Fortaleza',
   targetHours: 120,
+}
+const OTHER_COURSE: Course = {
+  id: 'curso-2',
+  name: 'Ciência da Computação',
+  degree: 'Bacharelado',
+  campus: 'Fortaleza',
+  targetHours: 100,
 }
 const PROFILE: Profile = {
   name: 'Ana Beatriz Moura',
@@ -54,6 +71,9 @@ function renderTrocarCurso(totalActivities: number): void {
 
   queryClient.setQueryData(profileQueries.detail().queryKey, PROFILE)
   queryClient.setQueryData(rulesQueries.course(COURSE.id).queryKey, COURSE)
+  queryClient.setQueryData(rulesQueries.courses().queryKey, [COURSE, OTHER_COURSE])
+  queryClient.setQueryData(rulesQueries.courses('').queryKey, [COURSE, OTHER_COURSE])
+  queryClient.setQueryData(rulesQueries.items(OTHER_COURSE.id).queryKey, [])
   queryClient.setQueryData(
     activitiesQueries.list().queryKey,
     Array.from({ length: totalActivities }, (_, index) => fakeActivity(index + 1)),
@@ -68,6 +88,10 @@ function renderTrocarCurso(totalActivities: number): void {
 }
 
 describe('TrocarCurso', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   it('com atividades, mostra o curso travado e quantas atividades prendem a troca', async () => {
     renderTrocarCurso(9)
 
@@ -118,16 +142,41 @@ describe('TrocarCurso', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
-  it('sem atividades, diz que a troca ainda não está pronta e volta ao Perfil', async () => {
+  it('sem atividades, mostra a busca de curso e não a trava', async () => {
     renderTrocarCurso(0)
 
-    expect(await screen.findByText('A troca de curso ainda não está pronta')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Voltar ao perfil' })).toHaveAttribute(
-      'href',
-      '/perfil',
-    )
+    expect(await screen.findByText('Qual é o seu curso?')).toBeInTheDocument()
     expect(
       screen.queryByText('Com atividades lançadas, o curso fica travado'),
     ).not.toBeInTheDocument()
+  })
+
+  it('sem atividades, troca o curso com o semestre já preenchido e volta ao Perfil', async () => {
+    const user = userEvent.setup()
+
+    vi.mocked(updateProfile).mockResolvedValueOnce({ ...PROFILE, courseId: OTHER_COURSE.id })
+    renderTrocarCurso(0)
+    await user.click(await screen.findByText(OTHER_COURSE.name))
+
+    expect(await screen.findByLabelText(/Em que semestre/)).toHaveValue('2023.2')
+    await user.click(screen.getByRole('button', { name: 'Trocar curso' }))
+
+    await vi.waitFor(() => expect(replace).toHaveBeenCalledWith('/perfil'))
+    expect(updateProfile).toHaveBeenCalledWith({
+      courseId: OTHER_COURSE.id,
+      startSemester: '2023-07-01',
+    })
+  })
+
+  it('avisa que o curso travou quando o banco recusa a troca e não sai da tela', async () => {
+    const user = userEvent.setup()
+
+    vi.mocked(updateProfile).mockRejectedValueOnce(new CourseLockedError())
+    renderTrocarCurso(0)
+    await user.click(await screen.findByText(OTHER_COURSE.name))
+    await user.click(await screen.findByRole('button', { name: 'Trocar curso' }))
+
+    expect(await screen.findByText(/o curso não pode mudar/)).toBeInTheDocument()
+    expect(replace).not.toHaveBeenCalled()
   })
 })

@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form'
 
 import { Button, Link, Notice, TextField } from '@design-system'
 
-import { invalidateAfterProfileWrite, updateProfile } from '@/services/profile'
+import { CourseLockedError, invalidateAfterProfileWrite, updateProfile } from '@/services/profile'
 import { rulesQueries } from '@/services/rules'
 import type { Course } from '@/services/rules'
 import { formatHours } from '@/utils/format-hours'
@@ -39,7 +39,9 @@ export type CourseConfirmProps = {
  * Salva curso e semestre juntos com `updateProfile` e derruba o cache pela rotina do domínio
  * (`invalidateAfterProfileWrite`). No primeiro acesso, quem leva a pessoa ao painel é o `SessionGate`,
  * que percebe o curso no perfil; em outra tela, `onSaved` faz a navegação. O botão fica ocupado também depois do sucesso, até a navegação acontecer, para
- * não aceitar um segundo toque. O que a pessoa digitou nunca é limpo depois de um erro (RNF24).
+ * não aceitar um segundo toque. O que a pessoa digitou nunca é limpo depois de um erro (RNF24). Se o
+ * banco recusar a troca por atividade registrada (`CourseLockedError`), avisa isso em vez de pedir
+ * para tentar de novo.
  * Precisa de um `Suspense` acima, porque lê os itens do curso com `useSuspenseQuery`.
  *
  * @example
@@ -105,7 +107,12 @@ export function CourseConfirm({
           </Link>
         </S.Fields>
 
-        {mutation.isError ? (
+        {mutation.error instanceof CourseLockedError ? (
+          <Notice tone="warning">
+            Você já tem atividades registradas, então o curso não pode mudar. Volte ao perfil para
+            ver os caminhos de troca.
+          </Notice>
+        ) : mutation.isError ? (
           <Notice tone="danger">
             Não conseguimos salvar agora. Confira sua internet e tente de novo. O que você digitou
             continua aqui.
