@@ -12,16 +12,24 @@ import { rulesQueries } from '@/services/rules'
 import type { Course } from '@/services/rules'
 import { formatHours } from '@/utils/format-hours'
 
-import { CourseConfirmSchema } from '../../schema'
-import type { CourseConfirmInput, CourseConfirmOutput } from '../../schema'
-import { AccountLinks } from '../AccountLinks'
+import { CourseConfirmSchema } from './schema'
+import type { CourseConfirmInput, CourseConfirmOutput } from './schema'
 import * as S from './styles'
 
+/** Props de {@link CourseConfirm}. */
 export type CourseConfirmProps = {
   /** Curso que a pessoa escolheu na busca. */
   course: Course
   /** Chamada ao tocar em "Escolher outro", para voltar à busca. */
   onChooseOther: () => void
+  /** Texto do botão de salvar. Padrão: "Ver meu painel". */
+  submitLabel?: string
+  /** Semestre que já vem preenchido no campo, como se digita (`2023.2`). Padrão: vazio. */
+  defaultStartSemester?: string
+  /** Links de conta mostrados no fim do formulário, como o de sair. Padrão: nenhum. */
+  footerLinks?: ReactNode
+  /** Chamada depois que o curso foi salvo e o cache derrubado. Padrão: nada. */
+  onSaved?: () => void
 }
 
 /**
@@ -29,8 +37,8 @@ export type CourseConfirmProps = {
  *
  * @remarks
  * Salva curso e semestre juntos com `updateProfile` e derruba o cache pela rotina do domínio
- * (`invalidateAfterProfileWrite`). Quem leva a pessoa ao painel é o `SessionGate`, que percebe o
- * curso no perfil. O botão fica ocupado também depois do sucesso, até a navegação acontecer, para
+ * (`invalidateAfterProfileWrite`). No primeiro acesso, quem leva a pessoa ao painel é o `SessionGate`,
+ * que percebe o curso no perfil; em outra tela, `onSaved` faz a navegação. O botão fica ocupado também depois do sucesso, até a navegação acontecer, para
  * não aceitar um segundo toque. O que a pessoa digitou nunca é limpo depois de um erro (RNF24).
  * Precisa de um `Suspense` acima, porque lê os itens do curso com `useSuspenseQuery`.
  *
@@ -39,7 +47,14 @@ export type CourseConfirmProps = {
  * <CourseConfirm course={course} onChooseOther={() => setSelectedCourseId(null)} />
  * ```
  */
-export function CourseConfirm({ course, onChooseOther }: CourseConfirmProps): ReactNode {
+export function CourseConfirm({
+  course,
+  onChooseOther,
+  submitLabel = 'Ver meu painel',
+  defaultStartSemester,
+  footerLinks,
+  onSaved,
+}: CourseConfirmProps): ReactNode {
   const queryClient = useQueryClient()
   const { data: items } = useSuspenseQuery(rulesQueries.items(course.id))
   const {
@@ -48,12 +63,16 @@ export function CourseConfirm({ course, onChooseOther }: CourseConfirmProps): Re
     formState: { errors },
   } = useForm<CourseConfirmInput, unknown, CourseConfirmOutput>({
     resolver: valibotResolver(CourseConfirmSchema),
+    defaultValues: { startSemester: defaultStartSemester ?? '' },
   })
 
   const mutation = useMutation({
     mutationFn: ({ startSemester }: CourseConfirmOutput) =>
       updateProfile({ courseId: course.id, startSemester }),
-    onSuccess: () => invalidateAfterProfileWrite(queryClient),
+    onSuccess: () => {
+      invalidateAfterProfileWrite(queryClient)
+      onSaved?.()
+    },
   })
 
   return (
@@ -93,7 +112,7 @@ export function CourseConfirm({ course, onChooseOther }: CourseConfirmProps): Re
           </Notice>
         ) : null}
 
-        <AccountLinks />
+        {footerLinks}
       </S.Body>
 
       <S.Footer>
@@ -103,7 +122,7 @@ export function CourseConfirm({ course, onChooseOther }: CourseConfirmProps): Re
           busy={mutation.isPending || mutation.isSuccess}
           busyLabel="Salvando"
         >
-          Ver meu painel
+          {submitLabel}
         </Button>
       </S.Footer>
     </S.Form>

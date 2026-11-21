@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-import { CourseOption } from '@/features/curso/SeuCurso/_components/CourseOption'
+import { CourseOption } from '@/components/CourseOption'
 import type { Course } from '@/services/rules'
 
 import * as S from './styles'
