@@ -202,8 +202,10 @@ export type Database = {
       apagar_contas_nao_confirmadas: { Args: { prazo?: string }; Returns: number }
       apagar_minha_conta: { Args: Record<PropertyKey, never>; Returns: number }
       barrar_email_externo: { Args: { event: Json }; Returns: Json }
+      calcula_horas: { Args: { entrada: Json }; Returns: Json }
       comprovantes_orfaos: { Args: { idade?: string; limite?: number }; Returns: string[] }
       email_institucional: { Args: { email: string }; Returns: boolean }
+      progresso_do_aluno: { Args: Record<PropertyKey, never>; Returns: Json }
       registrar_atividade: {
         Args: {
           comprovante_caminho: string
