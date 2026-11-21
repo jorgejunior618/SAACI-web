@@ -18,8 +18,20 @@ vi.mock('../profile/profile.api', () => ({ getProfile: mocks.getProfile }))
 vi.mock('../rules/rules.api', () => ({ getRuleItems: mocks.getRuleItems }))
 
 const ITEMS = [
-  { itemNumber: 7, name: 'Cursos de extensão', rule: '1h a cada 4h', maxHours: 60 },
-  { itemNumber: 9, name: 'Palestras', rule: '1h por palestra', maxHours: 20 },
+  {
+    itemNumber: 7,
+    name: 'Cursos de extensão',
+    rule: '1h a cada 4h',
+    ratio: { hours: 1, per: 4, unit: 'hora' },
+    maxHours: 60,
+  },
+  {
+    itemNumber: 9,
+    name: 'Palestras',
+    rule: '1h por palestra',
+    ratio: { hours: 1, per: 1, unit: 'palestra' },
+    maxHours: 20,
+  },
 ] as unknown as RuleItem[]
 
 const READ = {
@@ -73,7 +85,8 @@ describe('readProofWithAi', () => {
     expect(url).not.toContain('chave-de-teste')
     expect((init.headers as Record<string, string>)['x-goog-api-key']).toBe('chave-de-teste')
     const body = JSON.parse(init.body as string)
-    expect(body.contents[0].parts[0].text).toContain('7: Cursos de extensão')
+    expect(body.contents[0].parts[0].text).toContain('7: Cursos de extensão (quantidade em hora)')
+    expect(body.contents[0].parts[0].text).toContain('9: Palestras (quantidade em palestra)')
     expect(body.contents[0].parts[1].inline_data.mime_type).toBe('application/pdf')
   })
 
