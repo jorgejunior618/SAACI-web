@@ -1,5 +1,5 @@
 {
-  "$comment": "Casos do cálculo único de horas. Rodam contra src/utils/compute-hours.ts e, quando o Supabase entrar, contra a função SQL. Caso novo entra aqui, não só no teste TS.",
+  "$comment": "Casos do cálculo único de horas. Rodam contra src/utils/compute-hours.ts (pnpm test) e contra a função SQL calcula_horas (pnpm test:rls). Caso novo entra aqui, não só no teste TS.",
   "cases": [
     {
       "name": "razão do item com truncamento em uma casa (RF14)",
@@ -260,6 +260,70 @@
               "countedHours": 30,
               "maxHours": 30,
               "hoursOverLimit": 4
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "registro no mesmo instante desempata pelo id (RF16)",
+      "input": {
+        "startSemester": "2023-07-01",
+        "targetHours": 120,
+        "ruleItems": [
+          {
+            "itemNumber": 13,
+            "name": "Ouvinte em palestras da área do curso",
+            "ratio": { "hours": 2, "per": 1, "unit": "palestra" },
+            "maxHours": 30
+          }
+        ],
+        "activities": [
+          {
+            "id": "b",
+            "itemNumber": 13,
+            "quantity": 8,
+            "startDate": "2025-01-10",
+            "registeredAt": "2025-01-01T12:00:00.000Z"
+          },
+          {
+            "id": "a",
+            "itemNumber": 13,
+            "quantity": 10,
+            "startDate": "2025-02-10",
+            "registeredAt": "2025-01-01T12:00:00.000Z"
+          }
+        ]
+      },
+      "expected": {
+        "activities": [
+          {
+            "id": "b",
+            "activityHours": 16,
+            "countedHours": 10,
+            "status": "parcial",
+            "reason": "item_cheio"
+          },
+          {
+            "id": "a",
+            "activityHours": 20,
+            "countedHours": 20,
+            "status": "conta",
+            "reason": null
+          }
+        ],
+        "progress": {
+          "totalHours": 30,
+          "targetHours": 120,
+          "missingHours": 90,
+          "itemsSum": 30,
+          "categories": [
+            {
+              "itemNumber": 13,
+              "name": "Ouvinte em palestras da área do curso",
+              "countedHours": 30,
+              "maxHours": 30,
+              "hoursOverLimit": 6
             }
           ]
         }

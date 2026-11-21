@@ -141,7 +141,8 @@ export async function readActivityContext(db: DbClient): Promise<ActivityContext
  *
  * @remarks
  * Uso interno do domínio. Calcula sempre a lista inteira, porque o máximo do item é dividido entre
- * as atividades pela ordem de registro. A #21 leva esta conta para o banco.
+ * as atividades pela ordem de registro. A conta é a do TypeScript, que o teste de paridade compara
+ * com a função SQL do progresso (ADR 0015).
  *
  * @param context Atividades, regras e semestre, como {@link readActivityContext} devolve.
  * @returns As atividades na mesma ordem, validadas pelo `ActivitySchema`.
