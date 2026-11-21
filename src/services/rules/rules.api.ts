@@ -6,7 +6,7 @@ import * as v from 'valibot'
 import { CourseSchema, RuleItemSchema } from './rules.types'
 import type { Course, RuleItem } from './rules.types'
 
-const COURSE_COLUMNS = 'id, nome, grau, campus, carga_total_horas'
+const COURSE_COLUMNS = 'id, nome, grau, campus, carga_total_horas, modelo_conferido_em'
 const ITEM_COLUMNS = 'numero, nome, regra, horas, a_cada, unidade, maximo_horas'
 
 const UuidSchema = v.pipe(v.string(), v.uuid())
@@ -32,7 +32,10 @@ function escapeLike(text: string): string {
 }
 
 // Só as colunas que o `select` pede, tiradas dos tipos gerados do banco.
-type CourseRow = Pick<Tables<'cursos'>, 'id' | 'nome' | 'grau' | 'campus' | 'carga_total_horas'>
+type CourseRow = Pick<
+  Tables<'cursos'>,
+  'id' | 'nome' | 'grau' | 'campus' | 'carga_total_horas' | 'modelo_conferido_em'
+>
 type ItemRow = Pick<
   Tables<'itens_curso'>,
   'numero' | 'nome' | 'regra' | 'horas' | 'a_cada' | 'unidade' | 'maximo_horas'
@@ -45,6 +48,7 @@ function toCourse(row: CourseRow): Course {
     degree: row.grau,
     campus: row.campus,
     targetHours: row.carga_total_horas,
+    checkedAt: row.modelo_conferido_em,
   })
 }
 

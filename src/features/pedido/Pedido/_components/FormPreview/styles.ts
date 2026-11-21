@@ -1,7 +1,8 @@
 import { styled } from '@/styled-system/jsx'
 
-// TODO: provisório. A folha é papel e fica clara nos dois temas, como o PDF que sai. Não existe token
-// de "papel": os valores abaixo são os do protótipo. Trocar por tokens se o design system ganhar um.
+// Exceção de design: a folha é papel e fica clara nos dois temas, como o PDF que sai. O design system
+// não tem token de "papel" validado pela equipe, então os valores abaixo, os do protótipo, ficam
+// locais de propósito. Se o design system ganhar tokens de papel, troque por eles.
 const PAPER = '#ffffff'
 const PAPER_INK = '#1f1d18'
 const PAPER_MUTED = '#635d51'

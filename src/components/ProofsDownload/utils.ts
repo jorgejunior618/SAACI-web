@@ -2,6 +2,12 @@ import type { Activity } from '@/services/activities'
 import type { RuleItem } from '@/services/rules'
 import { isCounting } from '@/utils/is-counting'
 
+/**
+ * Quais comprovantes entram no arquivo: só os que contam no total (`counting`, o padrão) ou todos,
+ * inclusive os que não contam (`all`).
+ */
+export type ProofScope = 'counting' | 'all'
+
 /** Um comprovante que entra no arquivo compactado, com o caminho dele lá dentro. */
 export type ProofEntry = {
   activity: Activity
@@ -22,15 +28,17 @@ function toFileName(name: string): string {
 }
 
 /**
- * Lista os comprovantes que contam e o caminho de cada um no arquivo compactado, uma pasta por item.
+ * Lista os comprovantes que entram no arquivo e o caminho de cada um no arquivo compactado, uma pasta por item.
  *
  * @remarks
- * Entra quem conta inteiro ou em parte (`isCounting`). A pasta leva o número do item com dois
+ * Por padrão entra quem conta inteiro ou em parte (`isCounting`). Com `scope: 'all'` entram todos,
+ * também os que não contam, como na exclusão da conta. A pasta leva o número do item com dois
  * dígitos, para a ordem do formulário se manter no explorador de arquivos. O arquivo leva o nome
  * da atividade e a extensão do comprovante. Nome repetido na mesma pasta ganha " (2)", " (3)".
  *
  * @param activities Atividades do aluno, na ordem do service.
  * @param ruleItems Itens do curso, para o nome da pasta.
+ * @param scope `'counting'` (padrão) ou `'all'`.
  * @returns Os comprovantes que entram, na ordem recebida.
  *
  * @example
@@ -39,10 +47,15 @@ function toFileName(name: string): string {
  * // "Item 06 - Curso de línguas/Curso de inglês intermediário.pdf"
  * ```
  */
-export function getProofEntries(activities: Activity[], ruleItems: RuleItem[]): ProofEntry[] {
+export function getProofEntries(
+  activities: Activity[],
+  ruleItems: RuleItem[],
+  scope: ProofScope = 'counting',
+): ProofEntry[] {
   const used = new Set<string>()
+  const included = scope === 'all' ? activities : activities.filter(isCounting)
 
-  return activities.filter(isCounting).map((activity) => {
+  return included.map((activity) => {
     const item = ruleItems.find((rule) => rule.itemNumber === activity.itemNumber)
     const itemNumber = String(activity.itemNumber).padStart(2, '0')
     const folder = toFileName(`Item ${itemNumber} - ${item?.name ?? 'Sem nome'}`)

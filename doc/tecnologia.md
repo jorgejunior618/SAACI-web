@@ -16,7 +16,7 @@
 | Ambiente           | Node 22 (`.nvmrc`) + pnpm                       | O Vitest 5 exige Node 22.12 ou maior                                                                                                                                                                           | npm                               |
 | Linguagem          | TypeScript 6, não 7                             | `typescript-eslint` não suporta TS 7 ainda                                                                                                                                                                     | TypeScript 7                      |
 | Hospedagem         | pendente                                        | A decidir antes do lançamento                                                                                                                                                                                  |                                   |
-| IA (RF41)          | Gemini Flash, camada gratuita, em Route Handler | Custo zero e sem SDK. Limite de 10 leituras por aluno por dia (ADR 0016). **Proposta:** o time precisa aprovar o envio do comprovante ao Google (RNF26)                                                        | Haiku 5.5; Gemini pago; Tesseract |
+| IA (RF41)          | Gemini Flash, camada gratuita, em Route Handler | Custo zero e sem SDK. Limite de 10 leituras por aluno por dia (ADR 0016). Envio do comprovante ao Google aprovado pelo time (RNF26)                                                                            | Haiku 5.5; Gemini pago; Tesseract |
 
 Versões não são fixadas aqui: a verdade é o `package.json`.
 

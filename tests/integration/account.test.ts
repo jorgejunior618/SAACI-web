@@ -179,7 +179,7 @@ describe('recuperar senha', () => {
     // A tela confere de novo ao recarregar ou no modo estrito do React: o link já foi gasto.
     await expect(getPasswordLink(token)).resolves.toEqual({ email })
 
-    await expect(updatePassword(token, 'outrasenha9')).resolves.toEqual({
+    await expect(updatePassword('outrasenha9')).resolves.toEqual({
       email,
       emailConfirmed: true,
     })
@@ -191,9 +191,7 @@ describe('recuperar senha', () => {
 
   it('trata link inventado como vencido e recusa gravar senha sem o link', async () => {
     await expect(getPasswordLink('token-que-nao-existe')).resolves.toBeNull()
-    await expect(updatePassword('token-que-nao-existe', 'outrasenha9')).rejects.toBeInstanceOf(
-      ExpiredLinkError,
-    )
+    await expect(updatePassword('outrasenha9')).rejects.toBeInstanceOf(ExpiredLinkError)
   })
 })
 

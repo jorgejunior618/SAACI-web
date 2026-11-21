@@ -114,17 +114,14 @@ export async function requestPasswordReset(email: string): Promise<void> {
  * Grava a senha nova na sessão que `getPasswordLink` abriu com o link e devolve a sessão.
  *
  * @remarks
- * O token já foi gasto na conferência da tela, então esta função não o envia: quem prova o acesso é
- * a sessão de nova senha. Sem ela, o link venceu.
+ * O token do link já foi gasto na conferência da tela (`getPasswordLink`), então esta função não o
+ * recebe: quem prova o acesso é a sessão de nova senha. Sem ela, o link venceu.
  *
- * @param token Token do link recebido por e-mail. Mantido para a assinatura da tela não mudar.
  * @param password Senha nova.
  * @throws {ExpiredLinkError} O link venceu, já foi usado ou foi trocado por um mais novo.
  */
-export async function updatePassword(token: string, password: string): Promise<Session> {
+export async function updatePassword(password: string): Promise<Session> {
   const db = createClient()
-  // TODO: o `token` fica sem uso até a assinatura poder mudar com a tela (issue de Acesso).
-  void token
 
   if (!(await readCurrentUser(db))) throw new ExpiredLinkError()
 
@@ -157,8 +154,8 @@ export function invalidateAfterPasswordUpdate(queryClient: QueryClient, token: s
  * @remarks
  * Confere a senha entrando de novo, depois chama a função `apagar_minha_conta` do banco e encerra
  * só a sessão local, porque a sessão no servidor já foi apagada junto com o usuário. O perfil e as
- * atividades saem em cascata. TODO [PRAZO DO RNF05]: os arquivos do Storage saem por uma rotina
- * agendada (RF33), ainda não criada.
+ * atividades saem em cascata. Os arquivos do Storage saem pela rotina agendada `limpa-comprovantes`
+ * (ADR 0011), dentro do prazo de 7 dias do RNF05 (ADR 0017).
  *
  * @param password Senha da conta, pedida de novo para confirmar.
  * @throws {InvalidCredentialsError} Não há sessão ou a senha não confere.

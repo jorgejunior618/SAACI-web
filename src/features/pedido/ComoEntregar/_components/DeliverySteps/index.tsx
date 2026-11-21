@@ -209,11 +209,10 @@ export function DeliverySteps({
             Preencha o formulário de lá. O atendente abre o seu protocolo com o que você enviou por
             e-mail.
           </S.DetailText>
-          {/* TODO: provisório. O endereço vem do relatório de recredenciamento do e-MEC. Trocar os marcadores pelo dado real quando a coordenação informar o horário da recepção e se o protocolo dá número. */}
+          {/* O endereço vem do relatório de recredenciamento do e-MEC. O horário vem da página de horários de funcionamento do campus Fortaleza (recepção central, atualizada em 26/08/2025). */}
           <S.DetailText>
-            Av. Treze de Maio, 2081, Benfica, Fortaleza. [HORÁRIO DA RECEPÇÃO]
+            Av. Treze de Maio, 2081, Benfica, Fortaleza. Atendimento das 8h às 19h.
           </S.DetailText>
-          <S.DetailText>[O PROTOCOLO INFORMA UM NÚMERO?]</S.DetailText>
           <Toggle
             isChecked={checked.has('reception')}
             checkedLabel="Desmarcar ida à recepção"
@@ -228,8 +227,7 @@ export function DeliverySteps({
       detail: (
         <>
           <S.DetailText>A resposta chega por e-mail. Olhe também a caixa de spam.</S.DetailText>
-          {/* TODO: provisório. Trocar o marcador pelo prazo real. */}
-          <S.DetailText>[PRAZO DE RESPOSTA DA COORDENAÇÃO]</S.DetailText>
+          <S.DetailText>A resposta pode levar alguns dias úteis.</S.DetailText>
           <Toggle
             isChecked={checked.has('followup')}
             checkedLabel="Desmarcar resposta recebida"

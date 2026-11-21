@@ -5,9 +5,9 @@
 -- O navegador não apaga usuário do Auth (isso exige a chave secret), então a função roda como o dono
 -- (`security definer`) e só enxerga a linha de quem chama: `auth.uid()` vem do token da requisição.
 --
--- TODO [PRAZO DO RNF05]: os arquivos do bucket `comprovantes` não saem por SQL. Uma rotina agendada
--- (Edge Function com a chave secret + pg_cron) apaga as pastas cujo dono não existe mais. Vira
--- issue própria, junto da integração de atividades e comprovantes.
+-- Os arquivos do bucket `comprovantes` não saem por SQL. Uma rotina agendada (Edge Function com a
+-- chave secret + pg_cron) apaga as pastas cujo dono não existe mais, dentro do prazo de 7 dias do
+-- RNF05 (ADR 0017).
 
 -- Apaga a conta de quem chama e devolve quantas contas apagou (0 sem sessão, 1 com sessão).
 -- `search_path` vazio impede que um objeto homônimo em outro schema desvie a função.

@@ -6,11 +6,11 @@ import type { ReactNode } from 'react'
 
 import { AppFrame, LoadingState, TopBar } from '@design-system'
 
+import { CourseConfirm } from '@/components/CourseConfirm'
+import { CourseSearch } from '@/components/CourseSearch'
 import { rulesQueries } from '@/services/rules'
 
 import { AccountLinks } from './_components/AccountLinks'
-import { CourseConfirm } from './_components/CourseConfirm'
-import { CourseSearch } from './_components/CourseSearch'
 import { Empty } from './Empty'
 import * as S from './styles'
 
@@ -44,7 +44,11 @@ export function SeuCurso(): ReactNode {
     <AppFrame topBar={<TopBar variant="home" />}>
       {selectedCourse ? (
         <Suspense fallback={<LoadingState label="Buscando as regras do curso" />}>
-          <CourseConfirm course={selectedCourse} onChooseOther={() => setSelectedCourseId(null)} />
+          <CourseConfirm
+            course={selectedCourse}
+            onChooseOther={() => setSelectedCourseId(null)}
+            footerLinks={<AccountLinks />}
+          />
         </Suspense>
       ) : (
         <S.Page>

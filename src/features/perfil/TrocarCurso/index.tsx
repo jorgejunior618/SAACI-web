@@ -14,7 +14,7 @@ import { activitiesQueries } from '@/services/activities'
 import { profileQueries } from '@/services/profile'
 import { rulesQueries } from '@/services/rules'
 
-import { Empty } from './Empty'
+import { CourseChange } from './_components/CourseChange'
 import * as S from './styles'
 
 /**
@@ -25,7 +25,7 @@ import * as S from './styles'
  * `CourseLockedError`, que segue como trava do service e do banco. Os caminhos são remover as
  * atividades, em Atividades, ou apagar a conta e começar de novo. Remover abre um `BottomSheet` que
  * avisa que não há volta e só então leva a Atividades; nada é apagado nesta tela. Sem atividades,
- * mostra o `Empty`. O curso aparece num campo só de leitura com o cadeado à direita, como no
+ * mostra o `CourseChange`, que deixa escolher outro curso. O curso aparece num campo só de leitura com o cadeado à direita, como no
  * protótipo; o `TextField` do design system só aceita ícone à esquerda, então o campo é local. A
  * página envolve este componente em `Suspense`, com `Loading` como fallback.
  *
@@ -51,7 +51,7 @@ export function TrocarCurso(): ReactNode {
   const { data: course } = useSuspenseQuery(rulesQueries.course(profile.courseId))
 
   if (course === null) throw new Error('O curso do perfil não existe nas regras.')
-  if (activities.length === 0) return <Empty />
+  if (activities.length === 0) return <CourseChange startSemester={profile.startSemester} />
 
   const total = activities.length
   const registered = total === 1 ? '1 atividade registrada' : `${total} atividades registradas`

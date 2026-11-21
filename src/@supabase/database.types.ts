@@ -73,6 +73,7 @@ export type Database = {
           created_at: string
           grau: string
           id: string
+          modelo_conferido_em: string | null
           nome: string
           nome_busca: string | null
           updated_at: string
@@ -84,6 +85,7 @@ export type Database = {
           created_at?: string
           grau: string
           id?: string
+          modelo_conferido_em?: string | null
           nome: string
           nome_busca?: never
           updated_at?: string
@@ -94,6 +96,7 @@ export type Database = {
           created_at?: string
           grau?: string
           id?: string
+          modelo_conferido_em?: string | null
           nome?: string
           nome_busca?: never
           updated_at?: string

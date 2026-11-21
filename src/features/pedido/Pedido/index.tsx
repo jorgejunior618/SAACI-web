@@ -138,6 +138,7 @@ export function Pedido(): ReactNode {
           rows={rows}
           totalHours={progress.totalHours}
           courseName={course.name}
+          modelCheckedAt={course.checkedAt}
           overflowNote={formatOverflowNote(progress)}
           blankNote={formatBlankRowsNote(rows)}
         />

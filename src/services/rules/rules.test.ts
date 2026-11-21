@@ -10,6 +10,7 @@ const COURSE_ROW = {
   grau: 'Bacharelado',
   campus: 'Fortaleza',
   carga_total_horas: 120,
+  modelo_conferido_em: null,
 }
 
 const ITEM_ROW = {
@@ -54,11 +55,21 @@ describe('cursos', () => {
         degree: 'Bacharelado',
         campus: 'Fortaleza',
         targetHours: 120,
+        checkedAt: null,
       },
     ])
     expect(from).toHaveBeenCalledWith('cursos')
     expect(ilike).not.toHaveBeenCalled()
     expect(order).toHaveBeenCalledWith('nome')
+  })
+
+  it('traz a data de conferência do modelo quando o banco a tem', async () => {
+    order.mockResolvedValue({
+      data: [{ ...COURSE_ROW, modelo_conferido_em: '2026-03-12' }],
+      error: null,
+    })
+
+    expect(await getCourses()).toMatchObject([{ checkedAt: '2026-03-12' }])
   })
 
   it('normaliza o termo, tirando acento e caixa, antes de filtrar', async () => {

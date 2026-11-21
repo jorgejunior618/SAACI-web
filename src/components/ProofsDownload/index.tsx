@@ -20,7 +20,7 @@ import {
   formatSelectedLabel,
   getProofEntries,
 } from './utils'
-import type { ProofEntry } from './utils'
+import type { ProofEntry, ProofScope } from './utils'
 import * as S from './styles'
 
 /** Nome do arquivo que vai para os downloads do aparelho. */
@@ -31,7 +31,7 @@ type DownloadProgress = { files: number; bytes: number }
 
 /** Props de {@link ProofsDownload}. */
 export type ProofsDownloadProps = {
-  /** Todas as atividades do aluno. Só as que contam entram no arquivo. */
+  /** Todas as atividades do aluno. Por padrão, só as que contam entram no arquivo (veja `scope`). */
   activities: Activity[]
   /** Itens do curso, para o nome da pasta de cada item. */
   ruleItems: RuleItem[]
@@ -40,6 +40,11 @@ export type ProofsDownloadProps = {
    * os que contam. Um `Set` vazio é o aluno com tudo desmarcado.
    */
   selectedIds?: ReadonlySet<string> | null
+  /**
+   * `'counting'` (padrão): só os comprovantes que contam, e o aviso diz quais ficam de fora. `'all'`:
+   * todos, como na exclusão da conta, sem aviso de quem fica de fora.
+   */
+  scope?: ProofScope
   /** Chamado depois que o arquivo compactado foi entregue ao navegador. Cancelar não chama. */
   onDownloaded?: () => void
 }
@@ -85,7 +90,8 @@ async function zipProofs(
  * não invalida nada: baixar não grava. O `onSuccess` fica nas opções do `useMutation`, então o
  * arquivo é salvo mesmo se o aluno mudar de tela no meio. Sem comprovante que conte, não mostra nada.
  * Com `selectedIds`, entram só os marcados e o botão diz quantos. Com nada marcado, o botão continua
- * ativo e o toque explica o que fazer, em vez de não responder.
+ * ativo e o toque explica o que fazer, em vez de não responder. Com `scope="all"`, entram também os
+ * que não contam e o aviso de quem fica de fora some.
  *
  * @example
  * ```tsx
@@ -98,14 +104,15 @@ export function ProofsDownload({
   activities,
   ruleItems,
   selectedIds = null,
+  scope = 'counting',
   onDownloaded,
 }: ProofsDownloadProps): ReactNode {
-  const allEntries = getProofEntries(activities, ruleItems)
+  const allEntries = getProofEntries(activities, ruleItems, scope)
   const entries = selectedIds
     ? allEntries.filter((entry) => selectedIds.has(entry.activity.id))
     : allEntries
   const totalBytes = entries.reduce((sum, entry) => sum + entry.activity.proof.sizeBytes, 0)
-  const leftOut = formatLeftOut(activities)
+  const leftOut = scope === 'all' ? null : formatLeftOut(activities)
 
   const controller = useRef<AbortController | null>(null)
   const [progress, setProgress] = useState<DownloadProgress>({ files: 0, bytes: 0 })
@@ -182,7 +189,11 @@ export function ProofsDownload({
   return (
     <S.Root>
       <Button block icon={Download} onClick={download}>
-        {selectedIds ? formatSelectedLabel(entries.length) : 'Baixar os que contam'}
+        {selectedIds
+          ? formatSelectedLabel(entries.length)
+          : scope === 'all'
+            ? 'Baixar todos os comprovantes'
+            : 'Baixar os que contam'}
       </Button>
       {isNothingSelected && hasTriedEmpty ? (
         <Notice tone="danger">

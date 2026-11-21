@@ -1,6 +1,7 @@
 import { useId } from 'react'
 import type { ReactNode } from 'react'
 
+import { formatBrDate } from '@/utils/br-date'
 import type { FormRow } from '@/utils/coordination-form'
 import { formatHours } from '@/utils/format-hours'
 
@@ -14,6 +15,8 @@ export type FormSummaryProps = {
   totalHours: number
   /** Nome do curso, para a frase do modelo da coordenação. */
   courseName: string
+  /** Data ISO em que a coordenação conferiu o modelo, de `Course.checkedAt`. `null`: sem data. */
+  modelCheckedAt: string | null
   /** Aviso de que o excedente não entra no pedido, de `formatOverflowNote`. `null`: sem aviso. */
   overflowNote: string | null
   /** Frase dos itens sem hora, de `formatBlankRowsNote`. `null`: todos têm hora. */
@@ -26,8 +29,8 @@ export type FormSummaryProps = {
  * @remarks
  * Mostra o que o PDF vai levar. Só os itens com horas ganham linha, e os demais entram numa frase
  * ("21 itens sem horas ficam com traço"), para a lista caber na tela do celular. O total chega
- * pronto do progresso. A data de conferência do modelo ainda não existe nos dados do curso, então
- * aparece como marcador.
+ * pronto do progresso. A frase do modelo só cita "conferido em" quando o curso tem a data, e nunca
+ * inventa uma.
  *
  * @example
  * ```tsx
@@ -35,6 +38,7 @@ export type FormSummaryProps = {
  *   rows={buildFormRows(ruleItems, progress)}
  *   totalHours={progress.totalHours}
  *   courseName={course.name}
+ *   modelCheckedAt={course.checkedAt}
  *   overflowNote={formatOverflowNote(progress)}
  *   blankNote={formatBlankRowsNote(rows)}
  * />
@@ -44,6 +48,7 @@ export function FormSummary({
   rows,
   totalHours,
   courseName,
+  modelCheckedAt,
   overflowNote,
   blankNote,
 }: FormSummaryProps): ReactNode {
@@ -89,10 +94,9 @@ export function FormSummary({
         </S.Table>
       </S.TableBox>
       {overflowNote ? <S.Note>{overflowNote}</S.Note> : null}
-      {/* TODO: provisório. A data de conferência do modelo não existe em `Course`. Trocar pelo dado
-          real quando a coordenação informar. */}
       <S.Note>
-        Modelo da coordenação de {courseName}, conferido em [DATA DE CONFERÊNCIA DO MODELO].
+        Modelo da coordenação de {courseName}
+        {modelCheckedAt ? `, conferido em ${formatBrDate(modelCheckedAt)}` : ''}.
       </S.Note>
     </S.Root>
   )

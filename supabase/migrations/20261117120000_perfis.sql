@@ -70,10 +70,10 @@ select id from auth.users
 on conflict do nothing;
 
 -- RF10: diz se o aluno tem atividade registrada.
--- TODO [#20]: a tabela de atividades ainda não existe, então a função devolve `false` e a trava
--- abaixo fica inerte. A #20 troca o corpo por `create or replace`, sem mexer no gatilho, e decide
--- se a função continua chamável por RPC (hoje `authenticated` a executa, ADR 0009). Enquanto
--- não há atividade no banco, `false` é também a resposta certa.
+-- Nesta migration a tabela de atividades ainda não existe, então a função devolve `false` e a trava
+-- abaixo fica inerte. A migration `atividades` (#20) trocou o corpo por `create or replace`, sem
+-- mexer no gatilho, e a trava passou a valer. Enquanto não havia atividade no banco, `false` era
+-- também a resposta certa. A função continua chamável por RPC por `authenticated` (ADR 0009).
 -- `security invoker`: depois da #20 a RLS de quem chama vale, e o aluno só enxerga as próprias.
 create function public.aluno_tem_atividades(aluno uuid)
 returns boolean
