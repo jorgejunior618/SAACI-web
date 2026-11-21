@@ -35,8 +35,15 @@ values
   ('comprovantes', '00000000-0000-0000-0000-0000000000c1/ana.pdf', '00000000-0000-0000-0000-0000000000c1'),
   ('comprovantes', '00000000-0000-0000-0000-0000000000c2/bia.pdf', '00000000-0000-0000-0000-0000000000c2');
 
+-- Só os arquivos da fixture: o banco local pode ter comprovantes de outras suítes (a de integração
+-- grava sem rollback), e contar o bucket inteiro faria este teste depender do que já existe.
 select is(
-  (select count(*)::int from storage.objects where bucket_id = 'comprovantes'),
+  (select count(*)::int from storage.objects
+    where bucket_id = 'comprovantes'
+      and owner_id in (
+        '00000000-0000-0000-0000-0000000000c1',
+        '00000000-0000-0000-0000-0000000000c2'
+      )),
   2,
   'pré-condição: há um arquivo de cada aluno'
 );

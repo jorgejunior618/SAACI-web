@@ -41,10 +41,12 @@ SQL pediria transformar o `update` em RPC e rever as ADRs 0011 e 0012, fora do e
 ## Consequências
 
 - Uma ida ao banco no lugar de quatro, e o total sai do banco (RNF20).
-- A conta existe em dois lugares. A paridade é obrigação de quem contribui. O CI roda `pnpm test` e
-  `pnpm test:db` (pgTAP, que cobre o isolamento e o total por aluno), mas não o `pnpm test:rls`, que
-  tem a paridade SQL. Até ele entrar no CI, quem mexe na conta roda `pnpm test:rls` antes do PR.
-  Colocá-lo no CI (precisa de e-mail local e Storage) é decisão à parte.
+- A conta existe em dois lugares. A paridade é obrigação de quem contribui. O CI roda `pnpm test`, o
+  `pnpm test:db` (pgTAP, que cobre o isolamento e o total por aluno) e, no mesmo job do banco,
+  depois do pgTAP, o `pnpm test:rls`, que tem a paridade SQL. O pgTAP não depende de banco limpo: os
+  testes que contavam o banco inteiro passaram a contar só a fixture. (O `test:rls` entrou no CI
+  depois desta decisão, no PR #68. A primeira versão deste texto dizia que ele só rodava na máquina
+  de quem desenvolve.)
 - Entre uma escrita e o refetch, o total do cache vem do banco e a lista vem do TypeScript. A paridade
   garante que são iguais.
 - O TypeScript ordena `registeredAt` como texto e o SQL como `timestamptz`. Equivalem enquanto o
