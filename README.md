@@ -249,8 +249,9 @@ Antes de subir:
 - **`site_url` e `additional_redirect_urls`** do `config.toml` apontam para `localhost`. Em produção
   precisam da URL real, com `/confirme-email` e `/nova-senha`. Não confirmado: o jeito de manter dois
   ambientes no mesmo arquivo (bloco `[remotes.<nome>]`) deve ser conferido na documentação da CLI.
-- **SMTP próprio.** O SMTP padrão do Supabase só serve para teste e limita os envios por hora, o que
-  trava o cadastro com a confirmação obrigatória.
+- **SMTP da Brevo.** O SMTP padrão do Supabase só serve para teste e limita os envios por hora, o que
+  trava o cadastro com a confirmação obrigatória. A escolha está na ADR 0019 e a configuração entra
+  no `config.toml` (bloco `[remotes.production]`).
 - **`pg_cron` habilitado** no projeto, para a limpeza de conta não confirmada (7 dias, ADR 0003).
 
 Depois de subir, repita o teste da regra de domínio: o signup com `@gmail.com` precisa falhar com 403,

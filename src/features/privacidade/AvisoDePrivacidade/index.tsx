@@ -12,16 +12,11 @@ import * as S from './styles'
  *
  * @remarks
  * Texto básico, em linguagem simples, fixo no código. Cita os serviços de terceiros que o sistema
- * usa: Supabase (conta, atividades e arquivos) e Google Gemini (só na leitura automática do
- * comprovante, ADR 0016, aprovada pelo time). Os e-mails de confirmação e de nova senha saem pelo
- * Supabase Auth, então não há terceiro de e-mail à parte. O prazo de exclusão vem de `ACCOUNT_DELETION_DEADLINE_DAYS` (ADR 0017).
- * Abre a partir do Perfil, então o Voltar leva para lá.
- *
- * No MVP os e-mails saem pelo próprio Supabase, sem provedor de SMTP à parte, e o aviso já diz isso.
- * Se um provedor próprio entrar depois, cite-o aqui.
- *
- * TODO: a hospedagem de produção ainda não foi definida (`doc/tecnologia.md`) e entra aqui quando
- * for.
+ * usa: Supabase (conta, atividades e arquivos), Vercel (hospedagem), Brevo (envio dos e-mails de
+ * confirmação e de nova senha, ADR 0019) e Google Gemini (só na leitura automática do comprovante,
+ * ADR 0016, aprovada pelo time). Trocar ou incluir um serviço pede mudar a lista aqui. O prazo de
+ * exclusão vem de `ACCOUNT_DELETION_DEADLINE_DAYS` (ADR 0017). Abre a partir do Perfil, então o
+ * Voltar leva para lá.
  *
  * @example
  * ```tsx
@@ -48,11 +43,13 @@ export function AvisoDePrivacidade(): ReactNode {
 
         <S.Section>
           <S.Heading>Com quem os dados passam</S.Heading>
-          <S.Text>Usamos dois serviços de terceiros:</S.Text>
+          <S.Text>Usamos quatro serviços de terceiros:</S.Text>
           <S.List>
+            <li>Supabase: guarda sua conta, suas atividades e seus comprovantes.</li>
+            <li>Vercel: mantém o site no ar. Seus acessos passam pelos servidores dela.</li>
             <li>
-              Supabase: guarda sua conta, suas atividades e seus comprovantes, e envia os e-mails de
-              confirmação da conta e de nova senha.
+              Brevo: envia os e-mails de confirmação da conta e de nova senha para o seu e-mail do
+              IFCE.
             </li>
             <li>
               Google (Gemini): recebe o comprovante só quando você pede a leitura automática, para
