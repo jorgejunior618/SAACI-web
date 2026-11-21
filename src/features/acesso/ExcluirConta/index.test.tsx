@@ -5,8 +5,11 @@ import { Suspense } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { clearSessionCache, deleteAccount, InvalidCredentialsError } from '@/services/account'
+import { activitiesQueries } from '@/services/activities'
+import type { Activity } from '@/services/activities'
 import { profileQueries } from '@/services/profile'
 import type { Profile } from '@/services/profile'
+import { rulesQueries } from '@/services/rules'
 
 import { ExcluirConta } from './index'
 
@@ -28,10 +31,28 @@ const WITH_COURSE: Profile = {
 }
 const WITHOUT_COURSE: Profile = { ...WITH_COURSE, startSemester: null, courseId: null }
 
-function renderExcluirConta(profile: Profile): void {
+const NOT_COUNTING: Activity = {
+  id: '00000000-0000-4000-8000-000000000001',
+  name: 'Palestra de boas-vindas',
+  itemNumber: 13,
+  quantity: 1,
+  startDate: '2025-01-01',
+  endDate: '2025-01-01',
+  registeredAt: '2025-01-02T12:00:00.000Z',
+  updatedAt: '2025-01-02T12:00:00.000Z',
+  activityHours: 1,
+  countedHours: 0,
+  status: 'nao_conta',
+  reason: null,
+  proof: { fileName: 'comprovante.pdf', sizeBytes: 1_000, type: 'pdf' },
+}
+
+function renderExcluirConta(profile: Profile, activities: Activity[] = []): void {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
 
   queryClient.setQueryData(profileQueries.detail().queryKey, profile)
+  queryClient.setQueryData(activitiesQueries.list().queryKey, activities)
+  queryClient.setQueryData(rulesQueries.items('curso-1').queryKey, [])
   render(
     <QueryClientProvider client={queryClient}>
       <Suspense fallback={<p>Carregando</p>}>
@@ -69,10 +90,25 @@ describe('ExcluirConta', () => {
     )
   })
 
-  it('avisa que os comprovantes devem ser baixados antes, com o marcador do download', async () => {
-    renderExcluirConta(WITH_COURSE)
+  it('oferece baixar todos os comprovantes, também os que não contam, antes de apagar', async () => {
+    renderExcluirConta(WITH_COURSE, [NOT_COUNTING])
 
-    expect(await screen.findByText(/\[DOWNLOAD DOS COMPROVANTES\]/)).toBeInTheDocument()
+    expect(await screen.findByText(/Antes de apagar, baixe seus comprovantes/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Baixar todos os comprovantes' })).toBeInTheDocument()
+  })
+
+  it('não oferece o download quando não há atividade', async () => {
+    renderExcluirConta(WITH_COURSE, [])
+
+    expect(await screen.findByLabelText('Confirme com sua senha')).toBeInTheDocument()
+    expect(screen.queryByText(/Antes de apagar, baixe/)).not.toBeInTheDocument()
+  })
+
+  it('não oferece o download a quem ainda não escolheu o curso', async () => {
+    renderExcluirConta(WITHOUT_COURSE, [NOT_COUNTING])
+
+    expect(await screen.findByLabelText('Confirme com sua senha')).toBeInTheDocument()
+    expect(screen.queryByText(/Antes de apagar, baixe/)).not.toBeInTheDocument()
   })
 
   it('apaga com a senha, esvazia o cache e leva a Conta apagada', async () => {

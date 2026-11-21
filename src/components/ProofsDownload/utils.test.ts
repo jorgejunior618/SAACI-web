@@ -44,6 +44,18 @@ function ruleItem(itemNumber: number, maxHours = 60): RuleItem {
 }
 
 describe('getProofEntries', () => {
+  it('com scope "all" põe também os que não contam', () => {
+    const counts = activity({ itemNumber: 6, name: 'Curso de inglês' })
+    const out = activity({ itemNumber: 13, name: 'Boas-vindas', status: 'nao_conta' })
+
+    const entries = getProofEntries([counts, out], [ruleItem(6), ruleItem(13)], 'all')
+
+    expect(entries.map((e) => e.path)).toEqual([
+      'Item 06 - Item 6/Curso de inglês.pdf',
+      'Item 13 - Item 13/Boas-vindas.pdf',
+    ])
+  })
+
   it('põe só os que contam, numa pasta por item com o número em dois dígitos', () => {
     const counts = activity({ itemNumber: 6, name: 'Curso de inglês' })
     const partial = activity({ itemNumber: 13, name: 'Palestra', status: 'parcial' })

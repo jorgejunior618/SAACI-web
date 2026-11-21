@@ -12,6 +12,7 @@ import { AppFrame, Button, Notice, TextField, TopBar } from '@design-system'
 import { clearSessionCache, deleteAccount, InvalidCredentialsError } from '@/services/account'
 import { profileQueries } from '@/services/profile'
 
+import { ProofsBackup } from './_components/ProofsBackup'
 import { DeleteAccountSchema } from './schema'
 import type { DeleteAccountInput, DeleteAccountOutput } from './schema'
 import * as S from './styles'
@@ -22,7 +23,8 @@ const PASSWORD_ERROR = 'A senha não confere. Confira o Caps Lock e tente de nov
  * Tela Excluir conta: confirma com a senha e apaga a conta, as atividades e os comprovantes.
  *
  * @remarks
- * Ao apagar, esvazia o cache (RNF04) e leva para Conta apagada. "Manter minha conta" e o Voltar
+ * Antes da senha, quem tem curso pode baixar todos os comprovantes (`ProofsBackup`). Ao apagar,
+ * esvazia o cache (RNF04) e leva para Conta apagada. "Manter minha conta" e o Voltar
  * levam a Perfil, para quem já tem curso, ou a Seu curso, para quem ainda não escolheu. Senha errada
  * aparece no campo. Qualquer outra falha diz que a conta continua como estava. O que a pessoa
  * digitou nunca é limpo depois de um erro (RNF24). A página envolve este componente em `Suspense`,
@@ -70,9 +72,7 @@ export function ExcluirConta(): ReactNode {
           Isso apaga sua conta, suas atividades e seus comprovantes. Não dá para desfazer.
         </S.Consequence>
 
-        {/* TODO: o download em lote dos comprovantes não existe no service (só `getProofUrl` por
-            atividade). Troque o marcador por um link quando houver. */}
-        <Notice>Antes de apagar, baixe seus comprovantes: [DOWNLOAD DOS COMPROVANTES].</Notice>
+        {profile.courseId === null ? null : <ProofsBackup courseId={profile.courseId} />}
 
         <TextField
           label="Confirme com sua senha"
