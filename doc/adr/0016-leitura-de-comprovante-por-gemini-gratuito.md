@@ -1,6 +1,6 @@
 # 0016. O comprovante é lido pelo Gemini Flash, na camada gratuita, atrás de um Route Handler com limite diário por aluno
 
-- **Status:** Proposta
+- **Status:** Aceita
 - **Data:** 21/11/2026
 
 ## Contexto
@@ -43,8 +43,8 @@ de aceitar isso foi do dev, a ser confirmada pelo time antes do merge, como pede
 - **Falha, limite ou cota do Google esgotada** viram `UnreadableProofError`. A tela deixa preencher à
   mão, e nenhuma tela muda.
 - **Tempo:** a chamada ao Google tem timeout de cerca de 18 s, dentro dos 20 s da tela.
-- **Aprovação:** esta ADR fica `Proposta` até o time aprovar o envio do comprovante ao Google na
-  camada gratuita (RNF26). Aprovado, passa a `Aceita`.
+- **Aprovação:** o time aprovou em 21/11/2026 o envio do comprovante ao Google na camada gratuita
+  (RNF26). O aviso de privacidade cita o Google e diz que ele pode usar o conteúdo enviado.
 
 ## Consequências
 

@@ -13,12 +13,13 @@ import * as S from './styles'
  * @remarks
  * Texto básico, em linguagem simples, fixo no código. Cita os serviços de terceiros que o sistema
  * usa: Supabase (conta, atividades e arquivos) e Google Gemini (só na leitura automática do
- * comprovante, ADR 0016). O prazo de exclusão vem de `ACCOUNT_DELETION_DEADLINE_DAYS` (ADR 0017).
+ * comprovante, ADR 0016, aprovada pelo time). Os e-mails de confirmação e de nova senha saem pelo
+ * Supabase Auth, então não há terceiro de e-mail à parte. O prazo de exclusão vem de `ACCOUNT_DELETION_DEADLINE_DAYS` (ADR 0017).
  * Abre a partir do Perfil, então o Voltar leva para lá.
  *
- * TODO: o envio do comprovante ao Google ainda está como Proposta na ADR 0016 (RNF26). Se o time não
- * aprovar, tire o trecho do Google. O provedor de e-mail e a hospedagem de produção ainda não foram
- * definidos, e entram aqui quando forem.
+ * TODO: a hospedagem de produção ainda não foi definida (`doc/tecnologia.md`) e entra aqui quando
+ * for. Quando o SMTP próprio do Supabase for configurado para o lançamento (ADR 0003), cite o
+ * provedor de e-mail.
  *
  * @example
  * ```tsx
@@ -47,7 +48,10 @@ export function AvisoDePrivacidade(): ReactNode {
           <S.Heading>Com quem os dados passam</S.Heading>
           <S.Text>Usamos dois serviços de terceiros:</S.Text>
           <S.List>
-            <li>Supabase: guarda sua conta, suas atividades e seus comprovantes.</li>
+            <li>
+              Supabase: guarda sua conta, suas atividades e seus comprovantes, e envia os e-mails de
+              confirmação da conta e de nova senha.
+            </li>
             <li>
               Google (Gemini): recebe o comprovante só quando você pede a leitura automática, para
               ler os dados do arquivo. Na versão gratuita, o Google pode usar o conteúdo enviado
