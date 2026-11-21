@@ -6,7 +6,12 @@ updates:
     schedule:
       interval: weekly
       day: monday
-    open-pull-requests-limit: 5
+    # 0 desliga os PRs de versão nova: o Dependabot só abre PR de vulnerabilidade (alerta de
+    # segurança), que tem limite próprio e não depende deste número. As versões novas aparecem
+    # na issue semanal de .github/workflows/dependencias.yml, e o time atualiza em lote
+    # (`pnpm up --latest`). Motivo: um PR por grupo mexe no pnpm-lock.yaml, os PRs conflitam
+    # entre si e a branch de cada um fica no repositório.
+    open-pull-requests-limit: 0
     # Gera "chore(deps): ..." e "chore(deps-dev): ...", no padrão de commit do projeto.
     commit-message:
       prefix: chore
@@ -15,22 +20,6 @@ updates:
     ignore:
       - dependency-name: typescript
         update-types: ['version-update:semver-major']
-    # Uma PR por família, em vez de uma por pacote.
-    groups:
-      react:
-        patterns: ['react', 'react-dom', '@types/react', '@types/react-dom']
-      next:
-        patterns: ['next', 'eslint-config-next']
-      panda:
-        patterns: ['@pandacss/*']
-      formularios:
-        patterns: ['react-hook-form', '@hookform/*', 'valibot']
-      lint-e-formatacao:
-        patterns: ['eslint', 'eslint-*', '@tanstack/eslint-plugin-query', 'prettier']
-      testes:
-        patterns: ['vitest', '@vitest/*', '@testing-library/*', 'jsdom', '@vitejs/*']
-      git-hooks:
-        patterns: ['husky', 'lint-staged', '@commitlint/*']
 
   - package-ecosystem: github-actions
     directory: /
