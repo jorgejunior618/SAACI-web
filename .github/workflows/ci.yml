@@ -82,6 +82,13 @@ jobs:
       - name: Rodar os testes pgTAP
         run: pnpm test:db
 
+      # Cria contas, confirma o e-mail pelo Mailpit e sobe arquivo no Storage, tudo no banco local
+      # deste job, e roda a paridade do cálculo de horas (SQL × TypeScript, ADR 0015). Vem depois
+      # do pgTAP de propósito: o `comprovantes_isolados` espera o bucket vazio, e esta suíte grava
+      # sem rollback. O banco do CI nasce limpo a cada execução, então a ordem basta.
+      - name: Rodar os testes de integração e a paridade do cálculo de horas
+        run: pnpm test:rls
+
   # doc/ só muda com uma ADR (doc/adr/). Aqui é aviso e não bloqueio: o --no-verify para
   # correção de digitação é uma exceção documentada em doc/README.md.
   adr:
