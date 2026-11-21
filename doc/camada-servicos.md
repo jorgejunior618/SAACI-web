@@ -6,16 +6,17 @@ descrevem o que vale quando a integração entrar.
 
 ## Arquivos de um domínio
 
-| Arquivo              | Responsabilidade                                                     |
-| -------------------- | -------------------------------------------------------------------- |
-| `<dom>.types.ts`     | schema Valibot e tipo de domínio                                     |
-| `<dom>.mock.ts`      | o backend fingido do domínio, em memória. Sai quando o domínio migra |
-| `<dom>.api.ts`       | leitura                                                              |
-| `<dom>.mutations.ts` | escrita (alvo: e RPC)                                                |
-| `<dom>.keys.ts`      | chaves de cache                                                      |
-| `<dom>.queries.ts`   | definições de query reaproveitáveis                                  |
-| `<dom>.errors.ts`    | erro de domínio nomeado, quando o primeiro aparecer                  |
-| `index.ts`           | superfície pública, sem reexportar o mock                            |
+| Arquivo                  | Responsabilidade                                                                                                        |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| `<dom>.types.ts`         | schema Valibot e tipo de domínio                                                                                        |
+| `<dom>.mock.ts`          | o backend fingido do domínio, em memória. Sai quando o domínio migra                                                    |
+| `<dom>.api.ts`           | leitura                                                                                                                 |
+| `<dom>.mutations.ts`     | escrita (alvo: e RPC)                                                                                                   |
+| `<dom>.keys.ts`          | chaves de cache                                                                                                         |
+| `<dom>.queries.ts`       | definições de query reaproveitáveis                                                                                     |
+| `<dom>.errors.ts`        | erro de domínio nomeado, quando o primeiro aparecer                                                                     |
+| `<dom>.<tema>.server.ts` | código que só roda no servidor, com segredo (ADR 0016). Fica fora do `index.ts`, para não entrar no bundle do navegador |
+| `index.ts`               | superfície pública, sem reexportar o mock                                                                               |
 
 Arquivo interno nunca importa do `index.ts` do próprio domínio: o `index.ts` reexporta as mutations, e
 importar por ele fecharia um ciclo.
@@ -52,9 +53,9 @@ declarar. `<dom>.api.ts` e `<dom>.mutations.ts` falam só com esse arquivo.
 
 Na migração, `<dom>.api.ts` e `<dom>.mutations.ts` trocam a chamada ao `<dom>.mock.ts` por
 `supabase-js`, e o mock do domínio é apagado no mesmo commit. Se uma parte do domínio depende de uma
-integração que vem depois, ela fica num mock próprio com `TODO` para a issue que o apaga: em
-`activities`, a leitura do comprovante mora em `activities.proof-reading.mock.ts` até a #22
-(ADR 0011).
+integração que vem depois, ela fica num mock próprio com `TODO` para a issue que o apaga. Foi o caso
+da leitura do comprovante em `activities`, que ficou em `activities.proof-reading.mock.ts` até a #22
+trocá-la por um Route Handler de IA (ADR 0016).
 
 > O código atual (`services/_mock/`, `MockPanel` e o `localStorage` `saaci:mock`) ainda guarda o
 > banco inteiro no navegador. É legado e sai no reset do projeto.

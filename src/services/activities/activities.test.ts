@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { RuleItem } from '../rules/rules.types'
 import { getActivities, getActivity, getProofFile, getProofUrl, readProof } from './activities.api'
@@ -707,11 +707,73 @@ describe('comprovante', () => {
 
     await expect(getProofFile(ID_1)).rejects.toBeInstanceOf(ActivityNotFoundError)
   })
+})
 
-  it('readProof cobre os três caminhos da leitura fingida', async () => {
-    expect(await readProof(pdf())).toMatchObject({ itemNumber: 7, quantity: 40 })
-    expect(await readProof(pdf('sem-item.pdf'))).toMatchObject({ itemNumber: null })
-    await expect(readProof(pdf('ilegivel.pdf'))).rejects.toBeInstanceOf(UnreadableProofError)
+describe('readProof', () => {
+  const fetchMock = vi.fn()
+  const SUGGESTION = {
+    itemNumber: 7,
+    name: 'Curso de React',
+    quantity: 40,
+    startDate: '2026-08-03',
+    endDate: '2026-09-12',
+  }
+
+  beforeEach(() => {
+    vi.stubGlobal('fetch', fetchMock)
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    fetchMock.mockReset()
+  })
+
+  it('envia o arquivo ao Route Handler e devolve a sugestão', async () => {
+    fetchMock.mockResolvedValue(Response.json(SUGGESTION))
+    const proof = pdf()
+
+    await expect(readProof(proof)).resolves.toEqual(SUGGESTION)
+
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    expect(url).toBe('/api/comprovante/leitura')
+    expect(init.method).toBe('POST')
+    expect((init.body as FormData).get('proof')).toBe(proof)
+    expect(init.signal).toBeInstanceOf(AbortSignal)
+  })
+
+  it('mantém null no campo que a IA não leu', async () => {
+    const empty = { itemNumber: null, name: null, quantity: null, startDate: null, endDate: null }
+    fetchMock.mockResolvedValue(Response.json(empty))
+
+    await expect(readProof(pdf())).resolves.toEqual(empty)
+  })
+
+  it('vira UnreadableProofError no 422 (leitura que não deu ou cota do dia)', async () => {
+    fetchMock.mockResolvedValue(Response.json({ error: 'unreadable' }, { status: 422 }))
+
+    await expect(readProof(pdf())).rejects.toBeInstanceOf(UnreadableProofError)
+  })
+
+  it('vira UnreadableProofError na falha de rede e no estouro do prazo', async () => {
+    fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'))
+    await expect(readProof(pdf())).rejects.toBeInstanceOf(UnreadableProofError)
+
+    fetchMock.mockRejectedValueOnce(new DOMException('timeout', 'TimeoutError'))
+    await expect(readProof(pdf())).rejects.toBeInstanceOf(UnreadableProofError)
+  })
+
+  it('repassa como Error o status inesperado, sem fingir que o arquivo é ilegível', async () => {
+    fetchMock.mockResolvedValue(Response.json({ error: 'unauthenticated' }, { status: 401 }))
+
+    const rejection = readProof(pdf())
+    await expect(rejection).rejects.toThrow('HTTP 401')
+    await expect(rejection).rejects.not.toBeInstanceOf(UnreadableProofError)
+  })
+
+  it('não aceita resposta fora do formato da sugestão', async () => {
+    fetchMock.mockResolvedValue(Response.json({ ...SUGGESTION, startDate: 'ontem' }))
+
+    await expect(readProof(pdf())).rejects.toThrow()
   })
 })
 

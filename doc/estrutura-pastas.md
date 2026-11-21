@@ -16,7 +16,8 @@ SAACI-web/
 └── src/
     ├── proxy.ts                  alvo: refresh de sessão e rota protegida
     ├── app/                      rota, layout, prefetch. Nada mais
-    │   └── (<grupo>)/<rota>/     page.tsx, loading.tsx, error.tsx
+    │   ├── (<grupo>)/<rota>/     page.tsx, loading.tsx, error.tsx
+    │   └── api/<tema>/<ação>/    route.ts: Route Handler, só para segredo (ADR 0016)
     │
     ├── features/                 UI e lógica de tela
     │   └── <dominio>/
@@ -43,24 +44,25 @@ Não existe `SupabaseProvider`: os clientes são funções de `@supabase/`, não
 
 ## Onde criar
 
-| Vou criar                                | Vai em                                                 |
-| ---------------------------------------- | ------------------------------------------------------ |
-| Rota nova                                | `app/<grupo>/<rota>/page.tsx`, só importando a feature |
-| Tela                                     | `features/<dominio>/<Tela>/index.tsx`                  |
-| Sub-componente de uma tela só            | `features/<dominio>/<Tela>/_components/<Componente>/`  |
-| Componente de 2+ telas do mesmo domínio  | `features/<dominio>/_components/<Componente>/`         |
-| Componente puro de UI, em 2+ telas       | `@design-system/<nível>/`                              |
-| Componente com lógica, em 2+ telas/rotas | `components/<Componente>/`                             |
-| Leitura de dado                          | `services/<dominio>/<dominio>.api.ts`                  |
-| Escrita de dado (alvo: chamada de RPC)   | `services/<dominio>/<dominio>.mutations.ts`            |
-| Dado de exemplo de um domínio            | `services/<dominio>/<dominio>.mock.ts`                 |
-| Schema Valibot de formulário             | `schema.ts` ao lado do `index.tsx`                     |
-| Schema de formulário de 2+ domínios      | `src/utils/<nome>.ts`, com teste (ADR 0014)            |
-| Schema Valibot do domínio                | `services/<dominio>/<dominio>.types.ts`                |
-| Migration ou função SQL                  | `supabase/migrations/`                                 |
-| Rotina agendada que usa a API do Storage | `supabase/functions/<nome>/index.ts` (Deno)            |
-| Helper puro de uma tela                  | `utils.ts` ao lado do `index.tsx`                      |
-| Helper puro usado em 2+ lugares          | `src/utils/`                                           |
+| Vou criar                                | Vai em                                                     |
+| ---------------------------------------- | ---------------------------------------------------------- |
+| Rota nova                                | `app/<grupo>/<rota>/page.tsx`, só importando a feature     |
+| Route Handler (só para segredo)          | `app/api/<tema>/<ação>/route.ts`, fino, chamando o service |
+| Tela                                     | `features/<dominio>/<Tela>/index.tsx`                      |
+| Sub-componente de uma tela só            | `features/<dominio>/<Tela>/_components/<Componente>/`      |
+| Componente de 2+ telas do mesmo domínio  | `features/<dominio>/_components/<Componente>/`             |
+| Componente puro de UI, em 2+ telas       | `@design-system/<nível>/`                                  |
+| Componente com lógica, em 2+ telas/rotas | `components/<Componente>/`                                 |
+| Leitura de dado                          | `services/<dominio>/<dominio>.api.ts`                      |
+| Escrita de dado (alvo: chamada de RPC)   | `services/<dominio>/<dominio>.mutations.ts`                |
+| Dado de exemplo de um domínio            | `services/<dominio>/<dominio>.mock.ts`                     |
+| Schema Valibot de formulário             | `schema.ts` ao lado do `index.tsx`                         |
+| Schema de formulário de 2+ domínios      | `src/utils/<nome>.ts`, com teste (ADR 0014)                |
+| Schema Valibot do domínio                | `services/<dominio>/<dominio>.types.ts`                    |
+| Migration ou função SQL                  | `supabase/migrations/`                                     |
+| Rotina agendada que usa a API do Storage | `supabase/functions/<nome>/index.ts` (Deno)                |
+| Helper puro de uma tela                  | `utils.ts` ao lado do `index.tsx`                          |
+| Helper puro usado em 2+ lugares          | `src/utils/`                                               |
 
 ## Domínios
 
