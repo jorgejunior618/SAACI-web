@@ -17,9 +17,11 @@ import * as S from './styles'
  * Supabase Auth, então não há terceiro de e-mail à parte. O prazo de exclusão vem de `ACCOUNT_DELETION_DEADLINE_DAYS` (ADR 0017).
  * Abre a partir do Perfil, então o Voltar leva para lá.
  *
+ * No MVP os e-mails saem pelo próprio Supabase, sem provedor de SMTP à parte, e o aviso já diz isso.
+ * Se um provedor próprio entrar depois, cite-o aqui.
+ *
  * TODO: a hospedagem de produção ainda não foi definida (`doc/tecnologia.md`) e entra aqui quando
- * for. Quando o SMTP próprio do Supabase for configurado para o lançamento (ADR 0003), cite o
- * provedor de e-mail.
+ * for.
  *
  * @example
  * ```tsx
