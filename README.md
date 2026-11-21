@@ -234,28 +234,66 @@ não passa do Acesso.
 
 ### Levar o Auth para produção
 
-Nada é feito à mão no painel: o que vale no banco local está em `supabase/migrations/` (funções, gatilho
-e limpeza de conta) e em `supabase/config.toml` (confirmação, validade do link, retornos, templates e
-hook). Com o projeto de produção criado:
+Nada é feito à mão no painel do Supabase: o que vale no banco local está em `supabase/migrations/`
+(funções, gatilho e limpeza de conta) e em `supabase/config.toml` (confirmação, validade do link,
+retornos, templates e hook). Para produção, o mesmo arquivo tem o bloco `[remotes.production]`, que
+sobrescreve só `site_url`, os retornos, o SMTP e o limite de e-mails (ADR 0019). A CLI só aplica o
+bloco quando o `project_id` dele é o ref do projeto ligado por `supabase link`, e o `config push`
+imprime `Loading config override: [remotes.production]` quando isso acontece. Sem essa linha, o push
+subiu a configuração local: pare e confira o ref.
 
-```bash
-pnpm exec supabase link --project-ref <ref>
-pnpm exec supabase db push        # migrations
-pnpm exec supabase config push    # config.toml
-```
+**Antes de começar**, tenha em mãos:
 
-Antes de subir:
+- O projeto Supabase de produção (ref em Project Settings > General).
+- Uma conta na Brevo, com um remetente verificado (Senders & IP) e uma chave SMTP
+  (SMTP & API > SMTP). Anote o usuário e a chave: a chave aparece uma vez.
+- Uma conta na Vercel ligada ao repositório do GitHub.
 
-- **`site_url` e `additional_redirect_urls`** do `config.toml` apontam para `localhost`. Em produção
-  precisam da URL real, com `/confirme-email` e `/nova-senha`. Não confirmado: o jeito de manter dois
-  ambientes no mesmo arquivo (bloco `[remotes.<nome>]`) deve ser conferido na documentação da CLI.
-- **SMTP da Brevo.** O SMTP padrão do Supabase só serve para teste e limita os envios por hora, o que
-  trava o cadastro com a confirmação obrigatória. A escolha está na ADR 0019 e a configuração entra
-  no `config.toml` (bloco `[remotes.production]`).
-- **`pg_cron` habilitado** no projeto, para a limpeza de conta não confirmada (7 dias, ADR 0003).
+**Passo a passo, nesta ordem:**
 
-Depois de subir, repita o teste da regra de domínio: o signup com `@gmail.com` precisa falhar com 403,
-e o de `@aluno.ifce.edu.br` precisa criar a conta.
+1. **Vercel.** Importe o repositório. Em Settings > Environment Variables, só no ambiente
+   Production, crie `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` e
+   `GEMINI_API_KEY` (`GEMINI_MODEL` é opcional). A chave `secret` do Supabase não vai para a
+   Vercel. Faça o deploy e anote a URL (`https://<app>.vercel.app`): ela só existe depois dele.
+2. **Marcadores do `config.toml`.** No bloco `[remotes.production]`, troque `[REF DO PROJETO]`,
+   `[URL DA VERCEL]` (3 ocorrências, sem o `https://`) e `[REMETENTE VERIFICADO NA BREVO]`. Faça o
+   commit: o ref e a URL são públicos, mas a chave SMTP nunca entra no arquivo.
+3. **`pg_cron`.** Em Database > Extensions do painel, habilite `pg_cron`. Ele roda a limpeza de
+   conta não confirmada (7 dias, ADR 0003) e a chamada da limpeza de comprovantes.
+4. **CLI.** Com a chave da Brevo só no seu terminal:
+
+   ```bash
+   export BREVO_SMTP_USER=<usuário da Brevo>
+   export BREVO_SMTP_KEY=<chave SMTP da Brevo>
+   pnpm exec supabase link --project-ref <ref>
+   pnpm exec supabase db push        # migrations
+   pnpm exec supabase config push    # config.toml, bloco de produção
+   ```
+
+   O `config push` mostra o que vai mudar e pergunta antes de aplicar. Confira a linha
+   `Loading config override`.
+
+5. **Limpeza dos comprovantes.** Siga "No projeto remoto" em [Limpeza dos comprovantes](#limpeza-dos-comprovantes)
+   (deploy da função, `LIMPEZA_SEGREDO` e os dois segredos do Vault).
+6. **Confira o job.** No SQL Editor do painel:
+
+   ```sql
+   select jobname, schedule, active from cron.job;
+   ```
+
+   `apagar-contas-nao-confirmadas` precisa aparecer com `active = true`.
+
+**Teste depois de subir**, na URL da Vercel:
+
+- O cadastro com `@gmail.com` falha com 403, e o de `@aluno.ifce.edu.br` cria a conta.
+- O e-mail de confirmação chega em português. Olhe também a caixa de spam: sem domínio próprio, a
+  Brevo pode cair lá (ADR 0019). O link abre `/confirme-email` no endereço da Vercel, e não em
+  `localhost`.
+- A leitura automática de um comprovante responde. A rota confere o `Origin` contra o `Host`, e é aqui
+  que um endereço errado apareceria como 403.
+
+Se mudar a URL da Vercel (domínio próprio, por exemplo), atualize o bloco `[remotes.production]` e
+repita o `config push`: os links dos e-mails saem com o `site_url`.
 
 ## Scripts
 
