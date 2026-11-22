@@ -11,7 +11,7 @@
   "scripts": {
     "prepare": "panda codegen && husky",
     "dev": "next dev",
-    "build": "next build",
+    "build": "panda codegen && next build",
     "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
