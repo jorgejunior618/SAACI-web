@@ -13,17 +13,26 @@ import { rulesQueries } from '@/services/rules'
 export const metadata: Metadata = { title: 'Registrar atividade' }
 
 async function prefetch(context: PrefetchContext): Promise<void> {
-  const { db, queryClient } = context
+  const { db, prefetchQuery } = context
   // Atividades e progresso não dependem do perfil. Os itens de regra dependem do curso.
   const [courseId] = await Promise.all([
     prefetchCourseId(context),
-    queryClient.prefetchQuery(activitiesQueries.list(db)),
-    queryClient.prefetchQuery(progressQueries.summary(db)),
+    prefetchQuery(activitiesQueries.list(db)),
+    prefetchQuery(progressQueries.summary(db)),
   ])
 
-  if (courseId) await queryClient.prefetchQuery(rulesQueries.items(courseId, db))
+  if (courseId) await prefetchQuery(rulesQueries.items(courseId, db))
 }
 
+/**
+ * Rota `/registrar`: o registro de uma atividade, com a leitura do comprovante.
+ *
+ * @remarks
+ * Busca no servidor o perfil, as atividades, o progresso e os itens de regra do curso, e hidrata o
+ * cache para a tela abrir já com o dado.
+ *
+ * @returns A tela dentro do `PrefetchBoundary`.
+ */
 export default function Page(): ReactNode {
   return (
     <PrefetchBoundary prefetch={prefetch}>

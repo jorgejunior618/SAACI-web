@@ -14,21 +14,31 @@ import { rulesQueries } from '@/services/rules'
 export const metadata: Metadata = { title: 'Atividades' }
 
 type PageProps = {
+  /** Parâmetros da URL: `item` abre um item de regra e `removida` leva o nome da atividade removida. */
   searchParams: Promise<{ item?: string | string[]; removida?: string | string[] }>
 }
 
 async function prefetch(context: PrefetchContext): Promise<void> {
-  const { db, queryClient } = context
+  const { db, prefetchQuery } = context
   // Atividades e progresso não dependem do perfil, então saem junto. As regras dependem do curso.
   const [courseId] = await Promise.all([
     prefetchCourseId(context),
-    queryClient.prefetchQuery(activitiesQueries.list(db)),
-    queryClient.prefetchQuery(progressQueries.summary(db)),
+    prefetchQuery(activitiesQueries.list(db)),
+    prefetchQuery(progressQueries.summary(db)),
   ])
 
-  if (courseId) await queryClient.prefetchQuery(rulesQueries.items(courseId, db))
+  if (courseId) await prefetchQuery(rulesQueries.items(courseId, db))
 }
 
+/**
+ * Rota `/atividades`: a lista de atividades do aluno e o total por item de regra.
+ *
+ * @remarks
+ * Busca no servidor as atividades, o progresso, o perfil e os itens de regra do curso, e hidrata o
+ * cache para a tela abrir já com o dado.
+ *
+ * @returns A tela dentro do `PrefetchBoundary`.
+ */
 export default async function Page({ searchParams }: PageProps): Promise<ReactNode> {
   const { item, removida } = await searchParams
 

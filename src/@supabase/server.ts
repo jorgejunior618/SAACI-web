@@ -20,7 +20,7 @@ import { getSupabaseEnv } from './env'
  *
  * @example
  * const db = await createServerClient()
- * await queryClient.prefetchQuery(activitiesQueries.list(filters, db))
+ * await queryClient.query(activitiesQueries.list(filters, db))
  */
 export async function createServerClient(): Promise<DbClient> {
   const { url, publishableKey } = getSupabaseEnv()

@@ -31,7 +31,8 @@ razão acabou e sobraram três custos:
   componente à parte `ProfileGate`, que só monta com sessão. Falha de busca lança, e o `error.tsx` do
   grupo mostra a tela de erro.
 - **A página que lê dado usa `PrefetchBoundary`** (`app/_prefetch/`). A função de prefetch recebe o
-  `db` do servidor e o `QueryClient` da requisição, usa `prefetchQuery` (que não lança), busca em
+  `db` do servidor e o `QueryClient` da requisição, usa o `prefetchQuery` do contexto (`query()` com o
+  erro engolido, porque o `prefetchQuery` do `QueryClient` está depreciado), busca em
   paralelo (`Promise.all`) o que não depende do perfil e, em seguida, o que depende do curso. Nenhum
   prefetch usa o cliente do navegador.
 - **Toda definição de query aceita `db?: DbClient`** e o repassa ao service. O `db` não entra na
@@ -63,8 +64,9 @@ razão acabou e sobraram três custos:
   de o React Query resetar a query com erro, e isso não foi confirmado.
 - `notFound()` de uma atividade inexistente continua mostrando a tela certa, mas a resposta sai com
   status 200, porque já está em streaming.
-- Mudam `doc/arquitetura.md` (fluxo de leitura e exceções), `doc/react-query.md`,
-  `doc/camada-servicos.md` e `doc/estrutura-pastas.md`.
+- Mudam `doc/arquitetura.md` (fluxo de leitura, exceções, e a frase de fase atual e o fluxo de escrita,
+  que ainda citavam o mock), `doc/react-query.md`, `doc/camada-servicos.md` e
+  `doc/estrutura-pastas.md`.
 
 ## Alternativas descartadas
 

@@ -12,17 +12,26 @@ import { rulesQueries } from '@/services/rules'
 export const metadata: Metadata = { title: 'Trocar curso' }
 
 async function prefetch(context: PrefetchContext): Promise<void> {
-  const { db, queryClient } = context
+  const { db, prefetchQuery } = context
   // As atividades não dependem do perfil. O curso depende. A lista de cursos só é lida quando a
   // troca está liberada, então fica para o navegador.
   const [courseId] = await Promise.all([
     prefetchCourseId(context),
-    queryClient.prefetchQuery(activitiesQueries.list(db)),
+    prefetchQuery(activitiesQueries.list(db)),
   ])
 
-  if (courseId) await queryClient.prefetchQuery(rulesQueries.course(courseId, db))
+  if (courseId) await prefetchQuery(rulesQueries.course(courseId, db))
 }
 
+/**
+ * Rota `/perfil/curso`: a troca de curso, liberada só enquanto o aluno não tem atividades.
+ *
+ * @remarks
+ * Busca no servidor o perfil, as atividades e o curso atual. A lista de cursos fica para o
+ * navegador, porque só é lida quando a troca está liberada.
+ *
+ * @returns A tela dentro do `PrefetchBoundary`.
+ */
 export default function Page(): ReactNode {
   return (
     <PrefetchBoundary prefetch={prefetch}>

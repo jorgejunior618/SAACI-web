@@ -10,10 +10,18 @@ import { rulesQueries } from '@/services/rules'
 
 export const metadata: Metadata = { title: 'Seu curso' }
 
-async function prefetch({ db, queryClient }: PrefetchContext): Promise<void> {
-  await queryClient.prefetchQuery(rulesQueries.courses('', db))
+async function prefetch({ db, prefetchQuery }: PrefetchContext): Promise<void> {
+  await prefetchQuery(rulesQueries.courses('', db))
 }
 
+/**
+ * Rota `/seu-curso`: a escolha do curso, que o aluno faz antes de ver o painel.
+ *
+ * @remarks
+ * Busca no servidor a lista de cursos e hidrata o cache para a tela abrir já com o dado.
+ *
+ * @returns A tela dentro do `PrefetchBoundary`.
+ */
 export default function Page(): ReactNode {
   return (
     <PrefetchBoundary prefetch={prefetch}>

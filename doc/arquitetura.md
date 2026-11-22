@@ -3,8 +3,8 @@
 Define **critérios de decisão**. O inventário do que existe hoje vive no código, e este documento não
 o replica.
 
-Fase atual: só front, com mock. O backend será o Supabase, ainda não integrado; o que vale só depois
-disso está em "Quando o Supabase entrar".
+O backend é o Supabase, e só `services/` fala com ele. O que ainda é alvo, e não vale em todo
+domínio, está marcado com `> Alvo` em "Quando o Supabase entrar".
 
 ## Plataforma
 
@@ -62,12 +62,12 @@ no cliente, quando o cache vem vazio (ADR 0020, `react-query.md`).
 ### Escrita
 
 ```
-Form → useMutation → service → mock
+Form → useMutation → service → Supabase
                     └─ onSuccess: rotina de invalidação do domínio
 ```
 
-A tela trata o erro de envio como se a rede pudesse cair, mesmo com o mock nunca falhando: o que o
-aluno preencheu não se perde (RNF24).
+A tela trata o erro de envio como se a rede pudesse cair: o que o aluno preencheu não se perde
+(RNF24).
 
 ### Escrita da sessão
 

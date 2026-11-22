@@ -8,6 +8,15 @@ import { Loading } from '@/features/acesso/ExcluirConta/Loading'
 
 export const metadata: Metadata = { title: 'Excluir conta' }
 
+/**
+ * Rota `/excluir-conta`: a exclusão da conta e dos dados do aluno.
+ *
+ * @remarks
+ * Busca no servidor só o perfil, que a tela lê para decidir a volta. O backup dos comprovantes busca
+ * no navegador, de propósito.
+ *
+ * @returns A tela dentro do `PrefetchBoundary`.
+ */
 export default function Page(): ReactNode {
   // A tela só lê o perfil, para decidir a volta. O backup dos comprovantes usa `useQuery` e busca
   // no navegador, de propósito.

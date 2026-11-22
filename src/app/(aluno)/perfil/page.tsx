@@ -12,12 +12,20 @@ export const metadata: Metadata = { title: 'Perfil' }
 
 // A sessão já vem do layout do grupo. Falta o curso, que depende do perfil.
 async function prefetch(context: PrefetchContext): Promise<void> {
-  const { db, queryClient } = context
+  const { db, prefetchQuery } = context
   const courseId = await prefetchCourseId(context)
 
-  if (courseId) await queryClient.prefetchQuery(rulesQueries.course(courseId, db))
+  if (courseId) await prefetchQuery(rulesQueries.course(courseId, db))
 }
 
+/**
+ * Rota `/perfil`: os dados do aluno, o curso e as ações da conta.
+ *
+ * @remarks
+ * A sessão e o perfil vêm do layout. A página busca no servidor o curso do aluno e hidrata o cache.
+ *
+ * @returns A tela dentro do `PrefetchBoundary`.
+ */
 export default function Page(): ReactNode {
   return (
     <PrefetchBoundary prefetch={prefetch}>

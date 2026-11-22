@@ -51,15 +51,15 @@ Os dois ficam em `app/_prefetch/`:
 ```tsx
 // app/(aluno)/atividades/page.tsx
 async function prefetch(context: PrefetchContext): Promise<void> {
-  const { db, queryClient } = context
+  const { db, prefetchQuery } = context
   // O que não depende do perfil sai junto; o que depende do curso vem depois.
   const [courseId] = await Promise.all([
     prefetchCourseId(context),
-    queryClient.prefetchQuery(activitiesQueries.list(db)),
-    queryClient.prefetchQuery(progressQueries.summary(db)),
+    prefetchQuery(activitiesQueries.list(db)),
+    prefetchQuery(progressQueries.summary(db)),
   ])
 
-  if (courseId) await queryClient.prefetchQuery(rulesQueries.items(courseId, db))
+  if (courseId) await prefetchQuery(rulesQueries.items(courseId, db))
 }
 
 export default function Page(): ReactNode {
@@ -78,7 +78,9 @@ primeira pintura. O `Suspense` é rede de segurança (prefetch que falha, navega
 
 - **O `db` é sempre o do servidor** (`createServerClient`, entregue pelo `PrefetchBoundary`). Omitir o
   `db` cai no cliente do navegador, que não enxerga o cookie de sessão: a busca volta vazia, sem erro.
-- **`prefetchQuery`, nunca `fetchQuery`.** Ele não lança: se a busca falhar, a tela tenta de novo no
+- **Use o `prefetchQuery` do contexto, que não lança.** Ele é `queryClient.query()` com o erro
+  engolido, porque o `prefetchQuery` e o `fetchQuery` do `QueryClient` estão depreciados no TanStack
+  Query. `query()` sozinho lança, e a página inteira cairia no `error.tsx`. Se a busca falhar, a tela tenta de novo no
   navegador e a falha cai no `error.tsx` do grupo.
 - **Dependência do curso:** `rules.course` e `rules.items` precisam do `courseId` do perfil. O layout
   e a página renderizam em paralelo, então a página chama `prefetchCourseId`, e o React Query junta a

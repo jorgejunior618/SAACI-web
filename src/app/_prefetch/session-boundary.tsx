@@ -9,6 +9,8 @@ import { getQueryClient } from '@/providers/QueryProvider/query-client'
 import { accountQueries } from '@/services/account'
 import { profileQueries } from '@/services/profile'
 
+import { createPrefetchQuery } from './prefetch-boundary'
+
 type SessionBoundaryProps = {
   /** Para quem o grupo de rota existe, repassado ao `SessionGate`. */
   mode: SessionGateMode
@@ -34,11 +36,12 @@ export async function SessionBoundary({
 }: SessionBoundaryProps): Promise<ReactNode> {
   const db = await createServerClient()
   const queryClient = getQueryClient()
+  const prefetchQuery = createPrefetchQuery(queryClient)
 
-  await queryClient.prefetchQuery(accountQueries.session(db))
+  await prefetchQuery(accountQueries.session(db))
 
   if (queryClient.getQueryData(accountQueries.session(db).queryKey)) {
-    await queryClient.prefetchQuery(profileQueries.detail(db))
+    await prefetchQuery(profileQueries.detail(db))
   }
 
   return (
