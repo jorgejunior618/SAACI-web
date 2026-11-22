@@ -35,36 +35,59 @@ O `queryFn` vem embrulhado numa função de seta sempre que o service aceita o c
 parâmetro. Passada direto, a função recebe o contexto da query no 1º argumento
 (`camada-servicos.md`, "Função passada direto ao TanStack").
 
+**Toda definição aceita `db?: DbClient`** e o repassa ao service: é o que deixa o prefetch do servidor
+usar o cliente dele (`activitiesQueries.list(db)`). Sem o argumento, o service usa o cliente do
+navegador, como as telas fazem. O `db` **não entra na chave**: ele é o cliente, não o dado, e a chave
+do servidor precisa ser a mesma do navegador para o cache hidratado casar. Como a regra
+`@tanstack/query/exhaustive-deps` pede o `db` na chave, cada definição leva um
+`eslint-disable-next-line` com o motivo. Um teste em `tests/` confere as duas coisas.
+
 ## Primeira carga
 
-Fase mock: a sessão e os dados moram na memória do navegador, então as páginas não fazem prefetch. O
-`SessionGate` só monta a área logada no navegador, e as telas usam `useSuspenseQuery` com o `Loading`
-da feature.
-
-> Alvo (Supabase): ainda não implementado.
-
-Com o Supabase, a página busca no servidor e hidrata o cache:
+A página busca no servidor e hidrata o cache (ADR 0020). O layout de cada grupo já busca a sessão e o
+perfil com o `SessionBoundary`, e a página faz o prefetch do que a tela lê com o `PrefetchBoundary`.
+Os dois ficam em `app/_prefetch/`:
 
 ```tsx
 // app/(aluno)/atividades/page.tsx
-const db = await createClient() // cliente de SERVIDOR, explícito
-const queryClient = getQueryClient()
+async function prefetch(context: PrefetchContext): Promise<void> {
+  const { db, queryClient } = context
+  // O que não depende do perfil sai junto; o que depende do curso vem depois.
+  const [courseId] = await Promise.all([
+    prefetchCourseId(context),
+    queryClient.prefetchQuery(activitiesQueries.list(db)),
+    queryClient.prefetchQuery(progressQueries.summary(db)),
+  ])
 
-await queryClient.prefetchQuery(activitiesQueries.list(filtros, db))
+  if (courseId) await queryClient.prefetchQuery(rulesQueries.items(courseId, db))
+}
 
-return (
-  <HydrationBoundary state={dehydrate(queryClient)}>
-    <Suspense fallback={<Loading />}>
-      <ListaAtividades />
-    </Suspense>
-  </HydrationBoundary>
-)
+export default function Page(): ReactNode {
+  return (
+    <PrefetchBoundary prefetch={prefetch}>
+      <Suspense fallback={<Loading />}>
+        <Atividades />
+      </Suspense>
+    </PrefetchBoundary>
+  )
+}
 ```
 
 O `await` é de propósito: é ele que faz o HTML sair com o dado e o `useSuspenseQuery` não suspender na
-primeira pintura. O `Suspense` é rede de segurança (prefetch que falha, navegação no cliente). O
-`QueryClient` do servidor é **por requisição** (`React.cache()` em `providers/QueryProvider/query-client.ts`), nunca
-variável de módulo: ela viveria entre requisições e o dado de um aluno apareceria para outro (RNF04).
+primeira pintura. O `Suspense` é rede de segurança (prefetch que falha, navegação no cliente).
+
+- **O `db` é sempre o do servidor** (`createServerClient`, entregue pelo `PrefetchBoundary`). Omitir o
+  `db` cai no cliente do navegador, que não enxerga o cookie de sessão: a busca volta vazia, sem erro.
+- **`prefetchQuery`, nunca `fetchQuery`.** Ele não lança: se a busca falhar, a tela tenta de novo no
+  navegador e a falha cai no `error.tsx` do grupo.
+- **Dependência do curso:** `rules.course` e `rules.items` precisam do `courseId` do perfil. O layout
+  e a página renderizam em paralelo, então a página chama `prefetchCourseId`, e o React Query junta a
+  busca do perfil com a do layout.
+- **Página que gasta token ao ler não faz prefetch.** `/nova-senha` consome o link no Auth, e o
+  servidor não grava a sessão curta que isso abre (`arquitetura.md`, exceções nomeadas).
+- O `QueryClient` do servidor é **por requisição** (`React.cache()` em
+  `providers/QueryProvider/query-client.ts`), nunca variável de módulo: ela viveria entre requisições
+  e o dado de um aluno apareceria para outro (RNF04).
 
 ## `useSuspenseQuery` ou `useQuery`
 
@@ -97,9 +120,9 @@ function PerfilEmEdicao({ perfilId }: { perfilId: string }): ReactNode {
 Isso apaga o `enabled` e um bug latente: o `defaultValues` do React Hook Form é lido **uma vez**, no
 primeiro render, então um formulário que montasse antes do dado chegar nasceria vazio para sempre.
 
-**Exceção atual: `SessionGate`** usa `useQuery` com `enabled`, comentado no arquivo. A busca da sessão
-só pode rodar depois de o componente montar no navegador, porque o servidor não enxerga o mock. Com o
-Supabase, a exceção sai.
+**`SessionGate`** segue a mesma regra: lê a sessão com `useSuspenseQuery`, sem `enabled` nem
+`isMounted`, e o perfil é o componente à parte `ProfileGate`, que só monta quando há sessão. O cache
+já chega hidratado pelo layout do grupo (ADR 0020).
 
 Toda tela com suspense depende de um `error.tsx` acima dela, um por grupo de rota, reusando
 `components/ErrorScreen`.
@@ -158,7 +181,8 @@ valores são constantes em `src/constants/cache.ts` (`STALE_TIME`), nunca númer
 ## Regras
 
 - `queryFn` sempre vem do service; função de rede não é escrita na tela.
-- Chave sempre da factory.
+- Chave sempre da factory. Toda definição aceita `db` opcional, fora da chave.
+- Página que lê dado usa o `PrefetchBoundary`, com `prefetchQuery` e o `db` do servidor.
 - `useSuspenseQuery` por padrão; `useQuery` só com busca, filtro ou paginação, e com o porquê
   comentado na linha.
 - Query condicional divide o componente.
