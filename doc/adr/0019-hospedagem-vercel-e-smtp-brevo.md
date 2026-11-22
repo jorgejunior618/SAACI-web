@@ -1,6 +1,6 @@
 # 0019. O SAACI hospeda na Vercel (plano Hobby) e envia e-mail do Auth pela Brevo
 
-- **Status:** Proposta
+- **Status:** Aceita
 - **Data:** 21/11/2026
 
 ## Contexto
@@ -36,9 +36,12 @@ O front e o Supabase já funcionam no banco local, e `doc/tecnologia.md` deixava
 - Sem domínio próprio, não há SPF nem DKIM do domínio do SAACI: o e-mail da Brevo pode cair no spam
   do `@aluno.ifce.edu.br`. O teste da #40 confere a caixa de entrada.
 - Vercel e Brevo são terceiros novos e passam a receber dados (Vercel: as requisições; Brevo: o
-  e-mail do aluno e o conteúdo dos e-mails do Auth). O time precisa aprovar, como aprovou o Gemini
-  (RNF26). Os limites do plano gratuito de cada um precisam ser conferidos nos painéis antes do
-  lançamento.
+  e-mail do aluno e o conteúdo dos e-mails do Auth). Aceitar esta ADR registra a aprovação do time,
+  como o RNF26 fez com o Gemini. Os limites do plano gratuito de cada um precisam ser conferidos
+  nos painéis antes do lançamento.
+- O remetente é um Gmail do projeto, e o e-mail pode cair no spam. A tela de espera da confirmação
+  (`PendingConfirmation`) diz ao aluno que o e-mail vem de SAACI e que ele deve olhar o spam. Um
+  domínio próprio autenticado na Brevo é a saída se isso se mostrar um problema real.
 - `doc/tecnologia.md` ganha a escolha de hospedagem e a linha de e-mail. O `README` passa a descrever
   o caminho de produção com a Brevo.
 - A exceção do `SessionGate` (#23) não muda aqui.
