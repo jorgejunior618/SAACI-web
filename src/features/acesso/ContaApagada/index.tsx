@@ -14,7 +14,7 @@ import { ACCOUNT_DELETION_DEADLINE_DAYS } from '@/constants/privacy'
  * chegar aqui. Nada na tela depende de dado do aluno, então ela abre sem busca.
  *
  * O prazo vem do RNF05 (ADR 0017). A tela não promete e-mail de confirmação: `deleteAccount` não
- * envia nada e o SMTP de produção ainda não foi definido.
+ * envia nada.
  *
  * @example
  * ```tsx

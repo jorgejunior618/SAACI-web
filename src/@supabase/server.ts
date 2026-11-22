@@ -20,11 +20,14 @@ import { getSupabaseEnv } from './env'
  *
  * @example
  * const db = await createServerClient()
- * await queryClient.prefetchQuery(activitiesQueries.list(filters, db))
+ * await queryClient.query(activitiesQueries.list(filters, db))
  */
 export async function createServerClient(): Promise<DbClient> {
-  const { url, publishableKey } = getSupabaseEnv()
+  // `cookies()` vem antes da leitura do env, de propósito: ele marca a rota como dinâmica, e o Next
+  // para de tentar pré-renderizá-la no build. Com a ordem contrária, um build sem as variáveis (o CI)
+  // lança o erro de variável ausente durante a pré-renderização, em vez de só falhar na requisição.
   const cookieStore = await cookies()
+  const { url, publishableKey } = getSupabaseEnv()
 
   return createSsrServerClient<Database>(url, publishableKey, {
     cookies: {

@@ -157,9 +157,9 @@ max_indexes = 5
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-# ATENÇÃO: este arquivo descreve o ambiente LOCAL. Antes de `supabase config push` para produção,
-# troque `site_url` e `additional_redirect_urls` pela URL real (README, "Levar o Auth para produção"):
-# os links dos e-mails saem com este endereço, e `localhost` não abre na máquina do aluno.
+# ATENÇÃO: o que está nesta seção descreve o ambiente LOCAL. A URL de produção fica no bloco
+# `[remotes.production]` no fim do arquivo (README, "Levar o Auth para produção"): os links dos
+# e-mails saem com o `site_url`, e `localhost` não abre na máquina do aluno.
 # localhost, e não 127.0.0.1: o link do e-mail abre nesta URL, e o `next dev` bloqueia a origem
 # 127.0.0.1 (allowedDevOrigins), então a página não hidrataria. Use sempre localhost no navegador.
 site_url = "http://localhost:3000"
@@ -445,3 +445,35 @@ enabled = true
 # formatted with uppercase keywords, indent 2, max width 180, trailing commas,
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
+
+# Produção (ADR 0019). Só as chaves declaradas aqui sobrescrevem o que está acima, e só quando o
+# `project_id` abaixo é o ref do projeto ao qual a CLI está ligada (`supabase link`). O `project_id`
+# precisa ter o formato de um ref (20 letras minúsculas): um marcador no lugar dele quebra todo
+# comando da CLI, não só o `config push`.
+# O `site_url` é declarado de propósito: sem ele o push pode levar o valor local (não confirmado).
+[remotes.production]
+project_id = "yabqyuuilkmikdvulpxw"
+
+[remotes.production.auth]
+site_url = "https://saaci.vercel.app"
+additional_redirect_urls = ["https://saaci.vercel.app/confirme-email", "https://saaci.vercel.app/nova-senha"]
+
+# Brevo, plano gratuito. A chave SMTP e o usuário vêm do ambiente da CLI, nunca do arquivo.
+# O remetente precisa estar verificado no painel da Brevo, senão o envio é recusado.
+[remotes.production.auth.email.smtp]
+enabled = true
+host = "smtp-relay.brevo.com"
+port = 587
+user = "env(BREVO_SMTP_USER)"
+pass = "env(BREVO_SMTP_KEY)"
+admin_email = "saaci.web.if@gmail.com"
+sender_name = "SAACI"
+
+# Com SMTP próprio o limite deixa de ser o do Supabase. Fica bem abaixo da cota diária da Brevo
+# (confira o valor no painel) para um abuso não gastar a cota dos alunos.
+[remotes.production.auth.rate_limit]
+email_sent = 30
+
+# O SAACI não usa vetores, e o recurso é do plano Pro. Sem isto, o push ligaria o padrão do arquivo local.
+[remotes.production.storage.vector]
+enabled = false

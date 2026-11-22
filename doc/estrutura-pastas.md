@@ -14,9 +14,10 @@ SAACI-web/
 ├── tests/                        testes de regra do repositório inteiro
 ├── panda.config.ts
 └── src/
-    ├── proxy.ts                  alvo: refresh de sessão e rota protegida
+    ├── proxy.ts                  refresh de sessão e rota protegida (ADR 0020)
     ├── app/                      rota, layout, prefetch. Nada mais
     │   ├── (<grupo>)/<rota>/     page.tsx, loading.tsx, error.tsx
+    │   ├── _prefetch/            session-boundary.tsx, prefetch-boundary.tsx: prefetch no servidor (ADR 0020)
     │   └── api/<tema>/<ação>/    route.ts: Route Handler, só para segredo (ADR 0016)
     │
     ├── features/                 UI e lógica de tela
@@ -47,6 +48,7 @@ Não existe `SupabaseProvider`: os clientes são funções de `@supabase/`, não
 | Vou criar                                | Vai em                                                     |
 | ---------------------------------------- | ---------------------------------------------------------- |
 | Rota nova                                | `app/<grupo>/<rota>/page.tsx`, só importando a feature     |
+| Prefetch de uma página                   | `PrefetchBoundary` na `page.tsx`, de `app/_prefetch/`      |
 | Route Handler (só para segredo)          | `app/api/<tema>/<ação>/route.ts`, fino, chamando o service |
 | Tela                                     | `features/<dominio>/<Tela>/index.tsx`                      |
 | Sub-componente de uma tela só            | `features/<dominio>/<Tela>/_components/<Componente>/`      |
@@ -113,9 +115,11 @@ raiz pode ter `metadata`: num segmento o `<title>` da página já foi enviado qu
   `@supabase`. `components/` é para quem tem lógica (chama `services/`, decide navegação).
 - Feature importa `@/services/<dominio>`, nunca um arquivo interno do domínio (ESLint garante).
 - Feature não importa `supabase-js`; só `services/`.
-- `app/` nunca contém componente de UI, estilo ou regra de negócio.
+- `app/` nunca contém componente de UI, estilo ou regra de negócio. Os dois componentes de servidor de
+  `app/_prefetch/` só montam prefetch e hidratação, e não desenham tela.
 - Arquivo interno de um módulo não importa do `index.ts` do próprio módulo.
-- Pasta auxiliar tem underscore e plural: `_components/`, `_hooks/`.
+- Pasta auxiliar tem underscore e plural: `_components/`, `_hooks/`. A exceção é `app/_prefetch/`,
+  que no singular nomeia o tema e não um conjunto de peças (ADR 0020).
 - Máximo 2 níveis dentro de um domínio: `<dominio>/<Tela>/` ou `<dominio>/_components/` (ADR 0005).
 - Componente em `_components/` é pasta com `index.tsx` e `styles.ts` próprio, nunca `.tsx` solto.
 - O `styles.ts` da tela guarda só o que a tela usa. Estilo que dois irmãos dividem é definido em

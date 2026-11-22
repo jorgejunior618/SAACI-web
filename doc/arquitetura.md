@@ -3,8 +3,8 @@
 Define **critérios de decisão**. O inventário do que existe hoje vive no código, e este documento não
 o replica.
 
-Fase atual: só front, com mock. O backend será o Supabase, ainda não integrado; o que vale só depois
-disso está em "Quando o Supabase entrar".
+O backend é o Supabase, e só `services/` fala com ele. O que ainda é alvo, e não vale em todo
+domínio, está marcado com `> Alvo` em "Quando o Supabase entrar".
 
 ## Plataforma
 
@@ -45,24 +45,29 @@ Painel, resumo e formulário mostram o mesmo número porque leem o mesmo cálcul
 ### Leitura
 
 ```
-SessionGate (só monta no navegador)
-  └─ Client Component
-       └─ useSuspenseQuery(definição de <dom>.queries.ts)
-            └─ service → mock
+proxy.ts (renova o cookie; sem sessão em área logada, 307 para /entrar)
+  └─ layout do grupo: SessionBoundary
+       ├─ prefetch da sessão e do perfil, com o cliente do servidor
+       └─ HydrationBoundary > Suspense > SessionGate (useSuspenseQuery)
+            └─ page.tsx: PrefetchBoundary (prefetch do que a tela lê, em paralelo)
+                 └─ Suspense > Client Component
+                      └─ useSuspenseQuery(definição de <dom>.queries.ts)
+                           └─ service → Supabase (cache já hidratado)
 ```
 
-O mock vive na memória do navegador, então o servidor não o enxerga e não há prefetch. O `Loading` da
-feature cobre a espera.
+O servidor busca com o cliente dele (`db`), hidrata o cache, e a tela lê a mesma definição de query.
+Por isso a primeira pintura já tem o dado, e o `Loading` da feature só aparece na navegação feita
+no cliente, quando o cache vem vazio (ADR 0020, `react-query.md`).
 
 ### Escrita
 
 ```
-Form → useMutation → service → mock
+Form → useMutation → service → Supabase
                     └─ onSuccess: rotina de invalidação do domínio
 ```
 
-A tela trata o erro de envio como se a rede pudesse cair, mesmo com o mock nunca falhando: o que o
-aluno preencheu não se perde (RNF24).
+A tela trata o erro de envio como se a rede pudesse cair: o que o aluno preencheu não se perde
+(RNF24).
 
 ### Escrita da sessão
 
@@ -100,8 +105,8 @@ disparar uma busca. A exceção está explicada em `react-query.md`.
   (`modelagem-dados.md`).
 - **Segredo:** o serviço de IA que lê o comprovante (RF41) é chamado por um Route Handler. A chave
   nunca chega ao navegador, e o tratamento de dado pessoal segue RNF26.
-- **Leitura com prefetch:** o servidor busca, hidrata o cache e a tela usa a mesma definição de query
-  (`react-query.md`). A exceção do `SessionGate` sai.
+- **Leitura com prefetch (ADR 0020):** o servidor busca, hidrata o cache e a tela usa a mesma
+  definição de query (`react-query.md`). O `SessionGate` lê a sessão hidratada com `useSuspenseQuery`.
 - RLS é a única fronteira de autorização; filtro no front é conveniência (RNF04). O domínio
   institucional (RF02) é barrado no servidor (`rls-e-permissoes.md`).
 - RPC usa `security invoker`. Qualquer `security definer` entra aqui, por nome, antes de ser escrito.
@@ -124,7 +129,7 @@ Uma exceção que ninguém consegue enumerar já virou regra. Por isso cada uma 
 
 | Exceção                                             | Regra que ela dobra                             | Por que existe                                                                       |
 | --------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `SessionGate` decide a sessão só no navegador       | Página é Server Component e faz prefetch        | Enquanto a sessão for do mock, o servidor não a enxerga                              |
+| `/nova-senha` sem prefetch no servidor              | Página que lê dado faz prefetch (ADR 0020)      | A conferência do link gasta o token, e o servidor não grava a sessão curta que abre  |
 | `setQueryData` da sessão em vez de invalidar        | Invalidação sempre pela rotina do domínio       | A resposta de `signIn`/`signOut` já é o novo estado                                  |
 | `/conta-apagada` fora dos grupos, sem `SessionGate` | Um `SessionGate` por grupo de rota (ADR 0007)   | A sessão acabou de ser apagada, e qualquer gate redirecionaria antes da confirmação  |
 | Update do perfil sem `updated_at` no `WHERE`        | Tabela editável confere `updated_at` (ADR 0009) | O aluno é o único escritor e o patch é por campo, então não há conflito a detectar   |

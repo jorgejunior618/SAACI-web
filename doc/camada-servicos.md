@@ -114,7 +114,10 @@ dois errou ajudaria quem tenta descobrir e-mails de aluno.
 - **Cliente do banco.** A mesma função roda no servidor (prefetch) e no navegador. O cliente entra por
   parâmetro, com o do navegador como padrão: `getActivities(filtros, db = createClient())`. O Server
   Component sempre passa o seu, porque **omitir no servidor cai no cliente do navegador, que não
-  enxerga o cookie de sessão: a busca volta vazia, sem erro nenhum**.
+  enxerga o cookie de sessão: a busca volta vazia, sem erro nenhum**. As definições de
+  `<dom>.queries.ts` aceitam esse `db` como último parâmetro opcional e o repassam ao service
+  (`rulesQueries.items(courseId, db)`), para o prefetch das páginas usar o cliente do servidor. O `db`
+  não entra na chave (`react-query.md`, ADR 0020).
 - **Tradução de erro.** `invalid_credentials` vira `InvalidCredentialsError` e `email_not_confirmed` vira
   um erro próprio, que a tela leva à verificação (RF05).
 - **Escrita com comprovante (implementada em `activities`, ADR 0011).** Toda leitura de que a
@@ -126,7 +129,7 @@ dois errou ajudaria quem tenta descobrir e-mails de aluno.
   exceção ao cliente por parâmetro: só roda no navegador (`arquitetura.md`, exceções nomeadas).
 - **Função passada direto ao TanStack.** `queryFn: getActivities` e `mutationFn: createActivity`
   mandam o contexto da query ou da mutation como argumento, e ele cairia no lugar do `db`. Na query,
-  embrulhe: `queryFn: () => getActivities()`.
+  embrulhe: `queryFn: () => getActivities(db)`, em que `db` é o parâmetro opcional da definição.
 - **Quando a leitura vira função SQL (RPC).** O `.select()` basta para lista simples. Vai para uma
   função SQL o que o construtor não expressa sem erro silencioso: total do filtro inteiro (somar o
   array recebido daria a soma **da página**), valor derivado de outras linhas (horas computadas

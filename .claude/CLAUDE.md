@@ -55,7 +55,7 @@ filesystem.
 
 ```
 SAACI-web/
-  doc/                    documentação técnica
+  doc/                    documentação técnica do projeto
   doc/adr/                ADRs (modelo em 0000-modelo.md)
   scripts/                check-adr.mjs, eslint-pos-edicao.mjs
   tests/                  testes que não co-localizam com um arquivo
