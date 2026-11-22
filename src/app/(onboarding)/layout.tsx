@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react'
 
-import { SessionGate } from '@/components/SessionGate'
+import { SessionBoundary } from '@/app/_prefetch/session-boundary'
 
 type Props = {
   children: ReactNode
 }
 
 export default function Layout({ children }: Props): ReactNode {
-  return <SessionGate mode="onboarding">{children}</SessionGate>
+  return <SessionBoundary mode="onboarding">{children}</SessionBoundary>
 }

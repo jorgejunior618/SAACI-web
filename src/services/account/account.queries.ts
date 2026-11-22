@@ -1,3 +1,4 @@
+import type { DbClient } from '@supabase/client'
 import { queryOptions } from '@tanstack/react-query'
 
 import { STALE_TIME } from '@/constants/cache'
@@ -5,13 +6,21 @@ import { STALE_TIME } from '@/constants/cache'
 import { getPasswordLink, getSession } from './account.api'
 import { accountKeys } from './account.keys'
 
-/** Definições de query do domínio `account`. */
+/**
+ * Definições de query do domínio `account`.
+ *
+ * @remarks
+ * `session` aceita o `db` do servidor para o prefetch das páginas. Sem ele, usa o cliente do
+ * navegador, como as telas fazem.
+ */
 export const accountQueries = {
-  session: () =>
+  session: (db?: DbClient) =>
+    // `db` é o cliente (servidor ou navegador), não o dado: na chave, o cache hidratado nunca casaria.
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps -- o cliente não identifica o dado
     queryOptions({
       queryKey: accountKeys.session(),
       // Função de seta: o `queryFn` recebe o contexto da query, que não pode cair no parâmetro `db`.
-      queryFn: () => getSession(),
+      queryFn: () => getSession(db),
       staleTime: STALE_TIME.cadastro,
     }),
   /**
