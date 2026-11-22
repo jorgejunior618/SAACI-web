@@ -4,7 +4,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(15);
+select plan(18);
 
 select ok(
   (select relrowsecurity from pg_class where oid = 'public.cursos'::regclass),
@@ -93,6 +93,24 @@ select is(
   (select count(*)::int from public.itens_curso),
   24,
   'os 24 itens continuam depois das tentativas de escrita'
+);
+
+-- `sem_acento` não é RPC pública. Quem escreve `cursos` é a migration, com o dono da função, e a
+-- coluna gerada continua sendo preenchida.
+select ok(
+  not has_function_privilege('anon', 'public.sem_acento(text)', 'execute'),
+  'o visitante não executa sem_acento'
+);
+select ok(
+  not has_function_privilege('authenticated', 'public.sem_acento(text)', 'execute'),
+  'o aluno logado não executa sem_acento'
+);
+insert into public.cursos (nome, grau, campus, carga_total_horas)
+values ('Ciência da Computação', 'Bacharelado', 'Fortaleza', 100);
+select is(
+  (select nome_busca from public.cursos where nome = 'Ciência da Computação'),
+  'ciencia da computacao',
+  'o dono insere curso e nome_busca sai sem acento'
 );
 
 select * from finish();
