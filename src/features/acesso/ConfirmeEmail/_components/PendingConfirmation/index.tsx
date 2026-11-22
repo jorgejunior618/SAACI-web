@@ -61,8 +61,8 @@ export function PendingConfirmation({ email, isFromSignIn }: PendingConfirmation
         <S.Lead>Enviamos um link para</S.Lead>
         <S.Email>{email}</S.Email>
         <S.Lead>
-          Abra a caixa do e-mail institucional e toque no link. Se não achar, olhe no spam e na
-          lixeira.
+          Abra a caixa do e-mail institucional e toque no link. O e-mail vem de SAACI e pode cair no
+          spam, então olhe lá também e na lixeira.
         </S.Lead>
       </S.Heading>
 

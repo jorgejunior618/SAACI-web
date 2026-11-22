@@ -234,27 +234,91 @@ não passa do Acesso.
 
 ### Levar o Auth para produção
 
-Nada é feito à mão no painel: o que vale no banco local está em `supabase/migrations/` (funções, gatilho
-e limpeza de conta) e em `supabase/config.toml` (confirmação, validade do link, retornos, templates e
-hook). Com o projeto de produção criado:
+Nada é feito à mão no painel do Supabase: o que vale no banco local está em `supabase/migrations/`
+(funções, gatilho e limpeza de conta) e em `supabase/config.toml` (confirmação, validade do link,
+retornos, templates e hook). Para produção, o mesmo arquivo tem o bloco `[remotes.production]`, que
+sobrescreve só o que está declarado nele: `site_url`, os retornos, o SMTP da Brevo, o limite de
+e-mails e o desligamento do `storage.vector` (ADR 0019). O bloco só vale quando o `project_id` dele é
+o ref do projeto ligado por `supabase link`. O `project_id` precisa ter o formato de um ref (20 letras
+minúsculas): um marcador no lugar dele quebra todo comando da CLI.
+
+Nesta versão da CLI (3.x), `db push` e `config push` miram o banco **local** por padrão. Para a
+nuvem, use `--remote` e confira a primeira linha da saída: `Target: project <nome> (<ref>) ·
+production`, seguida de `Loading config override: [remotes.production]`. Se vier `local stack`, pare.
+
+**Antes de começar**, tenha em mãos:
+
+- O projeto Supabase de produção, **ativo**. No plano gratuito ele pausa por inatividade e a CLI
+  recusa o `link` com `project is paused`: restaure em Project Settings do painel.
+- Uma conta na Brevo, com um remetente verificado (Senders, Domains & Dedicated IPs) e uma chave SMTP
+  (SMTP & API > SMTP). A Brevo pede verificação por celular antes de gerar a chave. O login SMTP
+  aparece na própria página e não é o e-mail da conta (tem a forma `...@smtp-brevo.com`). A chave
+  aparece uma vez, vale 1 ano e expira após 90 dias sem uso. Não ative o bloqueio de IP não
+  autorizado: o Supabase envia de endereços que mudam.
+- Quem for dono do repositório importa o projeto na Vercel. Em repositório privado de conta pessoal,
+  só o dono libera o acesso dela ao código.
+
+**Passo a passo, nesta ordem:**
+
+1. **Vercel.** Importe o repositório. Em Settings > Environment Variables, só no ambiente
+   Production, crie `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` e
+   `GEMINI_API_KEY` (`GEMINI_MODEL` é opcional). A chave `secret` do Supabase não vai para a
+   Vercel. Cole cada valor inteiro: a chave publishable começa por `sb_publishable_`, e um caractere
+   a menos dá 401 no cadastro. As `NEXT_PUBLIC_*` entram no build, então mudou o valor, faça o
+   Redeploy. Faça o deploy e anote a URL (`https://<app>.vercel.app`).
+2. **`supabase/config.toml`.** No bloco `[remotes.production]`, preencha o `project_id` (o ref, de
+   `pnpm exec supabase projects list`), a URL da Vercel (`site_url` e os dois retornos) e o
+   `admin_email` com o remetente verificado na Brevo. Faça o commit: o ref e a URL são públicos, mas a
+   chave SMTP nunca entra no arquivo.
+3. **Migrations.** O `pg_cron` e o `pg_net` já são criados por elas:
+
+   ```bash
+   pnpm exec supabase link --project-ref <ref>
+   pnpm exec supabase db push --remote
+   ```
+
+4. **Configuração do Auth**, com o login e a chave da Brevo só no seu terminal:
+
+   ```bash
+    export BREVO_SMTP_USER=<login SMTP da Brevo>
+    export BREVO_SMTP_KEY='<chave SMTP da Brevo>'
+   pnpm exec supabase config push --remote
+   unset BREVO_SMTP_USER BREVO_SMTP_KEY
+   ```
+
+   O `config push` mostra o que vai mudar e pergunta antes de aplicar. Confira a URL real (e não
+   `localhost`) em `site_url`, o servidor `smtp-relay.brevo.com` e o hook `before_user_created` ligado. Se a seção
+   Storage listar `storage.vector.enabled`, o override do bloco não foi lido.
+
+5. **Limpeza dos comprovantes.** Siga "No projeto remoto" em
+   [Limpeza dos comprovantes](#limpeza-dos-comprovantes) (deploy da função, `LIMPEZA_SEGREDO` e os
+   dois segredos do Vault).
+6. **Confira os jobs e os segredos.** No SQL Editor do painel:
+
+   ```sql
+   select jobname, schedule, active from cron.job;   -- os dois jobs, com active = true
+   select name from vault.secrets order by name;     -- limpeza_segredo e limpeza_url
+   ```
+
+**Teste depois de subir**, sem depender da tela:
 
 ```bash
-pnpm exec supabase link --project-ref <ref>
-pnpm exec supabase db push        # migrations
-pnpm exec supabase config push    # config.toml
+curl -s -w "\nHTTP %{http_code}\n" -X POST "https://<ref>.supabase.co/auth/v1/signup" \
+  -H "apikey: <chave publishable>" -H "Content-Type: application/json" \
+  -d '{"email":"teste@gmail.com","password":"Senha-de-teste-123"}'
 ```
 
-Antes de subir:
+Precisa voltar `403` com `Use seu e-mail @aluno.ifce.edu.br.` Depois, na URL da Vercel:
 
-- **`site_url` e `additional_redirect_urls`** do `config.toml` apontam para `localhost`. Em produção
-  precisam da URL real, com `/confirme-email` e `/nova-senha`. Não confirmado: o jeito de manter dois
-  ambientes no mesmo arquivo (bloco `[remotes.<nome>]`) deve ser conferido na documentação da CLI.
-- **SMTP próprio.** O SMTP padrão do Supabase só serve para teste e limita os envios por hora, o que
-  trava o cadastro com a confirmação obrigatória.
-- **`pg_cron` habilitado** no projeto, para a limpeza de conta não confirmada (7 dias, ADR 0003).
+- O cadastro com `@aluno.ifce.edu.br` cria a conta e o e-mail de confirmação chega em português,
+  de `SAACI`. Olhe também a caixa de spam: sem domínio próprio, o remetente gratuito pode cair lá
+  (ADR 0019). O link abre `/confirme-email` no endereço da Vercel, e não em `localhost`. Se o e-mail
+  não chegar, a Brevo mostra o motivo em Transacional > Logs.
+- A leitura automática de um comprovante responde. A rota confere o `Origin` contra o `Host`, e é aqui
+  que um endereço errado apareceria como 403.
 
-Depois de subir, repita o teste da regra de domínio: o signup com `@gmail.com` precisa falhar com 403,
-e o de `@aluno.ifce.edu.br` precisa criar a conta.
+Se mudar a URL da Vercel (domínio próprio, por exemplo), atualize o bloco `[remotes.production]` e
+repita o `config push --remote`: os links dos e-mails saem com o `site_url`.
 
 ## Scripts
 

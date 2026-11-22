@@ -12,10 +12,12 @@ Toda a saída em PT-BR.
 ## Passo 1: levantar o diff
 
 ```
-git diff main...HEAD --name-only
+git diff origin/dev...HEAD --name-only
 ```
 
-`main` é a branch base. Se o diff vier vazio, avise e pare: não há o que auditar.
+`dev` é a branch base dos PRs de trabalho (a `main` só recebe o PR de produção, feito pelo dono).
+Rode `git fetch origin dev` antes se a `origin/dev` puder estar velha. Se o diff vier vazio, avise e
+pare: não há o que auditar.
 
 ## Passo 2: categorizar cada arquivo
 
