@@ -113,7 +113,8 @@ disparar uma busca. A exceção está explicada em `react-query.md`.
   Registrados: `apagar_contas_nao_confirmadas` (RNF27, ADR 0003), que só o dono executa, e
   `apagar_minha_conta` (RF33, ADR 0006), que só o aluno logado executa e que lê `auth.uid()` em vez de
   receber o dono, e `cria_perfil_do_aluno` (ADR 0009), gatilho em `auth.users` que cria a linha vazia
-  do perfil e que ninguém executa por RPC.
+  do perfil e que ninguém executa por RPC. Conhecida e aceita, fora das migrations:
+  `rls_auto_enable`, da plataforma Supabase (event trigger `ensure_rls`), que não se altera (ADR 0021).
 - **Agendamento que só mexe no banco e não usa segredo** roda como função SQL com `pg_cron`, sem Route
   Handler. A limpeza de conta não confirmada (RNF27) é assim (ADR 0003).
 - **Agendamento que apaga arquivo do Storage** é uma Edge Function em `supabase/functions/`, chamada
