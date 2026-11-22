@@ -447,17 +447,16 @@ enabled = true
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
 
 # Produção (ADR 0019). Só as chaves declaradas aqui sobrescrevem o que está acima, e só quando o
-# `project_id` abaixo é o ref do projeto ao qual a CLI está ligada (`supabase link`). Com o marcador
-# no lugar, o bloco não casa com nada e o `config push` não aplica este bloco.
+# `project_id` abaixo é o ref do projeto ao qual a CLI está ligada (`supabase link`). O `project_id`
+# precisa ter o formato de um ref (20 letras minúsculas): um marcador no lugar dele quebra todo
+# comando da CLI, não só o `config push`.
 # O `site_url` é declarado de propósito: sem ele o push pode levar o valor local (não confirmado).
-# TODO: preencher os marcadores na publicação (#40): o ref do projeto, a URL da Vercel e o
-# remetente verificado na Brevo.
 [remotes.production]
-project_id = "[REF DO PROJETO]"
+project_id = "yabqyuuilkmikdvulpxw"
 
 [remotes.production.auth]
-site_url = "https://[URL DA VERCEL]"
-additional_redirect_urls = ["https://[URL DA VERCEL]/confirme-email", "https://[URL DA VERCEL]/nova-senha"]
+site_url = "https://saaci.vercel.app"
+additional_redirect_urls = ["https://saaci.vercel.app/confirme-email", "https://saaci.vercel.app/nova-senha"]
 
 # Brevo, plano gratuito. A chave SMTP e o usuário vêm do ambiente da CLI, nunca do arquivo.
 # O remetente precisa estar verificado no painel da Brevo, senão o envio é recusado.
@@ -467,10 +466,14 @@ host = "smtp-relay.brevo.com"
 port = 587
 user = "env(BREVO_SMTP_USER)"
 pass = "env(BREVO_SMTP_KEY)"
-admin_email = "[REMETENTE VERIFICADO NA BREVO]"
+admin_email = "saaci.web.if@gmail.com"
 sender_name = "SAACI"
 
 # Com SMTP próprio o limite deixa de ser o do Supabase. Fica bem abaixo da cota diária da Brevo
 # (confira o valor no painel) para um abuso não gastar a cota dos alunos.
 [remotes.production.auth.rate_limit]
 email_sent = 30
+
+# O SAACI não usa vetores, e o recurso é do plano Pro. Sem isto, o push ligaria o padrão do arquivo local.
+[remotes.production.storage.vector]
+enabled = false
