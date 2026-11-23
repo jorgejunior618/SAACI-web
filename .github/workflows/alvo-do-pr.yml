@@ -1,0 +1,64 @@
+name: Alvo do PR
+
+# Contribuidor de fora (não colaborador) abre PR só para a `dev`, a partir de uma branch própria do
+# fork, nunca da `main` nem da `dev` do fork (CONTRIBUTING.md, seção "Fluxo"). O GitHub não tem
+# regra nativa para o alvo de PR de fork, então este job reprova o PR e diz como corrigir. Ele é
+# check obrigatório nos rulesets da `main` e da `dev`.
+#
+# Passa sempre: PR de branch do próprio repositório (quem tem escrita, inclusive o Dependabot) ou
+# de quem é dono, membro ou colaborador. `edited` está nos tipos para o check rodar de novo quando
+# o contribuidor troca o alvo do PR. Nenhum código do PR é baixado; os valores entram por env.
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions: {}
+
+concurrency:
+  group: alvo-do-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  conferir:
+    name: Alvo e branch do PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    env:
+      BASE: ${{ github.event.pull_request.base.ref }}
+      HEAD_REF: ${{ github.event.pull_request.head.ref }}
+      HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+      REPO: ${{ github.repository }}
+      ASSOCIACAO: ${{ github.event.pull_request.author_association }}
+    steps:
+      - name: Conferir alvo e branch de origem
+        run: |
+          if [ "$HEAD_REPO" = "$REPO" ]; then
+            echo "PR de branch do próprio repositório: liberado."
+            exit 0
+          fi
+          case "$ASSOCIACAO" in
+            OWNER|MEMBER|COLLABORATOR)
+              echo "PR de colaborador ($ASSOCIACAO): liberado."
+              exit 0
+              ;;
+          esac
+
+          falhou=0
+          if [ "$BASE" != "dev" ]; then
+            msg="Este PR aponta para a branch '$BASE'. Contribuições de fora do time entram só pela 'dev': clique em 'Edit' ao lado do título do PR e troque a base para 'dev'. O check roda de novo sozinho."
+            echo "::error title=Alvo do PR::$msg"
+            echo "- $msg" >> "$GITHUB_STEP_SUMMARY"
+            falhou=1
+          fi
+          if [ "$HEAD_REF" = "dev" ] || [ "$HEAD_REF" = "main" ]; then
+            msg="Este PR sai da branch '$HEAD_REF' do seu fork. Crie uma branch separada a partir da 'dev' (ex.: 'feat/minha-mudanca'), mova os commits para ela e abra um PR novo a partir dela."
+            echo "::error title=Branch de origem::$msg"
+            echo "- $msg" >> "$GITHUB_STEP_SUMMARY"
+            falhou=1
+          fi
+          if [ "$falhou" = 1 ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "Veja a seção \"Fluxo\" do CONTRIBUTING.md." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo "PR de fork para a dev a partir de branch própria: liberado."
