@@ -1,0 +1,32 @@
+name: Bug
+description: Algo não funciona como deveria.
+title: 'fix: '
+labels: [bug]
+body:
+  - type: textarea
+    id: o-que-aconteceu
+    attributes:
+      label: O que aconteceu
+      description: Descreva o problema e o que você esperava que acontecesse.
+    validations:
+      required: true
+  - type: textarea
+    id: passos
+    attributes:
+      label: Passos para reproduzir
+      placeholder: |
+        1. Entre como aluno
+        2. Abra a tela ...
+        3. Clique em ...
+    validations:
+      required: true
+  - type: input
+    id: ambiente
+    attributes:
+      label: Navegador e dispositivo
+      placeholder: Chrome 140 no Android, Safari no macOS...
+  - type: textarea
+    id: evidencias
+    attributes:
+      label: Prints ou mensagem de erro
+      description: Não cole dado pessoal, senha nem chave do Supabase.
