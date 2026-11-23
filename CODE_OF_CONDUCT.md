@@ -53,8 +53,10 @@ uma conta oficial ou atuando como representante em um evento online ou presencia
 ## Aplicação
 
 Casos de comportamento abusivo, de assédio ou de algum outro modo inaceitável podem ser reportados
-aos mantenedores em `[E-MAIL DE CONTATO DA EQUIPE]`. Todas as denúncias serão analisadas e
-investigadas com rapidez e de forma justa.
+pelo próprio GitHub: no menu **...** do comentário, da issue ou do PR, use **Report content**. A
+denúncia vai para a moderação do GitHub, e os mantenedores podem ocultar comentários e bloquear
+quem violar este código. O projeto não tem e-mail de contato. Todas as denúncias serão analisadas
+e investigadas com rapidez e de forma justa.
 
 Os mantenedores são obrigados a respeitar a privacidade e a segurança de quem reportou qualquer
 incidente.

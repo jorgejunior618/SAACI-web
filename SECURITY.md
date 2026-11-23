@@ -8,9 +8,9 @@ Só a branch `main`, a que está em produção, recebe correção de segurança.
 
 **Não abra issue pública**, porque ela expõe a falha antes da correção.
 
-1. Na aba **Security** do repositório, use **Report a vulnerability**. O relato fica privado e só
-   os mantenedores o veem.
-2. Se essa opção não aparecer, escreva para `[E-MAIL DE CONTATO DA EQUIPE]`.
+Na aba **Security** do repositório, use **Report a vulnerability**. O relato fica privado, só os
+mantenedores o veem, e a conversa sobre a correção acontece ali mesmo. O projeto não tem e-mail de
+contato: esse é o único canal.
 
 Informe no relato:
 
@@ -20,6 +20,6 @@ Informe no relato:
 
 ## O que esperar
 
-- Confirmação de recebimento em até `[PRAZO DE RESPOSTA]`.
+- Confirmação de recebimento em até 1 (uma) semana.
 - Depois da análise, avisamos se a falha foi aceita e quando a correção deve sair.
 - Quem reportar recebe o crédito na correção, se quiser.
