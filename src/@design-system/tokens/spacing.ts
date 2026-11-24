@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 // Escala de 4px. O nome é o múltiplo de 4.
 export const spacing = {
   '0': { value: '0' },

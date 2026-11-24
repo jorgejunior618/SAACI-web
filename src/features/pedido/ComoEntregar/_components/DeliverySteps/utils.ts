@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 import { formatHours } from '@/utils/format-hours'
 
 /** E-mail do protocolo do campus, por onde o aluno abre o pedido e acompanha a resposta. */

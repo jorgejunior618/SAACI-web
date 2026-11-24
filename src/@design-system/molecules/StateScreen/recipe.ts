@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 import { cva } from '@/styled-system/css'
 
 // Círculo de 56px em `surface` com borda de 1px em `line`, que guarda o ícone de 28px. 56px é a

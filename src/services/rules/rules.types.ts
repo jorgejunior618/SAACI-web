@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 import * as v from 'valibot'
 
 /** Curso que já tem as regras de atividades complementares cadastradas. */

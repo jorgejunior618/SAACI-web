@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 export { CourseLockedError } from './profile.errors'
 export { getProfile } from './profile.api'
 export { profileKeys } from './profile.keys'

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 /**
  * SQLSTATE que o gatilho `trava_troca_de_curso` lança quando o aluno troca de curso com atividades
  * (RF10). Está na migration `perfis`, e é por ele que o erro é reconhecido, não pelo texto.

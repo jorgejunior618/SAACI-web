@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 import { styled } from '@/styled-system/jsx'
 
 export const Root = styled('section', {
@@ -45,8 +48,6 @@ const row = {
 } as const
 
 export const RowLink = styled('a', { base: row })
-
-export const RowButton = styled('button', { base: row })
 
 export const Chevron = styled('span', {
   base: { display: 'flex', color: 'ink.subtle' },

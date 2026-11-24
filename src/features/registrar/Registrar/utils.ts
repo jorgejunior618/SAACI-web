@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 import type { ProofSuggestion } from '@/services/activities'
 import type { ActivityFormInput } from '@/utils/activity-form'
 import { formatBrDate } from '@/utils/br-date'

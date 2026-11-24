@@ -4,15 +4,27 @@ Aplicação web do SAACI, Sistema de Apoio Acadêmico Colaborativo do IFCE. Ajud
 as regras de atividades complementares, registrar comprovantes e acompanhar as horas antes de
 enviar o pedido à coordenação.
 
-> Fase atual: esqueleto inicial. O `src/` tem só a configuração, os tokens do design system, o
-> tema e uma página provisória em `/`. Telas e componentes entram um a um, especificados e
-> conferidos contra o catálogo do design system.
+> Fase atual: em desenvolvimento, como Trabalho de Conclusão de Curso, e em teste em produção em
+> <https://saaci.vercel.app>. Conta, regras do curso, perfil, atividades com comprovantes e
+> progresso já usam o Supabase. Telas e componentes entram um a um, especificados e validados pela
+> equipe.
 
 ## Stack
 
-Next.js, Panda CSS, TanStack Query, React Hook Form e Valibot. O backend será o Supabase, ainda não
-integrado. Detalhes em
-[`doc/tecnologia.md`](doc/tecnologia.md).
+Next.js, Panda CSS, TanStack Query, React Hook Form e Valibot, com Supabase (Postgres, Auth,
+Storage e RLS) no backend. Detalhes em [`doc/tecnologia.md`](doc/tecnologia.md).
+
+## Como contribuir
+
+Contribuições são bem-vindas. Antes de abrir um PR, leia:
+
+- [CONTRIBUTING.md](CONTRIBUTING.md): fluxo de fork e branch, PR para a `dev`, commits assinados
+  (DCO) e os checks do CI;
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md): como a comunidade se trata;
+- [SECURITY.md](SECURITY.md): como reportar uma vulnerabilidade em privado, nunca em issue pública;
+- [GOVERNANCE.md](GOVERNANCE.md): quem mantém o projeto e como as decisões são tomadas.
+
+Bug e sugestão entram pelos templates de issue. Dúvidas vão para o Discussions.
 
 ## Como rodar
 
@@ -340,4 +352,11 @@ Os comandos `pnpm db:*` estão na seção [Banco local](#banco-local).
 
 ## Licença
 
-[MIT](LICENSE).
+Copyright (C) 2026 Contribuidores do SAACI. Cada pessoa mantém o copyright do que escreveu, e a
+lista de autores está em [AUTHORS](AUTHORS).
+
+Distribuído sob a [GNU Affero General Public License v3.0](LICENSE) (`AGPL-3.0-only`).
+
+Você pode usar, estudar, modificar e redistribuir o código. Quem distribuir uma versão modificada,
+ou colocá-la no ar para outras pessoas usarem pela rede, precisa disponibilizar o código-fonte dessa
+versão sob a mesma licença.

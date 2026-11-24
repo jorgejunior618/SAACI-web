@@ -22,6 +22,49 @@ const importCustomGroups = [
   { groupName: 'styles', elementNamePattern: '^\\./styles$' },
 ]
 
+// Cabeçalho de licença de todo arquivo de src/ (CONTRIBUTING.md, "Cabeçalho de licença"). Regra
+// local e não plugin: são poucas linhas, e o `--fix` do lint-staged insere o cabeçalho no commit.
+// Cabeçalho que começa com SPDX mas tem outro texto não é corrigido sozinho, para não duplicar.
+const licenseHeader = [
+  '// SPDX-License-Identifier: AGPL-3.0-only',
+  '// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.',
+].join('\n')
+
+const saaciPlugin = {
+  rules: {
+    'license-header': {
+      meta: {
+        type: 'problem',
+        fixable: 'code',
+        schema: [],
+        messages: {
+          missing: 'Falta o cabeçalho de licença. Rode `pnpm lint:fix` para inserir.',
+          different:
+            'Cabeçalho de licença diferente do modelo do CONTRIBUTING.md. Troque pelas duas linhas do modelo.',
+        },
+      },
+      create(context) {
+        return {
+          Program() {
+            const text = context.sourceCode.getText()
+            if (text.startsWith(licenseHeader)) return
+            const loc = { line: 1, column: 0 }
+            if (text.startsWith('// SPDX-License-Identifier')) {
+              context.report({ loc, messageId: 'different' })
+              return
+            }
+            context.report({
+              loc,
+              messageId: 'missing',
+              fix: (fixer) => fixer.insertTextBeforeRange([0, 0], `${licenseHeader}\n\n`),
+            })
+          },
+        }
+      },
+    },
+  },
+}
+
 const eslintConfig = [
   {
     ignores: [
@@ -50,6 +93,12 @@ const eslintConfig = [
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
     },
+  },
+  // Cabeçalho de licença. O código gerado já está nos `ignores` globais.
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    plugins: { saaci: saaciPlugin },
+    rules: { 'saaci/license-header': 'error' },
   },
   // Ordem dos imports e dos nomes importados. Corrige sozinho com `pnpm lint:fix`.
   {

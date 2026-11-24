@@ -1,0 +1,56 @@
+name: Release
+
+# Publica uma versão do que está na `main` (ADR 0022): calcula o próximo semver pelos commits desde
+# a última tag (scripts/next-version.mjs), cria a tag `vX.Y.Z` e o GitHub Release com as notas
+# geradas pelo GitHub. A página de Releases é o changelog do projeto. Só cria tag: nada é commitado
+# na `main`, que bloqueia push direto. Rodar em Actions → Release → Run workflow, com a `main`
+# selecionada. O botão só aparece depois que este arquivo estiver na branch padrão.
+on:
+  workflow_dispatch:
+    inputs:
+      versao:
+        description: 'Versão X.Y.Z, sem o "v". Vazio calcula pelos commits.'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    name: Publicar a versão
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      VERSAO_PEDIDA: ${{ inputs.versao }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Calcular a versão
+        id: versao
+        run: |
+          versao=$(node scripts/next-version.mjs $VERSAO_PEDIDA)
+          echo "versao=$versao" >> "$GITHUB_OUTPUT"
+          echo "Versão: v$versao" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Criar a tag e o Release
+        env:
+          VERSAO: ${{ steps.versao.outputs.versao }}
+        run: |
+          gh release create "v$VERSAO" \
+            --target "$GITHUB_SHA" \
+            --title "v$VERSAO" \
+            --generate-notes
+          echo "Release: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/v$VERSAO" >> "$GITHUB_STEP_SUMMARY"

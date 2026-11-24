@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 /** O que o filtro lê de cada item: o nome e a regra, os dois textos que o aluno reconhece. */
 export type SearchableItem = {
   name: string

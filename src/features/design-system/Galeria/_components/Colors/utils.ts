@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 /** Uma cor semântica pronta para exibir: nome, variável CSS do Panda e os valores dos dois temas. */
 export type ColorSwatch = {
   /** Nome como o componente usa, por exemplo `surface.sunken`. */

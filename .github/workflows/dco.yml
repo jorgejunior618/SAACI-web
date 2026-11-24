@@ -1,0 +1,77 @@
+name: DCO
+
+# Toda contribuição entra sob a mesma licença do projeto (AGPL-3.0-only), e quem contribui declara
+# isso assinando o Developer Certificate of Origin (https://developercertificate.org) com
+# `git commit -s`. Este job confere se cada commit do PR para a `dev` tem a linha
+# "Signed-off-by:" com o e-mail do autor do commit (CONTRIBUTING.md, seção "Licença e DCO").
+#
+# Só PR para a `dev`: a `main` recebe só o que já passou pela `dev`. Ficam de fora o commit de
+# merge, que não traz código novo, e o de bot, como o Dependabot. Nenhum código do PR é baixado:
+# os commits vêm da API, e os valores entram por env.
+on:
+  pull_request:
+    branches: [dev]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: dco-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  conferir:
+    name: Assinatura DCO dos commits
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      PR: ${{ github.event.pull_request.number }}
+    steps:
+      - name: Conferir Signed-off-by em cada commit
+        run: |
+          # Um commit por linha, em JSON, com o que interessa para a conferência.
+          gh api "repos/$REPO/pulls/$PR/commits" --paginate --jq '.[] | {
+              sha: .sha[0:7],
+              email: (.commit.author.email | ascii_downcase),
+              bot: ((.author.type // "") == "Bot"),
+              merge: ((.parents | length) > 1),
+              assinaturas: [.commit.message | scan("(?mi)^Signed-off-by: .*<([^>]+)>\\s*$") | .[0] | ascii_downcase]
+            } | tojson' > commits.jsonl
+
+          falhou=0
+          while IFS= read -r c; do
+            sha=$(jq -r .sha <<<"$c")
+            if [ "$(jq -r '.merge or .bot' <<<"$c")" = true ]; then
+              echo "$sha: merge ou bot, ignorado."
+              continue
+            fi
+            if [ "$(jq -r '.email as $e | .assinaturas | index($e) != null' <<<"$c")" = true ]; then
+              echo "$sha: assinado."
+              continue
+            fi
+            email=$(jq -r .email <<<"$c")
+            msg="O commit $sha não tem 'Signed-off-by:' com o e-mail do autor ($email)."
+            echo "::error title=DCO::$msg"
+            echo "- $msg" >> "$GITHUB_STEP_SUMMARY"
+            falhou=1
+          done < commits.jsonl
+
+          if [ "$falhou" = 1 ]; then
+            total=$(wc -l < commits.jsonl | tr -d ' ')
+            {
+              echo ""
+              echo "Para assinar os $total commits do PR, rode na sua branch:"
+              echo ""
+              echo '```bash'
+              echo "git rebase --signoff HEAD~$total"
+              echo 'git push --force-with-lease'
+              echo '```'
+              echo ""
+              echo "Nos próximos commits, use \`git commit -s\`. Veja a seção \"Licença e DCO\" do CONTRIBUTING.md."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
