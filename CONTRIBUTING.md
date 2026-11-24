@@ -100,6 +100,17 @@ aprovações anteriores), **CI verde** e **todas as conversas do review resolvid
 O CI verde são os jobs "Formato, lint, tipos, testes e build", "Banco, tipos e testes pgTAP" e
 "Alvo e branch do PR". Na `dev`, PR de fora também precisa do "Assinatura DCO dos commits".
 
+## Releases
+
+A versão segue o [Versionamento Semântico](https://semver.org/lang/pt-BR/) e é calculada pelos
+tipos dos commits desde a última tag: `feat` sobe o minor, `fix` e `perf` sobem o patch, e breaking
+change sobe o major (o minor enquanto a versão for 0.x). Por isso, o tipo do commit e o título do
+PR importam: o título vira a linha da nota do release.
+
+Depois do merge `dev` → `main`, um mantenedor roda **Actions → Release → Run workflow** com a
+`main` selecionada. O workflow cria a tag `vX.Y.Z` e o GitHub Release com as notas. O histórico
+fica em [CHANGELOG.md](CHANGELOG.md), que aponta para a página de Releases (ADR 0022).
+
 ## Regras do código
 
 - TypeScript `strict`, sem `any`.
