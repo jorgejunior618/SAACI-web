@@ -12,6 +12,7 @@ import { useForm } from 'react-hook-form'
 
 import { AppFrame, Button, Link, Notice, TextField } from '@design-system'
 
+import { SOURCE_CODE_URL } from '@/constants/source-code'
 import { AccessHeader } from '@/features/acesso/_components/AccessHeader'
 import {
   accountKeys,
@@ -32,7 +33,8 @@ const CREDENTIALS_ERROR = 'A senha não confere. Confira o Caps Lock e tente de 
  * @remarks
  * Ao entrar, só grava a sessão no cache. Quem leva a pessoa para o painel é o `SessionGate` do grupo
  * `(publico)`, que percebe a sessão. E-mail ainda não confirmado segue para Confirme seu e-mail. O
- * que a pessoa digitou nunca é limpo depois de um erro (RNF24).
+ * que a pessoa digitou nunca é limpo depois de um erro (RNF24). Abaixo do Criar conta, o link do
+ * código-fonte abre o repositório em outra aba (oferta do código pela rede, AGPL-3.0).
  *
  * @example
  * ```tsx
@@ -128,6 +130,9 @@ export function Entrar(): ReactNode {
           <Button as={NextLink} href="/criar-conta" variant="secondary" block>
             Criar conta
           </Button>
+          <Link href={SOURCE_CODE_URL} target="_blank" rel="noopener noreferrer" isStandalone>
+            Código-fonte do SAACI
+          </Link>
         </S.Footer>
       </S.Page>
     </AppFrame>
