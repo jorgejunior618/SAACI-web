@@ -20,6 +20,7 @@ import { CourseCard } from '../CourseCard'
 import { DeleteAccount } from '../DeleteAccount'
 import { EditableRow } from '../EditableRow'
 import { ProfileHeader } from '../ProfileHeader'
+import { SignOutButton } from '../SignOutButton'
 import * as S from './styles'
 
 const NAME_NOT_INFORMED = 'Não informado'
@@ -36,8 +37,8 @@ export type ProfileContentProps = {
 }
 
 /**
- * Corpo do Perfil de quem já escolheu o curso: dados, curso, aviso de privacidade, Sair e Apagar
- * conta.
+ * Corpo do Perfil de quem já escolheu o curso: dados, curso, aviso de privacidade e código-fonte e,
+ * abaixo da divisória, Sair e Apagar conta.
  *
  * @remarks
  * Nome, matrícula e semestre de início se editam na própria linha. O nome vai no formulário da
@@ -127,7 +128,11 @@ export function ProfileContent({ profile, courseId, email }: ProfileContentProps
         </S.Section>
 
         <AboutCard />
-        <DeleteAccount />
+
+        <S.AccountActions>
+          <SignOutButton />
+          <DeleteAccount />
+        </S.AccountActions>
       </S.Page>
     </AppFrame>
   )

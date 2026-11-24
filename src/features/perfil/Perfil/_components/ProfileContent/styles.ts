@@ -58,3 +58,17 @@ export const DataCard = styled('div', {
     overflow: 'hidden',
   },
 })
+
+// Sair e Apagar minha conta, separados do resto por uma divisória: são as ações que tiram a pessoa
+// da conta.
+export const AccountActions = styled('div', {
+  base: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4',
+    paddingBlockStart: '6',
+    borderBlockStartWidth: '1px',
+    borderBlockStartStyle: 'solid',
+    borderBlockStartColor: 'line',
+  },
+})

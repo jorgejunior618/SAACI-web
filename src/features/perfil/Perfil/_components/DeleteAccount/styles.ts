@@ -3,17 +3,9 @@
 
 import { styled } from '@/styled-system/jsx'
 
-// Separado do resto por uma divisória: é a única ação que não tem volta.
+// A divisória acima fica no `ProfileContent`, que agrupa o Sair e este bloco.
 export const Root = styled('section', {
-  base: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2',
-    paddingBlockStart: '6',
-    borderBlockStartWidth: '1px',
-    borderBlockStartStyle: 'solid',
-    borderBlockStartColor: 'line',
-  },
+  base: { display: 'flex', flexDirection: 'column', gap: '2' },
 })
 
 export const Action = styled('a', {

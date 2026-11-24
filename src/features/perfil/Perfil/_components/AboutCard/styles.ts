@@ -49,8 +49,6 @@ const row = {
 
 export const RowLink = styled('a', { base: row })
 
-export const RowButton = styled('button', { base: row })
-
 export const Chevron = styled('span', {
   base: { display: 'flex', color: 'ink.subtle' },
 })

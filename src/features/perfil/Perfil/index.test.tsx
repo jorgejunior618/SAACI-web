@@ -147,6 +147,22 @@ describe('Perfil', () => {
     )
   })
 
+  it('oferece o código-fonte em outra aba e mostra o Sair junto do Apagar minha conta', async () => {
+    renderPerfil()
+
+    const sourceCode = await screen.findByRole('link', { name: 'Código-fonte' })
+    expect(sourceCode).toHaveAttribute('href', 'https://github.com/jorgejunior618/SAACI-web')
+    expect(sourceCode).toHaveAttribute('target', '_blank')
+
+    // O Sair fica no mesmo grupo do Apagar minha conta, abaixo da divisória, e vem antes dele.
+    const signOut = screen.getByRole('button', { name: 'Sair' })
+    const deleteAccount = screen.getByRole('link', { name: 'Apagar minha conta' })
+    expect(signOut.parentElement?.parentElement).toBe(deleteAccount.parentElement?.parentElement)
+    expect(
+      signOut.compareDocumentPosition(deleteAccount) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+  })
+
   it('salva o nome novo, mostra o valor e avisa que ele já entra no formulário', async () => {
     const user = userEvent.setup()
 

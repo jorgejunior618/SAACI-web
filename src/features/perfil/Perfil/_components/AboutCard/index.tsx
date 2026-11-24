@@ -1,24 +1,23 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
 
-'use client'
-
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, ExternalLink } from 'lucide-react'
 import NextLink from 'next/link'
 import type { ReactNode } from 'react'
 
-import { Icon, Notice } from '@design-system'
+import { Icon } from '@design-system'
 
-import { useSignOut } from '@/hooks/use-sign-out'
+import { SOURCE_CODE_URL } from '@/constants/source-code'
 
 import * as S from './styles'
 
 /**
- * Cartão "Sobre o SAACI" do Perfil: o aviso de privacidade e o Sair.
+ * Cartão "Sobre o SAACI" do Perfil: o aviso de privacidade e o código-fonte.
  *
  * @remarks
- * Sair usa `useSignOut`: encerra a sessão, esvazia o cache (RNF04) e leva para Entrar. Se falhar, uma
- * frase diz o que fazer e a pessoa continua na tela. O Seu curso usa o mesmo hook com outro desenho.
+ * O código-fonte abre o repositório em outra aba, com o ícone de link externo no lugar da seta,
+ * porque sai do sistema. Ele cumpre a oferta do código a quem usa o SAACI pela rede (AGPL-3.0). O
+ * Sair fica abaixo do separador, junto do Apagar minha conta (`SignOutButton`).
  *
  * @example
  * ```tsx
@@ -26,8 +25,6 @@ import * as S from './styles'
  * ```
  */
 export function AboutCard(): ReactNode {
-  const signOutMutation = useSignOut()
-
   return (
     <S.Root>
       <S.Title>Sobre o SAACI</S.Title>
@@ -38,21 +35,13 @@ export function AboutCard(): ReactNode {
             <Icon icon={ChevronRight} size="sm" />
           </S.Chevron>
         </S.RowLink>
-        <S.RowButton
-          type="button"
-          aria-busy={signOutMutation.isPending}
-          onClick={() => {
-            if (!signOutMutation.isPending) signOutMutation.mutate()
-          }}
-        >
-          {signOutMutation.isPending ? 'Saindo' : 'Sair'}
-        </S.RowButton>
+        <S.RowLink href={SOURCE_CODE_URL} target="_blank" rel="noopener noreferrer">
+          <span>Código-fonte</span>
+          <S.Chevron>
+            <Icon icon={ExternalLink} size="sm" />
+          </S.Chevron>
+        </S.RowLink>
       </S.List>
-      {signOutMutation.isError ? (
-        <Notice tone="danger">
-          Não conseguimos sair agora. Confira sua internet e toque em Sair de novo.
-        </Notice>
-      ) : null}
     </S.Root>
   )
 }

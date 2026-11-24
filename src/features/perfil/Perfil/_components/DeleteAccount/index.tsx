@@ -10,8 +10,8 @@ import * as S from './styles'
  * Bloco "Apagar minha conta" do Perfil: o link para a tela de exclusão e o que ela apaga.
  *
  * @remarks
- * Só navega. Quem pede a senha e apaga é a tela Excluir conta. O texto em vermelho e a divisória
- * acima separam a ação irreversível das demais.
+ * Só navega. Quem pede a senha e apaga é a tela Excluir conta. O texto em vermelho marca a ação
+ * irreversível. A divisória acima, que separa o Sair e este bloco do resto, fica no `ProfileContent`.
  *
  * @example
  * ```tsx
