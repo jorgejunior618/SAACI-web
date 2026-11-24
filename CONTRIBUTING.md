@@ -42,6 +42,10 @@ Todo arquivo `.ts` e `.tsx` de `src/` começa com estas duas linhas, inclusive a
 // Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
 ```
 
+O ESLint cobra o cabeçalho (regra `saaci/license-header`), e o `pnpm lint:fix` insere as duas linhas
+quando elas faltam. O hook do commit faz o mesmo nos arquivos alterados, então arquivo novo ganha o
+cabeçalho sozinho.
+
 Ficam de fora o código gerado: `src/styled-system/` e `src/@supabase/database.types.ts`. Na
 primeira contribuição, acrescente seu nome e o link do seu perfil do GitHub ao [AUTHORS](AUTHORS)
 no mesmo PR, no formato `Nome <https://github.com/usuario>`.
