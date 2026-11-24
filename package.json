@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "description": "Aplicação web do SAACI, Sistema de Apoio Acadêmico Colaborativo do IFCE.",
-  "license": "MIT",
+  "license": "AGPL-3.0-only",
   "packageManager": "pnpm@12.16.1",
   "engines": {
     "node": ">=22.12.0"

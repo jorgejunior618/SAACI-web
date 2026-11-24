@@ -340,4 +340,11 @@ Os comandos `pnpm db:*` estão na seção [Banco local](#banco-local).
 
 ## Licença
 
-[MIT](LICENSE).
+Copyright (C) 2026 Contribuidores do SAACI. Cada pessoa mantém o copyright do que escreveu, e a
+lista de autores está em [AUTHORS](AUTHORS).
+
+Distribuído sob a [GNU Affero General Public License v3.0](LICENSE) (`AGPL-3.0-only`).
+
+Você pode usar, estudar, modificar e redistribuir o código. Quem distribuir uma versão modificada,
+ou colocá-la no ar para outras pessoas usarem pela rede, precisa disponibilizar o código-fonte dessa
+versão sob a mesma licença.

@@ -10,6 +10,29 @@ Obrigado pelo interesse no SAACI-web. Este guia diz como propor uma mudança do 
 - Para mudança grande, abra uma issue antes e combine a ideia com a equipe.
 - Siga o [Código de Conduta](CODE_OF_CONDUCT.md).
 
+## Licença e DCO
+
+O SAACI-web é distribuído sob a [GNU AGPL v3.0](LICENSE) (`AGPL-3.0-only`). Toda contribuição
+entra sob essa mesma licença, e o copyright de cada trecho continua sendo de quem o escreveu.
+
+Para declarar isso, cada commit leva a assinatura do
+[Developer Certificate of Origin](https://developercertificate.org) (DCO). Com ela, você afirma
+que escreveu a mudança ou que tem o direito de enviá-la sob a licença do projeto. Para assinar,
+basta usar `-s` no commit:
+
+```bash
+git commit -s -m "feat: adiciona o painel de horas"
+```
+
+O `-s` acrescenta ao final da mensagem a linha
+`Signed-off-by: Seu Nome <seu-email@exemplo.com>`, com o nome e o e-mail do `git config`. O
+e-mail precisa ser o mesmo do autor do commit.
+
+O check **"Assinatura DCO dos commits"** confere todo PR para a `dev`. Se ele reprovar, a
+mensagem do check diz quantos commits assinar de uma vez com `git rebase --signoff` e como
+mandar de novo com `git push --force-with-lease`. Colaborador que dá push direto na `dev` também
+assina os commits.
+
 ## Fluxo
 
 ### Quem não é colaborador do repositório
@@ -19,7 +42,8 @@ Obrigado pelo interesse no SAACI-web. Este guia diz como propor uma mudança do 
    `docs/`, `refactor/`, `test/` ou `chore/`. Exemplo: `feat/painel-de-horas`. PR que sai da
    `dev` ou da `main` do fork é reprovado.
 3. Faça commits em [Conventional Commits](https://www.conventionalcommits.org/pt-br/), com o
-   assunto em português. O hook do Husky confere a mensagem com o commitlint.
+   assunto em português e assinados com `git commit -s` (seção "Licença e DCO"). O hook do Husky
+   confere a mensagem com o commitlint.
 4. Antes de abrir o PR, rode:
 
    ```bash
@@ -57,7 +81,7 @@ aprovações anteriores), **CI verde** e **todas as conversas do review resolvid
 | `dev`  | só colaboradores | PR de fora: 2 aprovações e CI verde      | bloqueados            |
 
 O CI verde são os jobs "Formato, lint, tipos, testes e build", "Banco, tipos e testes pgTAP" e
-"Alvo e branch do PR".
+"Alvo e branch do PR". Na `dev`, PR de fora também precisa do "Assinatura DCO dos commits".
 
 ## Regras do código
 
