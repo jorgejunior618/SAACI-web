@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 import { styled } from '@/styled-system/jsx'
 
 // Separado do resto por uma divisória: é a única ação que não tem volta.

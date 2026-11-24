@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 import { render, screen } from '@testing-library/react'
 import { CalendarCheck, House, ListChecks, Plus, User } from 'lucide-react'
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'

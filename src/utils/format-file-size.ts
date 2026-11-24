@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 const BYTES_PER_MB = 1024 * 1024
 
 const numberFormat = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 })

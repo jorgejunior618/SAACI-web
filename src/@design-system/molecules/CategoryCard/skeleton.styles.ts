@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 import { styled } from '@/styled-system/jsx'
 
 // Bloco base do esqueleto: trilho de progresso, raio `control` e o pulso do tema.

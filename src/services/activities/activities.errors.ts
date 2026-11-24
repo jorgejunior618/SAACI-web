@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 import { END_BEFORE_START_MESSAGE } from './activities.types'
 
 /** A atividade não existe ou é de outro aluno. A tela mostra o "não encontrado" da entidade. */

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 import * as v from 'valibot'
 
 // Direto do arquivo de tipos, sem o barrel: o barrel traz mutations e o cliente do Supabase, e

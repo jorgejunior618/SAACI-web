@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 const BR_DATE = /^(\d{2})\/(\d{2})\/(\d{4})$/
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/
 

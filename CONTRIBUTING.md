@@ -33,6 +33,19 @@ mensagem do check diz quantos commits assinar de uma vez com `git rebase --signo
 mandar de novo com `git push --force-with-lease`. Colaborador que dá push direto na `dev` também
 assina os commits.
 
+### Cabeçalho de licença
+
+Todo arquivo `.ts` e `.tsx` de `src/` começa com estas duas linhas, inclusive arquivo novo:
+
+```ts
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+```
+
+Ficam de fora o código gerado: `src/styled-system/` e `src/@supabase/database.types.ts`. Na
+primeira contribuição, acrescente seu nome e o link do seu perfil do GitHub ao [AUTHORS](AUTHORS)
+no mesmo PR, no formato `Nome <https://github.com/usuario>`.
+
 ## Fluxo
 
 ### Quem não é colaborador do repositório

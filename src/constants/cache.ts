@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 /**
  * Tempo, em milissegundos, que um dado buscado conta como atual antes de ser buscado de novo.
  * Use sempre uma destas chaves no `staleTime` da query, nunca um número solto.

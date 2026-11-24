@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 import { cva } from '@/styled-system/css'
 
 // Círculo de 20px: cheio e com check quando a regra vale, só contorno quando falta.

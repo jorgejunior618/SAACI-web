@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 import { cva } from '@/styled-system/css'
 
 // O número da tela: `display` traz o tabular-nums e a família; o tamanho de 56px (linha de 60px) e o

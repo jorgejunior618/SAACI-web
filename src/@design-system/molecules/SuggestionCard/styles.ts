@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// Copyright (C) 2026 Contribuidores do SAACI (ver AUTHORS). Texto completo em LICENSE.
+
 import { styled } from '@/styled-system/jsx'
 
 // Linha de status sem caixa: o spinner e a frase, na cor de apoio.
