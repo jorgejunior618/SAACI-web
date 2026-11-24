@@ -7,7 +7,7 @@ Como o SAACI-web é mantido e como as decisões são tomadas.
 | Papel        | Quem                                                                                                        | O que faz                                                                                                    |
 | ------------ | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | Mantenedor   | [Jorge Junior](https://github.com/jorgejunior618), [Jardel Brasiliano](https://github.com/JardelBrasiliano) | Revisa e faz merge de PRs, decide o rumo técnico, publica releases e aplica o Código de Conduta.             |
-| Orientador   | [NOME DO ORIENTADOR] ([reinaldobbraga](https://github.com/reinaldobbraga))                                  | Acompanha o projeto como orientador do TCC, valida escopo e decisões acadêmicas e resolve impasses.          |
+| Orientador   | [Reinaldo Bezerra Braga](https://github.com/reinaldobbraga)                                                 | Acompanha o projeto como orientador do TCC, valida escopo e decisões acadêmicas e resolve impasses.          |
 | Contribuidor | Quem abre issue ou PR                                                                                       | Propõe mudanças pelo fluxo do [CONTRIBUTING.md](CONTRIBUTING.md). Entra no [AUTHORS](AUTHORS) ao contribuir. |
 
 ## Como as decisões são tomadas
